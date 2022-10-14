@@ -1,0 +1,6 @@
+*.pcapng
+*.tx
+.vscode
+raw
+/nudelta
+/build
