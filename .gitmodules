@@ -1,0 +1,9 @@
+[submodule "submodules/hidapi"]
+	path = submodules/hidapi
+	url = https://github.com/libusb/hidapi
+[submodule "submodules/fmt"]
+	path = submodules/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "submodules/yaml-cpp"]
+	path = submodules/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

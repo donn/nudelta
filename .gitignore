@@ -1,6 +1,14 @@
+# Reversing
 *.pcapng
 *.tx
-.vscode
+*.txt
 raw
+
+# App
+/.vscode
 /nudelta
 /build
+!scancodes.txt
+*.bin
+*.hex
+!CMakeLists.txt

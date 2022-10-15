@@ -1,99 +1,238 @@
+/*
+    Nudelta Console
+    Copyright (C) 2022 Mohamed Gaber
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #include "air75.hpp"
 #include "defer.hpp"
+#include "ssco.hpp"
 
-#include <codecvt>
-#include <cstdint>
-#include <cstdlib>
-#include <cwchar>
-#include <exception>
-#include <fmt/core.h>
-#include <hidapi/hidapi.h>
+#include <fstream>
+#include <hidapi.h>
 #include <iostream>
-#include <locale>
-#include <optional>
-#include <string>
-#include <vector>
+#include <yaml-cpp/yaml.h>
+#define MAX_STR         255
 
-#define MAX_STR 255
+#define NUDELTA_VERSION "0.0.1"
 
-const size_t MAX_READABLE_SIZE = 0x7FF;
-const size_t REQUEST_SIZE = 6;
-const uint8_t REQUEST_0[] = {0x05, 0x83, 0xb6, 0x00, 0x00, 0x00};
-const uint8_t REQUEST_1[] = {0x05, 0x88, 0xb8, 0x00, 0x00, 0x00};
-const uint8_t REQUEST_2[] =
-    {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}; // Windows Mode Keymap
-
-int get_report(
-    hid_device *handle,
-    const uint8_t *requestInfo,
-    uint8_t *readBuffer) {
-    auto bytesWritten =
-        hid_send_feature_report(handle, requestInfo, REQUEST_SIZE);
-    if (bytesWritten < 0) {
-        throw std::runtime_error("Failed to write to keyboard");
-    } else {
-        fmt::print(stderr, "Wrote {} bytes.\n", bytesWritten);
-    }
-    readBuffer[0] = 0x06;
-    auto bytesRead =
-        hid_get_feature_report(handle, readBuffer, MAX_READABLE_SIZE);
-    if (bytesRead < 0) {
-        throw std::runtime_error("Failed to read from keyboard");
-    } else {
-        fmt::print(stderr, "Read {} bytes.\n", bytesRead);
+Air75 getKeyboard() {
+    auto air75Optional = Air75::find();
+    if (!air75Optional.has_value()) {
+        p(stderr, "Couldn't find a NuPhy Air75 connected to this computer.\n");
+        exit(EX_UNAVAILABLE);
     }
 
-    return bytesRead;
+    auto air75 = air75Optional.value();
+
+    p("Found NuPhy Air75 at path {} (Firmware {:04x})\n",
+      air75.path,
+      air75.firmware);
+
+    return air75;
+}
+
+SSCO_Fn(printVersion) {
+    p("nudelta console v{}\n", NUDELTA_VERSION);
+    p("Copyright (c) Mohamed Gaber 2022\n");
+    p(R"(
+Licensed under the GNU General Public License, version 3, or at your option,
+any later version.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+)");
+}
+
+SSCO_Fn(printFirmware) {
+    auto air75 = getKeyboard();
+}
+
+SSCO_Fn(resetKeymap) {
+    auto air75 = getKeyboard();
+    air75.resetKeymap();
+}
+
+SSCO_Fn(dumpKeymap) {
+    if (opts.arguments.size() != 1) {
+        p(stderr,
+          "Invalid argument count for dump-keymap ({}/1).\n",
+          opts.arguments.size());
+        exit(EX_USAGE);
+    }
+    auto air75 = getKeyboard();
+    auto keys = air75.getKeymap();
+    auto file = opts.arguments[0];
+    auto filePtr = fopen(file.c_str(), "wb");
+    defer {
+        fclose(filePtr);
+    };
+
+    // ALERT: Endianness-defined Behavior
+    auto seeker = (char *)&*keys.begin();
+    auto end = (char *)&*keys.end();
+    fwrite(seeker, 1, end - seeker, filePtr);
+
+    p("Wrote current keymap to '{}'.\n", file);
+
+    auto hexFileIterator = opts.options.find("dump-hex-to");
+    if (hexFileIterator != opts.options.end()) {
+        auto hexFile = hexFileIterator->second;
+        auto hexFilePtr = fopen(hexFile.c_str(), "w");
+        defer {
+            fclose(hexFilePtr);
+        };
+
+        prettyPrintBinary(
+            std::vector< uint8_t >(
+                (uint8_t *)&*keys.begin(),
+                (uint8_t *)&*keys.end()
+            ),
+            hexFilePtr
+        );
+
+        p("Wrote current keymap in hex format to '{}'.\n", hexFile);
+    }
+}
+
+SSCO_Fn(loadKeymap) {
+    if (opts.arguments.size() != 1) {
+        p(stderr,
+          "load-keymap requires a filename as a commandline argument.\n");
+        exit(EX_USAGE);
+    }
+    auto air75 = getKeyboard();
+    auto keys = air75.getKeymap();
+    auto file = opts.arguments[0];
+    auto filePtr = fopen(file.c_str(), "rb");
+    defer {
+        fclose(filePtr);
+    };
+
+    uint8_t readBuffer[1024];
+    fread(readBuffer, 1, sizeof readBuffer, filePtr);
+
+    // ALERT: Endianness-defined Behavior
+    auto keymap = std::vector< uint32_t >(
+        (uint32_t *)readBuffer,
+        (uint32_t *)(readBuffer + 1024)
+    );
+
+    air75.setKeymap(keymap);
+
+    p("Wrote keymap '{}' to keyboard.", file);
+}
+
+SSCO_Fn(loadYAML) {
+    auto air75 = getKeyboard();
+    auto configPath = opts.options.find("load-profile")->second;
+
+    std::string configStr;
+    std::getline(std::ifstream(configPath), configStr, '\0');
+
+    auto config = YAML::LoadFile(configPath);
+
+    if (config["keys"]) {
+        auto writableKeymap = Air75::defaultKeymap;
+        auto keys = config["keys"];
+        if (keys.Type() != YAML::NodeType::Map) {
+            p(stderr, "Invalid config file: key 'keys' is not a map.\n");
+            exit(EX_DATAERR);
+        }
+        for (auto entry : keys) {
+            auto keyID = entry.first.as< std::string >();
+            auto codeID = entry.second.as< std::string >();
+
+            auto keyIt = Air75::indicesByKeyName.find(keyID);
+            if (Air75::indicesByKeyName.find(keyID)
+                == Air75::indicesByKeyName.end()) {
+                p(stderr,
+                  "Invalid config file: a key for '{}' does not exist.\n",
+                  keyID);
+                exit(EX_DATAERR);
+            }
+
+            auto codeIt = Air75::keycodesByKeyName.find(codeID);
+            if (Air75::keycodesByKeyName.find(codeID)
+                == Air75::keycodesByKeyName.end()) {
+                p(stderr,
+                  "Invalid config file: a code for '{}' was not found.\n",
+                  codeID);
+                exit(EX_DATAERR);
+            }
+
+            auto key = keyIt->second;
+            auto code = codeIt->second;
+
+            writableKeymap[key] = code;
+        }
+        air75.setKeymap(writableKeymap);
+    }
 }
 
 int main(int argc, char *argv[]) {
-    unsigned char buf[65];
-    wchar_t wstr[MAX_STR];
+    using Opt = SSCO::Option;
 
-    // Initialize the hidapi library
-    if (hid_init()) {
-        fmt::print(stderr, "Failed to initialize HID library.\n");
-        return -1;
-    }
-    defer {
-        hid_exit();
-    };
+    SSCO::Options options(
+        {Opt{"help",
+             'h',
+             "Show this message and exit.",
+             false,
+             [&](SSCO::Result &_) { options.printHelp(std::cout); }},
+         Opt{"version",
+             'V',
+             "Show the current version of this app and exit.",
+             false,
+             printVersion},
+         Opt{"firmware",
+             'f',
+             "Print the Air75 keyboard's firmware and exit.",
+             false,
+             printFirmware},
+         Opt{"reset-keys",
+             'r',
+             "Restore the original keymap.",
+             false,
+             resetKeymap},
+         Opt{"dump-keys",
+             'D',
+             "Dump the keymap to a binary file.",
+             false,
+             dumpKeymap},
+         Opt{"dump-hex-to",
+             'H',
+             "When keys are dumped, also dump the keymap in a hex format to a text file.",
+             true,
+             std::nullopt},
+         Opt{"load-keys",
+             'L',
+             "Load the keymap from a binary file.",
+             false,
+             loadKeymap},
+         Opt{"load-profile", 'l', "Load YAML keymap", true, loadYAML}}
+    );
 
-    auto air75_optional = get_air75();
-    if (!air75_optional.has_value()) {
-        fmt::print(
-            stderr,
-            "Couldn't find a NuPhy Air75 connected to this computer.");
-        return -1;
-    }
+    auto opts = options.process(argc, argv);
 
-    auto air75 = air75_optional.value();
-
-    fmt::print(
-        "Found NuPhy Air75 at path {} (Firmware {:04x})\n",
-        air75.path,
-        air75.firmware);
-
-    auto handle = air75.handle();
-    defer {
-        hid_close(handle);
-    };
-
-    uint8_t readBuffer[2048];
-
-    auto bytesRead = get_report(handle, REQUEST_0, readBuffer);
-    for (size_t i = 0; i < bytesRead; i += 1) {
-        std::cout << (int)readBuffer[i] << " ";
-    }
-
-    bytesRead = get_report(handle, REQUEST_1, readBuffer);
-    for (size_t i = 0; i < bytesRead; i += 1) {
-        std::cout << (int)readBuffer[i] << " ";
-    }
-
-    bytesRead = get_report(handle, REQUEST_2, readBuffer);
-    for (size_t i = 0; i < bytesRead; i += 1) {
-        std::cout << (int)readBuffer[i] << " ";
+    if (opts.has_value()) {
+        if (!opts.value().options.size()) {
+            options.printHelp(std::cout);
+        }
+        return EX_OK;
+    } else {
+        options.printHelp(std::cout);
+        return EX_USAGE;
     }
 
     return 0;

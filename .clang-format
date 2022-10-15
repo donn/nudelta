@@ -1,6 +1,5 @@
 Language: Cpp
-AccessModifierOffset: 0
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveMacros: AcrossEmptyLinesAndComments
 AlignEscapedNewlines: Left
 AlignTrailingComments: false

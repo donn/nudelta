@@ -52,3 +52,17 @@ struct urb
     uint8_t *data;
 };
 ```
+
+# Keymap Format
+Each key appears to be assigned a word.
+
+The least significant byte is a scancode. The most significant byte is a qualifier of some kind.
+
+## Qualifiers
+00 -> Normal Key (uses 1st byte)
+06 -> Modifier (uses 1st byte)
+12 -> ?? (uses 2nd byte)
+0b -> ?? (uses 2nd byte)
+0c -> ?? (uses 2nd byte)
+0d -> ?? (uses 2nd byte)
+0e -> ?? (uses 1st byte)
