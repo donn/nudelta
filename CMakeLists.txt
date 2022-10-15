@@ -18,7 +18,7 @@ include_directories(include)
 
 add_custom_command(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
-     COMMAND python3 ${CMAKE_CURRENT_LIST_DIR}/res/to_cpp.py > ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
+     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/res/to_cpp.py > ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
 )
 add_custom_target(res_file ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 
@@ -32,3 +32,5 @@ target_link_options(nudelta PRIVATE -static-libgcc -static-libstdc++)
 target_link_libraries(nudelta PRIVATE hidapi::libusb)
 target_link_libraries(nudelta PRIVATE yaml-cpp)
 target_link_libraries(nudelta PRIVATE fmt)
+
+install(TARGETS nudelta)

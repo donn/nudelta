@@ -44,7 +44,8 @@ std::optional< Air75 > Air75::find() {
             } else {
 
                 if (seeker->product_string == nullptr) {
-                    throw std::runtime_error("Couldn't read HID product string"
+                    throw std::runtime_error(
+                        "Couldn't read HID info. You may need to run nudelta as sudo."
                     );
                 }
                 keyboard = Air75(

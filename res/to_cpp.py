@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import sys
 import yaml
 
 __dir__ = os.path.abspath(os.path.dirname(__file__))

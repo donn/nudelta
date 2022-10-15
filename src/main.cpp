@@ -30,8 +30,9 @@
 Air75 getKeyboard() {
     auto air75Optional = Air75::find();
     if (!air75Optional.has_value()) {
-        p(stderr, "Couldn't find a NuPhy Air75 connected to this computer.\n");
-        exit(EX_UNAVAILABLE);
+        throw std::runtime_error(
+            "Couldn't find a NuPhy Air75 connected to this device"
+        );
     }
 
     auto air75 = air75Optional.value();
@@ -62,19 +63,19 @@ SSCO_Fn(printFirmware) {
 SSCO_Fn(resetKeymap) {
     auto air75 = getKeyboard();
     air75.resetKeymap();
+    p("Wrote default keymap config to keyboard.\n");
 }
 
 SSCO_Fn(dumpKeymap) {
-    if (opts.arguments.size() != 1) {
-        p(stderr,
-          "Invalid argument count for dump-keymap ({}/1).\n",
-          opts.arguments.size());
-        exit(EX_USAGE);
-    }
     auto air75 = getKeyboard();
     auto keys = air75.getKeymap();
-    auto file = opts.arguments[0];
+    auto file = opts.options.find("dump-keys")->second;
     auto filePtr = fopen(file.c_str(), "wb");
+    if (!filePtr) {
+        throw std::runtime_error(
+            fmt::format("Failed to open '{}' for writing", file)
+        );
+    }
     defer {
         fclose(filePtr);
     };
@@ -90,6 +91,11 @@ SSCO_Fn(dumpKeymap) {
     if (hexFileIterator != opts.options.end()) {
         auto hexFile = hexFileIterator->second;
         auto hexFilePtr = fopen(hexFile.c_str(), "w");
+        if (!hexFilePtr) {
+            throw std::runtime_error(
+                fmt::format("Failed to open '{}' for writing", hexFile)
+            );
+        }
         defer {
             fclose(hexFilePtr);
         };
@@ -107,15 +113,15 @@ SSCO_Fn(dumpKeymap) {
 }
 
 SSCO_Fn(loadKeymap) {
-    if (opts.arguments.size() != 1) {
-        p(stderr,
-          "load-keymap requires a filename as a commandline argument.\n");
-        exit(EX_USAGE);
-    }
     auto air75 = getKeyboard();
     auto keys = air75.getKeymap();
-    auto file = opts.arguments[0];
+    auto file = opts.options.find("load-keys")->second;
     auto filePtr = fopen(file.c_str(), "rb");
+    if (!filePtr) {
+        throw std::runtime_error(
+            fmt::format("Failed to open '{}' for reading", file)
+        );
+    }
     defer {
         fclose(filePtr);
     };
@@ -147,8 +153,9 @@ SSCO_Fn(loadYAML) {
         auto writableKeymap = Air75::defaultKeymap;
         auto keys = config["keys"];
         if (keys.Type() != YAML::NodeType::Map) {
-            p(stderr, "Invalid config file: key 'keys' is not a map.\n");
-            exit(EX_DATAERR);
+            throw std::runtime_error(
+                "Invalid config file: key 'keys' is not a map.\n"
+            );
         }
         for (auto entry : keys) {
             auto keyID = entry.first.as< std::string >();
@@ -157,19 +164,21 @@ SSCO_Fn(loadYAML) {
             auto keyIt = Air75::indicesByKeyName.find(keyID);
             if (Air75::indicesByKeyName.find(keyID)
                 == Air75::indicesByKeyName.end()) {
-                p(stderr,
-                  "Invalid config file: a key for '{}' does not exist.\n",
-                  keyID);
-                exit(EX_DATAERR);
+                auto errorMessage = fmt::format(
+                    "Invalid config file: a key for '{}' does not exist.\n",
+                    keyID
+                );
+                throw std::runtime_error(errorMessage);
             }
 
             auto codeIt = Air75::keycodesByKeyName.find(codeID);
             if (Air75::keycodesByKeyName.find(codeID)
                 == Air75::keycodesByKeyName.end()) {
-                p(stderr,
-                  "Invalid config file: a code for '{}' was not found.\n",
-                  codeID);
-                exit(EX_DATAERR);
+                auto errorMessage = fmt::format(
+                    "Invalid config file: a code for '{}' was not found.\n",
+                    codeID
+                );
+                throw std::runtime_error(errorMessage);
             }
 
             auto key = keyIt->second;
@@ -178,6 +187,8 @@ SSCO_Fn(loadYAML) {
             writableKeymap[key] = code;
         }
         air75.setKeymap(writableKeymap);
+
+        p("Wrote keymap config in '{}' to keyboard.\n", configPath);
     }
 }
 
@@ -208,7 +219,7 @@ int main(int argc, char *argv[]) {
          Opt{"dump-keys",
              'D',
              "Dump the keymap to a binary file.",
-             false,
+             true,
              dumpKeymap},
          Opt{"dump-hex-to",
              'H',
@@ -218,7 +229,7 @@ int main(int argc, char *argv[]) {
          Opt{"load-keys",
              'L',
              "Load the keymap from a binary file.",
-             false,
+             true,
              loadKeymap},
          Opt{"load-profile", 'l', "Load YAML keymap", true, loadYAML}}
     );
