@@ -81,3 +81,7 @@ backslash: 160
 fwdslash: 64
 comma: 164
 period: 165
+
+# -- Non-standard
+screenshot: 78
+assistant: 84

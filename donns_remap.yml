@@ -2,4 +2,6 @@ keys:
   caps_lock: esc
   lalt: lmeta
   lmeta: lalt
-  ralt: lmeta
+  ralt: rmeta
+  screenshot: num9
+  assistant: num0

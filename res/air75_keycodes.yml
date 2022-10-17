@@ -4,6 +4,7 @@ lctrl: 0xe0000006
 lshift: 0xe1000006
 lalt: 0xe2000006
 lmeta: 0xe3000006
+rmeta: 0xe7000006 # <- Obtained by evtest on mac mode
 rctrl: 0xe4000006
 rshift: 0xe5000006
 ralt: 0xe6000006
@@ -42,6 +43,7 @@ num6: 0x23000000
 num7: 0x24000000
 num8: 0x25000000
 num9: 0x26000000
+num0: 0x27000000
 
 right: 0x4f000000
 left: 0x50000000

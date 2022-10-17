@@ -25,7 +25,7 @@
 #include <yaml-cpp/yaml.h>
 #define MAX_STR         255
 
-#define NUDELTA_VERSION "0.0.1"
+#define NUDELTA_VERSION "0.0.2"
 
 Air75 getKeyboard() {
     auto air75Optional = Air75::find();
