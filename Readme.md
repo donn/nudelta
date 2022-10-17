@@ -9,14 +9,15 @@ What this has:
 * The ability to back up and dump keymaps to binary formats
 * The ability to dump keymaps to a human-readable hex format
 * Loading keymap modifications from a `.yml` configuration file
+    * Includes modifying the key as well as adding meta/alt/ctrl/shift as modifiers
 
 What this DOESN'T have:
+* A GUI
+    * Would like to make one but it would take too much time.
+* Macros
+    * Need to reverse engineer those.
 * Support for Halo65/Air60
     * I don't have them.
-* A GUI
-    * Would like to make one but it would take too much time
-* Complex Remapping Features/Macros
-    * Need to reverse engineer those
 * RGB Control
     * I don't need that, personally.
 
@@ -29,7 +30,7 @@ Only tested on Linux so far, but I hope to also port this to macOS.
 ### Build Requirements
 * C++17 Compiler
 * Cmake
-* Python 3.6+
+* Python 3.6+ w/ Pyyaml
 
 ## Building
 ```sh
@@ -55,7 +56,11 @@ keys:
     caps_lock: esc
 ```
 
-You can find a list of keys in [res/air75_indices.yml](res/air75_indices.yml).
+See [example.yml](example.yml) for a profile and somewhat more detailed examples.
+
+You can find a list of:
+  * Replaceable keys in [res/air75_indices.yml](res/air75_indices.yml).
+  * Replacement keycodes in [res/air75_keycodes.yml](res/air75_keycodes.yml).
 
 ### Reset keymap to default
 ```sh

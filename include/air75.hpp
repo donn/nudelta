@@ -117,6 +117,8 @@ class Air75 {
             indicesByKeyName;
         static const std::unordered_map< std::string, uint32_t >
             keycodesByKeyName;
+        static const std::unordered_map< std::string, uint32_t >
+            modifiersByModifierName;
     private:
         std::vector< uint8_t > request0();
         std::vector< uint8_t > request1();

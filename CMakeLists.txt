@@ -15,6 +15,7 @@ add_subdirectory(submodules/fmt)
 add_subdirectory(submodules/yaml-cpp)
 
 include_directories(include)
+include_directories(res)
 
 add_custom_command(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
@@ -22,9 +23,7 @@ add_custom_command(
 )
 add_custom_target(res_file ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 
-file(GLOB nudelta_src
-     "src/*.cpp"
-)
+file(GLOB nudelta_src "src/*.cpp")
 
 add_executable(nudelta ${nudelta_src} ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 add_dependencies(nudelta res_file)

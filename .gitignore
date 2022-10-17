@@ -12,3 +12,5 @@ raw
 *.bin
 *.hex
 !CMakeLists.txt
+/*.yml
+!example.yml

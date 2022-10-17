@@ -1,0 +1,9 @@
+keys:
+  caps_lock: esc
+  lalt: lmeta
+  lmeta: lalt
+  ralt: rmeta
+  screenshot:
+    key: s
+    modifiers: [meta, shift]
+  assistant: f14 # f13 opens settings in gnome
