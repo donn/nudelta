@@ -4,7 +4,6 @@ lctrl: 0xe0000006
 lshift: 0xe1000006
 lalt: 0xe2000006
 lmeta: 0xe3000006
-rmeta: 0xe7000006 # <- Obtained by evtest on mac mode
 rctrl: 0xe4000006
 rshift: 0xe5000006
 ralt: 0xe6000006
@@ -87,3 +86,21 @@ backslash: 0x31000000
 fwdslash: 0x38000000
 comma: 0x36000000
 period: 0x37000000
+
+# Extra
+## Not on Windows layout
+rmeta: 0xe7000006 # <- Obtained by evtest on mac mode
+
+## Apple-specific extra F keys (useful for keyboard shortcuts/software macros)
+f13: 0x68000000 # <- From ArchWiki
+f14: 0x69000000 # <- Rest by incrementing f13 and testing :)
+f15: 0x6a000000
+f16: 0x6b000000
+f17: 0x6c000000
+f18: 0x6d000000
+f19: 0x6e000000
+f20: 0x6f000000
+f21: 0x70000000
+f22: 0x71000000
+f23: 0x72000000
+f24: 0x73000000

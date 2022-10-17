@@ -3,5 +3,5 @@ keys:
   lalt: lmeta
   lmeta: lalt
   ralt: rmeta
-  screenshot: num9
-  assistant: num0
+  screenshot: f14 # f13 opens settings in gnome
+  assistant: f15
