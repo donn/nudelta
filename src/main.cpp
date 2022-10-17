@@ -23,9 +23,11 @@
 #include <hidapi.h>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
-#define MAX_STR         255
 
-#define NUDELTA_VERSION "0.1.0"
+#define MAX_STR 255
+#ifndef NUDELTA_VERSION
+    #define NUDELTA_VERSION "UNKNOWN"
+#endif
 
 Air75 getKeyboard() {
     auto air75Optional = Air75::find();
