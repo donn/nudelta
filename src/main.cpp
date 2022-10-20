@@ -15,10 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+#include "access.hpp"
 #include "air75.hpp"
 #include "defer.hpp"
 #include "ssco.hpp"
-#include "access.hpp"
 
 #include <fstream>
 #include <hidapi.h>
@@ -286,8 +286,8 @@ int main(int argc, char *argv[]) {
             options.printHelp(std::cout);
             return EX_USAGE;
         }
-    } catch (std::runtime_error& e) {
-        p(stderr, "{}\n", e.what());
+    } catch (std::runtime_error &e) {
+        p(stderr, "[ERROR] {}\n", e.what());
         return EX_DATAERR;
     }
 

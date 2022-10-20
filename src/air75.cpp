@@ -33,10 +33,17 @@ std::optional< Air75 > Air75::find() {
 
     bool multipleWarned = false;
     while (seeker != nullptr) {
-        // Check that the manufacturer string isn't Apple or something, avoid clashing with other keyboards
-        if (to_utf8(seeker->manufacturer_string) == std::string("BY Tech") && seeker->interface_number == 1) {
+        // Check that the manufacturer string isn't Apple or something, avoid
+        // clashing with other keyboards
+        bool manufacturerStringOK = true;
+        if (seeker->manufacturer_string != nullptr
+            && to_utf8(seeker->manufacturer_string) != std::string("BY Tech")) {
+            manufacturerStringOK = false;
+        }
+        if (seeker->interface_number == 1) {
             if (keyboard.has_value()) {
-                // We only care if the path is different, because that means a different device entirely
+                // We only care if the path is different, because that means a
+                // different device entirely
                 if (keyboard.value().path != std::string(seeker->path)) {
                     if (!multipleWarned) {
                         p(stderr,
