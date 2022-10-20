@@ -1,11 +1,12 @@
-<h1 style="text-align: center;"> νΔ / nudelta </h1>
+<h1 style="text-align: center;"> ν∂ / nudelta </h1>
 
 > Note: This software is in EARLY ALPHA.
 
 A (WIP) open-source alternative to the [Nuphy Console](https://nuphy.com/pages/nuphy-console) for the [Air75 Mechanical Wireless Keyboard](https://nuphy.com/collections/keyboards/products/air75) by reverse-engineering the keyboard's USB protocol.
 
 What this has:
-* Support for NuPhy Air75
+* Support for NuPhy Air75 on Linux and macOS
+    * Tested on Manjaro Linux and macOS 12.4 "Monterey"
 * The ability to back up and dump keymaps to binary formats
 * The ability to dump keymaps to a human-readable hex format
 * Loading keymap modifications from a `.yml` configuration file
@@ -21,16 +22,15 @@ What this DOESN'T have:
 * RGB Control
     * I don't need that, personally.
 
-Only tested on Linux so far, but I hope to also port this to macOS.
-## Requirements
-* [libusb](https://github.com/libusb/libusb)
 
-> Nudelta will not work in its current state on ppc64 or any big-endian architectures. 
+## Running Requirements
+* An x86, x86_64 or Apple Silicon processor
+* Linux only: [libusb](https://github.com/libusb/libusb) installed
 
 ### Build Requirements
 * C++17 Compiler
-* Cmake
-* Python 3.6+ w/ Pyyaml
+* Python 3.6+ w/ Cmake, Pyyaml
+    * `python3 -m pip install cmake pyyaml`
 
 ## Building
 ```sh
@@ -43,10 +43,12 @@ sudo make install
 
 ## Usage
 
+You will need to use **sudo** on Linux. On macOS, you will need to grant Input Monitoring permissions to whichever Terminal host you're using to run Nudelta, likely Terminal.app.
+
 ### Load a custom profile
 
 ```sh
-sudo nudelta -l ./donns_remap.yml
+nudelta -l ./donns_remap.yml
 ```
 
 The configuration .yml file is simple: there's a top level object called "keys": which is a map of physical keys on the actual keyboard to their replacements:
@@ -64,7 +66,7 @@ You can find a list of:
 
 ### Reset keymap to default
 ```sh
-sudo nudelta -r
+nudelta -r
 ```
 
 ## License

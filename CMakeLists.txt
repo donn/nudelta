@@ -25,7 +25,7 @@ find_package(
 )
 
 execute_process(
-        COMMAND pip --version
+        COMMAND ${Python3_EXECUTABLE} -m pip --version
         RESULT_VARIABLE PIP_VERSION_CHECK
         OUTPUT_QUIET
 )
@@ -38,7 +38,7 @@ if (NOT ${PIP_VERSION_CHECK} EQUAL 0)
 endif()
 
 execute_process(
-        COMMAND pip show pyyaml
+        COMMAND ${Python3_EXECUTABLE} -m pip show pyyaml
         RESULT_VARIABLE PYYAML_CHECK
         OUTPUT_QUIET
 )
@@ -65,8 +65,11 @@ include_directories(res)
 add_executable(nudelta ${nudelta_src} ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 add_dependencies(nudelta res_file)
 add_compile_definitions(NUDELTA_VERSION="${CMAKE_PROJECT_VERSION}")
-target_link_options(nudelta PRIVATE -static-libgcc -static-libstdc++)
-target_link_libraries(nudelta PRIVATE hidapi::libusb)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	target_link_libraries(nudelta PRIVATE hidapi::libusb)
+else ()
+	target_link_libraries(nudelta PRIVATE hidapi)
+endif ()
 target_link_libraries(nudelta PRIVATE yaml-cpp)
 target_link_libraries(nudelta PRIVATE fmt)
 

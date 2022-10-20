@@ -18,6 +18,7 @@
 #include "air75.hpp"
 #include "defer.hpp"
 #include "ssco.hpp"
+#include "access.hpp"
 
 #include <fstream>
 #include <hidapi.h>
@@ -224,6 +225,14 @@ SSCO_Fn(loadYAML) {
 }
 
 int main(int argc, char *argv[]) {
+    auto hidAccess = checkHIDAccess();
+    if (!hidAccess.has_value()) {
+        hidAccess = requestHIDAccess();
+    }
+    if (!hidAccess.value()) {
+        p(stderr, "{}\n", hidAccessFailureMessage);
+        return EX_NOPERM;
+    }
     using Opt = SSCO::Option;
 
     SSCO::Options options(
@@ -265,16 +274,21 @@ int main(int argc, char *argv[]) {
          Opt{"load-profile", 'l', "Load YAML keymap", true, loadYAML}}
     );
 
-    auto opts = options.process(argc, argv);
+    try {
+        auto opts = options.process(argc, argv);
 
-    if (opts.has_value()) {
-        if (!opts.value().options.size()) {
+        if (opts.has_value()) {
+            if (!opts.value().options.size()) {
+                options.printHelp(std::cout);
+            }
+            return EX_OK;
+        } else {
             options.printHelp(std::cout);
+            return EX_USAGE;
         }
-        return EX_OK;
-    } else {
-        options.printHelp(std::cout);
-        return EX_USAGE;
+    } catch (std::runtime_error& e) {
+        p(stderr, "{}\n", e.what());
+        return EX_DATAERR;
     }
 
     return 0;
