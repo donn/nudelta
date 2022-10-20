@@ -1,4 +1,4 @@
-<h1 style="text-align: center;"> ν∂ / nudelta </h1>
+<h1 align="center"> ν∂ / nudelta </h1>
 
 > Note: This software is in EARLY ALPHA.
 
@@ -6,11 +6,11 @@ A (WIP) open-source alternative to the [Nuphy Console](https://nuphy.com/pages/n
 
 What this has:
 * Support for NuPhy Air75 on Linux and macOS
-    * Tested on Manjaro Linux and macOS 12.4 "Monterey"
+    * Tested on Manjaro Linux and macOS 12.4 Monterey
 * The ability to back up and dump keymaps to binary formats
 * The ability to dump keymaps to a human-readable hex format
 * Loading keymap modifications from a `.yml` configuration file
-    * Includes modifying the key as well as adding meta/alt/ctrl/shift as modifiers
+    * Includes modifying the key as well as adding meta/alt/ctrl/shift or any combination thereof as modifiers
 
 What this DOESN'T have:
 * A GUI
