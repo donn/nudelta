@@ -15,30 +15,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef _common_h
-#define _common_h
+#ifndef _access_hpp
+#define _access_hpp
 
-#include <codecvt>
-#include <cstdint>
-#include <cstdlib>
-#include <cwchar>
-#include <exception>
-#include <fmt/core.h>
-#include <locale>
-#include <string>
-#include <sysexits.h>
-#include <vector>
-#include <optional>
+#include "common.hpp"
 
-std::string to_utf8(std::wstring in);
-void prettyPrintBinary(const std::vector< uint8_t > &in, FILE *f = stdout);
-
-#define p(...) fmt::print(__VA_ARGS__)
-
-#ifdef _DEBUG
-    #define d(...) fmt::print(stderr, __VA_ARGS__)
-#else
-    #define d(...) ;
-#endif
+std::optional<bool> checkHIDAccess();
+bool requestHIDAccess();
+extern const char *hidAccessFailureMessage;
 
 #endif

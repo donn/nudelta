@@ -33,13 +33,17 @@ std::optional< Air75 > Air75::find() {
 
     bool multipleWarned = false;
     while (seeker != nullptr) {
-        if (seeker->interface_number == 1) {
+        // Check that the manufacturer string isn't Apple or something, avoid clashing with other keyboards
+        if (to_utf8(seeker->manufacturer_string) == std::string("BY Tech") && seeker->interface_number == 1) {
             if (keyboard.has_value()) {
-                if (!multipleWarned) {
-                    p(stderr,
-                      "[Warning] Multiple NuPhy Air75 keyboards found! Please keep only one plugged in. Only the first matched device will be used.\n"
-                    );
-                    multipleWarned = true;
+                // We only care if the path is different, because that means a different device entirely
+                if (keyboard.value().path != std::string(seeker->path)) {
+                    if (!multipleWarned) {
+                        p(stderr,
+                          "[Warning] Multiple NuPhy Air75 keyboards found! Please keep only one plugged in. Only the first matched device will be used.\n"
+                        );
+                        multipleWarned = true;
+                    }
                 }
             } else {
 
