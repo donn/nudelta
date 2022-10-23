@@ -49,6 +49,9 @@ if (NOT ${PYYAML_CHECK} EQUAL 0)
     )
 endif()
 
+# Common
+include_directories(include)
+
 # YAML Data
 add_custom_command(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
@@ -56,15 +59,24 @@ add_custom_command(
 )
 add_custom_target(res_file ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 
-
-# Nudelta Binary
-file(GLOB nudelta_src "src/*.cpp")
-include_directories(include)
 include_directories(res)
 
-add_executable(nudelta ${nudelta_src} ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
-add_dependencies(nudelta res_file)
+# libnd
+file(GLOB nudelta_lib_src "lib/*.cpp")
+add_library(nd ${nudelta_lib_src} ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
+add_dependencies(nd res_file)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	target_link_libraries(nd PRIVATE hidapi::libusb)
+else ()
+	target_link_libraries(nd PRIVATE hidapi)
+endif ()
+target_link_libraries(nd PRIVATE yaml-cpp)
+target_link_libraries(nd PRIVATE fmt)
+
+# nudelta
+add_executable(nudelta src/main.cpp)
 add_compile_definitions(NUDELTA_VERSION="${CMAKE_PROJECT_VERSION}")
+target_link_libraries(nudelta PRIVATE nd)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	target_link_libraries(nudelta PRIVATE hidapi::libusb)
 else ()

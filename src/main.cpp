@@ -23,7 +23,6 @@
 #include <fstream>
 #include <hidapi.h>
 #include <iostream>
-#include <yaml-cpp/yaml.h>
 
 #define MAX_STR 255
 #ifndef NUDELTA_VERSION
@@ -150,78 +149,7 @@ SSCO_Fn(loadYAML) {
     std::string configStr;
     std::getline(std::ifstream(configPath), configStr, '\0');
 
-    auto config = YAML::LoadFile(configPath);
-
-    if (config["keys"]) {
-        auto writableKeymap = Air75::defaultKeymap;
-        auto keys = config["keys"];
-        if (keys.Type() != YAML::NodeType::Map) {
-            throw std::runtime_error(
-                "Invalid config file: key 'keys' is not a map.\n"
-            );
-        }
-
-        for (auto entry : keys) {
-            auto keyID = entry.first.as< std::string >();
-
-            auto keyIt = Air75::indicesByKeyName.find(keyID);
-            if (Air75::indicesByKeyName.find(keyID)
-                == Air75::indicesByKeyName.end()) {
-                auto errorMessage = fmt::format(
-                    "Invalid config file: a key for '{}' does not exist.\n",
-                    keyID
-                );
-                throw std::runtime_error(errorMessage);
-            }
-
-            auto key = keyIt->second;
-
-            auto codeObject = entry.second;
-            if (entry.second.IsScalar()) {
-                auto codeID = codeObject.as< std::string >();
-                codeObject = YAML::Node();
-                codeObject["key"] = codeID;
-            }
-            auto codeID = codeObject["key"].as< std::string >();
-            auto codeIt = Air75::keycodesByKeyName.find(codeID);
-            if (Air75::keycodesByKeyName.find(codeID)
-                == Air75::keycodesByKeyName.end()) {
-                auto errorMessage = fmt::format(
-                    "Invalid config file: a code for key '{}' was not found.\n",
-                    codeID
-                );
-                throw std::runtime_error(errorMessage);
-            }
-
-            auto code = codeIt->second;
-            auto modifiers = codeObject["modifiers"];
-            if (modifiers.IsDefined() and !modifiers.IsNull()) {
-                if (modifiers.Type() != YAML::NodeType::Sequence) {
-                    throw std::runtime_error(fmt::format(
-                        "Invalid config file: {}.modifiers is not an array.\n",
-                        keyID
-                    ));
-                }
-                for (auto modifier : modifiers) {
-                    auto modifierName = modifier.as< std::string >();
-                    auto modifierIt =
-                        Air75::modifiersByModifierName.find(modifierName);
-                    if (modifierIt == Air75::modifiersByModifierName.end()) {
-                        throw std::runtime_error(fmt::format(
-                            "Unknown modifier {}: make sure you're not adding a direction, e.g. lalt instead of alt",
-                            modifierName
-                        ));
-                    }
-                    auto modifierCode = modifierIt->second;
-                    code |= modifierCode;
-                }
-            }
-            writableKeymap[key] = code;
-        }
-        air75.setKeymap(writableKeymap);
-
-        p("Wrote keymap config in '{}' to keyboard.\n", configPath);
-    }
+    air75.setKeymapFromYAML(configStr);
 }
 
 int main(int argc, char *argv[]) {

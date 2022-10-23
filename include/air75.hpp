@@ -108,6 +108,7 @@ class Air75 {
 
         std::vector< uint32_t > getKeymap();
         void setKeymap(const std::vector< uint32_t > &keymap);
+        void setKeymapFromYAML(const std::string &yamlString);
         void resetKeymap();
 
         static std::optional< Air75 > find();
