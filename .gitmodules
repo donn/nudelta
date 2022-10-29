@@ -7,3 +7,6 @@
 [submodule "submodules/yaml-cpp"]
 	path = submodules/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
+[submodule "submodules/ssco"]
+	path = submodules/ssco
+	url = https://github.com/donn/ssco

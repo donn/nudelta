@@ -18,11 +18,11 @@
 #include "access.hpp"
 #include "air75.hpp"
 #include "defer.hpp"
-#include "ssco.hpp"
 
 #include <fstream>
 #include <hidapi.h>
 #include <iostream>
+#include <ssco.hpp>
 
 #define MAX_STR 255
 #ifndef NUDELTA_VERSION
@@ -191,9 +191,8 @@ int main(int argc, char *argv[]) {
              dumpKeymap},
          Opt{"dump-hex-to",
              'H',
-             "When keys are dumped, also dump the keymap in a hex format to a text file.",
-             true,
-             std::nullopt},
+             "When the keymap is dumped to a binary file, also dump the keymap in a hex format to a text file.",
+             true},
          Opt{"load-keys",
              'L',
              "Load the keymap from a binary file.",

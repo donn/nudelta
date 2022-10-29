@@ -16,6 +16,7 @@ set(BUILD_SHARED_LIBS FALSE)
 add_subdirectory(submodules/hidapi)
 add_subdirectory(submodules/fmt)
 add_subdirectory(submodules/yaml-cpp)
+add_subdirectory(submodules/ssco)
 
 # Python/PIP
 find_package(
@@ -84,5 +85,6 @@ else ()
 endif ()
 target_link_libraries(nudelta PRIVATE yaml-cpp)
 target_link_libraries(nudelta PRIVATE fmt)
+target_link_libraries(nudelta PRIVATE ssco)
 
 install(TARGETS nudelta)
