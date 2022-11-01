@@ -3,7 +3,7 @@ scan_codes = File.read("../res/air75_keycodes.yml")
 scancode_by_key= YAML.load(scan_codes)
 key_by_scancode = scancode_by_key.invert
 
-map = File.read("../current.hex")
+map = File.read("../default.hex")
 final = []
 for line in map.split("\n")
     line.chomp!

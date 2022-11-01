@@ -2,7 +2,7 @@
 cmake_policy(SET CMP0110 NEW)
 cmake_policy(SET CMP0048 NEW)
 
-project(nudelta VERSION 0.1.1 LANGUAGES CXX)
+project(nudelta VERSION 0.2.0 LANGUAGES CXX)
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -54,9 +54,11 @@ endif()
 include_directories(include)
 
 # YAML Data
+file (GLOB yml_files "res/*.yml")
 add_custom_command(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/res/to_cpp.py > ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
+     DEPENDS ${yml_files} res/to_cpp.py
 )
 add_custom_target(res_file ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 

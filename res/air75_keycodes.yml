@@ -87,13 +87,32 @@ fwdslash: 0x38000000
 comma: 0x36000000
 period: 0x37000000
 
-# Extra
+# -- Multimedia
+brightnessdown: 0x6f000004
+brightnessup: 0x70000004
+# mission control and launchpad don't have keycodes. they're empty on linux and processed via fn+f3 on mac
+rewind: 0xb6000004
+playpause: 0xcd000004
+forward: 0xb5000004
+mute: 0xe2000004
+volumedown: 0xea000004
+volumeup: 0xe9000004
+
+# -- Extra
+## Processed On-Keyboard
+backlighteffectdown: 0x0002000b
+backlighteffectup: 0x0003000b
+backlightcolordown: 0x00020012
+backlightcolorup: 0x00030012
+backlightdown: 0x0002000c
+backlightup: 0x0001000c
+
 ## Not on Windows layout
-rmeta: 0xe7000006 # <- Obtained by evtest on mac mode
+rmeta: 0xe7000006
 
 ## Apple-specific extra F keys (useful for keyboard shortcuts/software macros)
-f13: 0x68000000 # <- From ArchWiki
-f14: 0x69000000 # <- Rest by incrementing f13 and testing :)
+f13: 0x68000000
+f14: 0x69000000
 f15: 0x6a000000
 f16: 0x6b000000
 f17: 0x6c000000

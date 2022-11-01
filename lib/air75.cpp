@@ -224,6 +224,14 @@ void Air75::setKeymapFromYAML(const std::string &yamlString) {
             codeObject = YAML::Node();
             codeObject["key"] = codeID;
         }
+
+        // If "raw" exists: just set it and ignore everything else
+        auto raw = codeObject["raw"];
+        if (raw.IsDefined() && !raw.IsNull()) {
+            writableKeymap[key] = raw.as< uint32_t >();
+            continue;
+        }
+
         auto codeID = codeObject["key"].as< std::string >();
         auto codeIt = Air75::keycodesByKeyName.find(codeID);
         if (Air75::keycodesByKeyName.find(codeID)

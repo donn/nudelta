@@ -7,3 +7,9 @@ keys:
     key: s
     modifiers: [meta, shift]
   assistant: f14 # f13 opens settings in gnome
+  missioncontrol:
+    key: enter
+    modifiers: [ctrl, shift]
+  launchpad:
+    key: l
+    modifiers: [ctrl, shift]

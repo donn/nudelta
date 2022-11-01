@@ -34,6 +34,9 @@ What this DOESN'T have:
 
 ## Building
 ```sh
+git clone https://github.com/donn/nudelta
+cd nudelta
+git submodule update --init --recursive
 mkdir build
 cd build
 cmake ..

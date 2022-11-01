@@ -85,3 +85,23 @@ period: 165
 # -- Non-standard
 screenshot: 78
 assistant: 84
+
+# -- Fn Combinations
+fn_up: 197
+fn_down: 198
+fn_left: 199
+fn_right: 200
+
+# -- Multimedia Keys
+brightnessdown: 132
+brightnessup: 133
+missioncontrol: 134
+launchpad: 135
+backlightdown: 136
+backlightup: 137
+rewind: 138
+playpause: 139
+forward: 140
+mute: 141
+volumedown: 142
+volumeup: 143

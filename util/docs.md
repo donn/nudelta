@@ -1,5 +1,4 @@
 # Nuphy Console
-
 ## Firmware Ver.
 In device descriptor: "bcdDevice"
 
@@ -17,7 +16,7 @@ KB: URB_Complete 05 01 02 00 00 00 00 4F
 [W4] Set Report 6 (LONG, same data format as W3?)
 [W5] Set Report 5: 05 84 d8 00 00 00
 [W6] Get Report 6
-[W7] Set Report 6 (LONG, same data format as W6) <-- keymap?
+[W7] Set Report 6 (LONG, same data format as W6) <-- keymap
 [W8] Set Report 7 (LONG, same data format as W1? (but padded))
 
 # URB Format
@@ -56,13 +55,55 @@ struct urb
 # Keymap Format
 Each key appears to be assigned a word.
 
-The least significant byte is a scancode. The most significant byte is a qualifier of some kind.
-
 ## Qualifiers
-00 -> Normal Key (uses 1st byte)
-06 -> Modifier (uses 1st byte)
-12 -> ?? (uses 2nd byte)
-0b -> ?? (uses 2nd byte)
-0c -> ?? (uses 2nd byte)
-0d -> ?? (uses 2nd byte)
-0e -> ?? (uses 1st byte)
+## Byte 0
+00 -> Normal Key
+02 -> Unknown: Used for exactly 34 keys. Seems to be generating redundant keycode: 1, 2, q...
+04 -> Multimedia Key
+06 -> Modifier Key
+    - Curiously, modifier scancodes appear to work just fine without it from what I see.
+0b -> Backlight Effect
+0c -> Backlight Intensity
+0d -> Unknown: Two keys, appearing to be cycling through something i do not know
+0e -> A variety of on-keyboard functions
+12 -> Backlight Color
+
+## Byte 1
+Appears unused, always 00
+
+## Byte 2
+### For normal keys:
+
+Modifiers: OR between:
+
+- 0001 (ctrl)
+- 0010 (shift)
+- 0100 (alt)
+- 1000 (meta)
+
+Four upper bits appear unused
+
+### Backlight Intensity
+* 01: Decrease Backlight
+* 02: Increase Backlight
+
+### Backlight Effects/Color
+
+* 02: Cycle Backward
+* 03: Cycle Forward
+
+
+## Byte 3
+### 0e
+0c -> Bluetooth Device 1
+0d -> Bluetooth Device 2
+0e -> Bluetooth Device 3
+0f -> 2.4 GHz Receiver
+11-16 -> No damn clue
+### everything else
+A **scancode**. See https://wiki.archlinux.org/title/Keyboard_input
+
+# Finding scancodes
+Use `evtest` on Linux.
+
+Note that there are two events: one for the keyboard proper and one for multimedia keys.
