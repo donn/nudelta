@@ -1,5 +1,5 @@
 # dict Air75::indicesByKeyName
-caps_lock: 3
+capslock: 3
 lctrl: 5
 lshift: 4
 lalt: 17
@@ -13,6 +13,7 @@ pgdn: 92
 home: 93
 end: 94
 
+enter: 81
 tab: 2
 space: 35
 backspace: 79

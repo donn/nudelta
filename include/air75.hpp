@@ -18,7 +18,6 @@
 #ifndef _air75_hpp
 #define _air75_hpp
 #include "common.hpp"
-#include "defer.hpp"
 
 #include <hidapi.h>
 #include <locale>
@@ -32,7 +31,7 @@ class Air75 {
         enum class Key {
             escape = 0,
             grave = 1,
-            caps_lock = 3,
+            capslock = 3,
             lshift = 4,
             lctrl = 5,
             lalt = 17,

@@ -18,6 +18,7 @@
 #include "air75.hpp"
 
 #include <algorithm>
+#include <scope_guard.hpp>
 #include <yaml-cpp/yaml.h>
 
 hid_device *Air75::handle() {
@@ -28,7 +29,7 @@ std::optional< Air75 > Air75::find() {
     std::optional< Air75 > keyboard;
 
     auto seeker = hid_enumerate(0x05ac, 0x024f);
-    defer {
+    SCOPE_EXIT {
         hid_free_enumeration(seeker);
     };
 
@@ -134,7 +135,7 @@ void set_report(hid_device *handle, uint8_t *data, size_t dataSize) {
 
 std::vector< uint8_t > Air75::request0() {
     auto current = handle();
-    defer {
+    SCOPE_EXIT {
         hid_close(current);
     };
 
@@ -143,7 +144,7 @@ std::vector< uint8_t > Air75::request0() {
 
 std::vector< uint8_t > Air75::request1() {
     auto current = handle();
-    defer {
+    SCOPE_EXIT {
         hid_close(current);
     };
 
@@ -152,7 +153,7 @@ std::vector< uint8_t > Air75::request1() {
 
 std::vector< uint32_t > Air75::getKeymap() {
     auto current = handle();
-    defer {
+    SCOPE_EXIT {
         hid_close(current);
     };
 
@@ -167,14 +168,14 @@ std::vector< uint32_t > Air75::getKeymap() {
 
 void Air75::setKeymap(const std::vector< uint32_t > &keymap) {
     auto current = handle();
-    defer {
+    SCOPE_EXIT {
         hid_close(current);
     };
 
     size_t count = (sizeof KEYMAP_WRITE_HEADER) + (keymap.size() * 4);
 
     uint8_t *buffer = new uint8_t[count];
-    defer {
+    SCOPE_EXIT {
         delete[] buffer;
     };
 

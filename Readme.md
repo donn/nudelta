@@ -58,7 +58,7 @@ The configuration .yml file is simple: there's a top level object called "keys":
 
 ```yml
 keys:
-    caps_lock: esc
+    capslock: esc
 ```
 
 See [example.yml](example.yml) for a profile and somewhat more detailed examples.

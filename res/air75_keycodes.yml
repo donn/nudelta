@@ -1,5 +1,5 @@
 # dict Air75::keycodesByKeyName
-caps_lock: 0x39000000
+capslock: 0x39000000
 lctrl: 0xe0000006
 lshift: 0xe1000006
 lalt: 0xe2000006
@@ -13,6 +13,7 @@ pgdn: 0x4e000000
 home: 0x4a000000
 end: 0x4d000000
 
+enter: 0x28000000
 tab: 0x2b000000
 space: 0x2c000000
 backspace: 0x2a000000

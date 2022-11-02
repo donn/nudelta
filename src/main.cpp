@@ -17,11 +17,11 @@
 */
 #include "access.hpp"
 #include "air75.hpp"
-#include "defer.hpp"
 
 #include <fstream>
 #include <hidapi.h>
 #include <iostream>
+#include <scope_guard.hpp>
 #include <ssco.hpp>
 
 #define MAX_STR 255
@@ -78,7 +78,7 @@ SSCO_Fn(dumpKeymap) {
             fmt::format("Failed to open '{}' for writing", file)
         );
     }
-    defer {
+    SCOPE_EXIT {
         fclose(filePtr);
     };
 
@@ -98,7 +98,7 @@ SSCO_Fn(dumpKeymap) {
                 fmt::format("Failed to open '{}' for writing", hexFile)
             );
         }
-        defer {
+        SCOPE_EXIT {
             fclose(hexFilePtr);
         };
 
@@ -124,7 +124,7 @@ SSCO_Fn(loadKeymap) {
             fmt::format("Failed to open '{}' for reading", file)
         );
     }
-    defer {
+    SCOPE_EXIT {
         fclose(filePtr);
     };
 

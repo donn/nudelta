@@ -2,7 +2,7 @@
 cmake_policy(SET CMP0110 NEW)
 cmake_policy(SET CMP0048 NEW)
 
-project(nudelta VERSION 0.2.0 LANGUAGES CXX)
+project(nudelta VERSION 0.2.1 LANGUAGES CXX)
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -13,6 +13,7 @@ set(HIDAPI_WITH_LIBUSB TRUE)
 set(HIDAPI_WITH_HIDRAW FALSE)
 set(BUILD_SHARED_LIBS FALSE)
 
+add_subdirectory(submodules/scope_guard)
 add_subdirectory(submodules/hidapi)
 add_subdirectory(submodules/fmt)
 add_subdirectory(submodules/yaml-cpp)
@@ -75,6 +76,7 @@ else ()
 endif ()
 target_link_libraries(nd PRIVATE yaml-cpp)
 target_link_libraries(nd PRIVATE fmt)
+target_link_libraries(nd PRIVATE scope_guard)
 
 # nudelta
 add_executable(nudelta src/main.cpp)
@@ -88,5 +90,7 @@ endif ()
 target_link_libraries(nudelta PRIVATE yaml-cpp)
 target_link_libraries(nudelta PRIVATE fmt)
 target_link_libraries(nudelta PRIVATE ssco)
+target_link_libraries(nudelta PRIVATE scope_guard)
+
 
 install(TARGETS nudelta)

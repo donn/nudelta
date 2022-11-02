@@ -10,3 +10,6 @@
 [submodule "submodules/ssco"]
 	path = submodules/ssco
 	url = https://github.com/donn/ssco
+[submodule "submodules/scope_guard"]
+	path = submodules/scope_guard
+	url = https://github.com/Neargye/scope_guard
