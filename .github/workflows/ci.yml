@@ -34,7 +34,7 @@ jobs:
           name: linux-appimage
           path: ./nudelta-amd64.AppImage
   macos:
-    name: Build (Linux)
+    name: Build (maCOS)
     runs-on: macos-11
     steps:
       - name: Check out Git repository
@@ -47,6 +47,8 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Clone Submodules
         run: git submodule update --init
+      - name: Get Python Dependencies
+        run: python3 -m pip install cmake pyyaml
       - name: Build Distribution
         run: |
           yarn
