@@ -24,9 +24,8 @@ function createWindow() {
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, 'ui', 'index.html'))
 
-    const menu = Menu.buildFromTemplate([
-        { role: 'appMenu' },
-        {
+    const menu = Menu.buildFromTemplate(
+        (macOS ? [{ role: 'appMenu' }] : []).concat([{
             label: 'File',
             submenu: [
                 {
@@ -123,7 +122,7 @@ function createWindow() {
                 }
             ]
         }
-    ]);
+        ]));
     Menu.setApplicationMenu(menu);
 }
 

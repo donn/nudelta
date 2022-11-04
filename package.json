@@ -1,9 +1,9 @@
 {
-  "name": "nudelta-app",
+  "name": "nudelta",
   "author": "Mohamed Gaber",
-  "version": "0.3.0",
+  "version": "0.3.0-pre",
   "license": "GPL-3.0-or-later",
-  "homepage": "https://github.com/owner/project#readme",
+  "homepage": "https://github.com/donn/nudelta#readme",
   "description": "an open source alternative to the nuphy console",
   "dependencies": {
     "@fontsource/nunito": "^4.5.11",
@@ -44,6 +44,17 @@
   "build": {
     "appId": "website.donn.nudelta",
     "extraResources": "res",
+    "linux": {
+      "target": [
+        "appimage"
+      ],
+      "extraFiles": [
+        {
+          "from": "/lib64/libusb-1.0.so.0",
+          "to": "usr/lib/libusb-1.0.so.0"
+        }
+      ]
+    },
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
