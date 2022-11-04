@@ -8,7 +8,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const YAML = require("yaml");
 
-const libnd = require("node-libnd.node");
+const libnd = require("./node-libnd.node");
 
 function createWindow() {
     // Create the browser window.

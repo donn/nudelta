@@ -1,10 +1,14 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.19)
 cmake_policy(SET CMP0110 NEW)
 cmake_policy(SET CMP0048 NEW)
 cmake_policy(SET CMP0091 NEW)
 cmake_policy(SET CMP0042 NEW)
 
-project(nudelta VERSION 0.2.1 LANGUAGES CXX)
+# Read the JSON file.
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/package.json PACKAGE_JSON)
+string(JSON NUDELTA_VERSION GET ${PACKAGE_JSON} "version")
+
+project(nudelta VERSION ${NUDELTA_VERSION} LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
