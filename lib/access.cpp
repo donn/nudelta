@@ -38,7 +38,7 @@ bool requestHIDAccess() {
 }
 
 const char *hidAccessFailureMessage =
-    "Please grant nudelta input monitoring permissions in your System Preferences. Nudelta will now quit.";
+    "Please grant nudelta input monitoring permissions in your System Preferences.";
 
 #elif defined(__gnu_linux__)
 std::optional< bool > checkHIDAccess() {

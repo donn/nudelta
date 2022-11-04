@@ -43,8 +43,13 @@
   },
   "build": {
     "appId": "website.donn.nudelta",
+    "extraResources": "res",
     "mac": {
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "target": [
+        "zip"
+      ],
+      "icon": "./res/nudelta.icns"
     }
   }
 }

@@ -93,6 +93,14 @@ static int get_report(
     const uint8_t *requestInfo,
     uint8_t *readBuffer
 ) {
+    auto hidAccess = checkHIDAccess();
+    if (!hidAccess.has_value()) {
+        hidAccess = requestHIDAccess();
+    }
+    if (!hidAccess.value()) {
+        throw std::runtime_error(hidAccessFailureMessage);
+    }
+    
     auto bytesWritten =
         hid_send_feature_report(handle, requestInfo, REQUEST_SIZE);
     if (bytesWritten < 0) {
@@ -125,6 +133,13 @@ static const uint8_t KEYMAP_WRITE_HEADER[] =
     {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00};
 
 void set_report(hid_device *handle, uint8_t *data, size_t dataSize) {
+    auto hidAccess = checkHIDAccess();
+    if (!hidAccess.has_value()) {
+        hidAccess = requestHIDAccess();
+    }
+    if (!hidAccess.value()) {
+        throw std::runtime_error(hidAccessFailureMessage);
+    }
     auto bytesWritten = hid_send_feature_report(handle, data, dataSize);
     if (bytesWritten < 0) {
         throw std::runtime_error("Failed to write to keyboard.");

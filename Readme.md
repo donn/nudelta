@@ -2,6 +2,8 @@
 
 > Note: This software is in beta. Nudelta is an unofficial product and is not affiliated with NuPhy Studio.
 
+![Screenshot of Nudelta Console](./res/screencap.png)
+
 A (WIP) open-source alternative to the [Nuphy Console](https://nuphy.com/pages/nuphy-console) for the [Air75 Mechanical Wireless Keyboard](https://nuphy.com/collections/keyboards/products/air75) by reverse-engineering the keyboard's USB protocol.
 
 What this has:

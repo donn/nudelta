@@ -17,7 +17,8 @@ function createWindow() {
         height: 720,
         webPreferences: {
             preload: path.join(__dirname, 'ui', 'src', 'preload.js')
-        }
+        },
+        icon: path.join(__dirname, 'res', 'nudelta.icns')
     });
 
     // and load the index.html of the app.
