@@ -1,9 +1,10 @@
-
+cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0110 NEW)
 cmake_policy(SET CMP0048 NEW)
+cmake_policy(SET CMP0091 NEW)
+cmake_policy(SET CMP0042 NEW)
 
 project(nudelta VERSION 0.2.1 LANGUAGES CXX)
-cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -12,6 +13,7 @@ find_package (Python3 COMPONENTS Interpreter)
 set(HIDAPI_WITH_LIBUSB TRUE)
 set(HIDAPI_WITH_HIDRAW FALSE)
 set(BUILD_SHARED_LIBS FALSE)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory(submodules/scope_guard)
 add_subdirectory(submodules/hidapi)
@@ -77,6 +79,25 @@ endif ()
 target_link_libraries(nd PRIVATE yaml-cpp)
 target_link_libraries(nd PRIVATE fmt)
 target_link_libraries(nd PRIVATE scope_guard)
+
+
+# node-libnd
+add_definitions(-DNAPI_VERSION=4)
+include_directories(${CMAKE_JS_INC})
+include_directories(${CMAKE_SOURCE_DIR}/node_modules/node-addon-api)
+add_library(node-libnd SHARED src/node.cpp ${CMAKE_JS_SRC})
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	target_link_libraries(node-libnd PRIVATE hidapi::libusb)
+else ()
+	target_link_libraries(node-libnd PRIVATE hidapi)
+endif ()
+target_link_libraries(node-libnd PRIVATE yaml-cpp)
+target_link_libraries(node-libnd PRIVATE fmt)
+target_link_libraries(node-libnd PRIVATE scope_guard)
+target_link_libraries(node-libnd PRIVATE nd)
+
+set_target_properties(node-libnd PROPERTIES PREFIX "" SUFFIX ".node")
+target_link_libraries(node-libnd ${CMAKE_JS_LIB})
 
 # nudelta
 add_executable(nudelta src/main.cpp)

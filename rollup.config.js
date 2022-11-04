@@ -18,9 +18,9 @@ export default {
         "jsdom/lib/jsdom/living/generated/utils",
         "jsdom/lib/jsdom/utils"
     ],
-    input: 'src/app.js',
+    input: 'ui/src/app.js',
     output: {
-        file: 'app-dist/app.js',
+        file: 'ui/app-dist/app.js',
         format: 'iife',
         sourcemap: true,
         globals: {
@@ -36,7 +36,7 @@ export default {
             limit: 10 * 1024,
             include: ['**/*.woff', '**/*.woff2'],
             emitFiles: true,
-            destDir: "./app-dist/",
+            destDir: "./ui/app-dist/",
             fileName: `[name][extname]`
         }),
         css(),

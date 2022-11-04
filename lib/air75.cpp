@@ -17,6 +17,8 @@
 */
 #include "air75.hpp"
 
+#include "access.hpp"
+
 #include <algorithm>
 #include <scope_guard.hpp>
 #include <yaml-cpp/yaml.h>
@@ -60,9 +62,7 @@ std::optional< Air75 > Air75::find() {
             } else {
 
                 if (seeker->product_string == nullptr) {
-                    throw std::runtime_error(
-                        "Couldn't read HID info. You may need to run nudelta as a superuser."
-                    );
+                    throw permissions_error(hidAccessFailureMessage);
                 }
                 keyboard = Air75(
                     seeker->product_string,
@@ -193,10 +193,9 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap) {
     set_report(current, buffer, count);
 }
 
-void Air75::setKeymapFromYAML(const std::string &yamlString) {
+void Air75::validateYAMLKeymap(const std::string &yamlString, bool rawOk) {
     auto config = YAML::Load(yamlString);
 
-    auto writableKeymap = Air75::defaultKeymap;
     auto keys = config["keys"];
     if (keys.Type() != YAML::NodeType::Map) {
         throw std::runtime_error(
@@ -229,7 +228,13 @@ void Air75::setKeymapFromYAML(const std::string &yamlString) {
         // If "raw" exists: just set it and ignore everything else
         auto raw = codeObject["raw"];
         if (raw.IsDefined() && !raw.IsNull()) {
-            writableKeymap[key] = raw.as< uint32_t >();
+            if (!rawOk) {
+                auto errorMessage = fmt::format(
+                    "Raw configurations are not supported by the Nudelta GUI.\n",
+                    keyID
+                );
+                throw std::runtime_error(errorMessage);
+            }
             continue;
         }
 
@@ -238,7 +243,7 @@ void Air75::setKeymapFromYAML(const std::string &yamlString) {
         if (Air75::keycodesByKeyName.find(codeID)
             == Air75::keycodesByKeyName.end()) {
             auto errorMessage = fmt::format(
-                "Invalid config file: a code for key '{}' was not found.\n",
+                "Invalid config file: a code for key '{}' was not found.",
                 codeID
             );
             throw std::runtime_error(errorMessage);
@@ -249,7 +254,7 @@ void Air75::setKeymapFromYAML(const std::string &yamlString) {
         if (modifiers.IsDefined() and !modifiers.IsNull()) {
             if (modifiers.Type() != YAML::NodeType::Sequence) {
                 throw std::runtime_error(fmt::format(
-                    "Invalid config file: {}.modifiers is not an array.\n",
+                    "Invalid config file: {}.modifiers is not an array.",
                     keyID
                 ));
             }
@@ -263,6 +268,48 @@ void Air75::setKeymapFromYAML(const std::string &yamlString) {
                         modifierName
                     ));
                 }
+            }
+        }
+    }
+}
+
+void Air75::setKeymapFromYAML(const std::string &yamlString) {
+    validateYAMLKeymap(yamlString);
+
+    auto config = YAML::Load(yamlString);
+
+    auto writableKeymap = Air75::defaultKeymap;
+    auto keys = config["keys"];
+    for (auto entry : keys) {
+        auto keyID = entry.first.as< std::string >();
+
+        auto keyIt = Air75::indicesByKeyName.find(keyID);
+        auto key = keyIt->second;
+
+        auto codeObject = entry.second;
+        if (entry.second.IsScalar()) {
+            auto codeID = codeObject.as< std::string >();
+            codeObject = YAML::Node();
+            codeObject["key"] = codeID;
+        }
+
+        // If "raw" exists: just set it and ignore everything else
+        auto raw = codeObject["raw"];
+        if (raw.IsDefined() && !raw.IsNull()) {
+            writableKeymap[key] = raw.as< uint32_t >();
+            continue;
+        }
+
+        auto codeID = codeObject["key"].as< std::string >();
+        auto codeIt = Air75::keycodesByKeyName.find(codeID);
+
+        auto code = codeIt->second;
+        auto modifiers = codeObject["modifiers"];
+        if (modifiers.IsDefined() and !modifiers.IsNull()) {
+            for (auto modifier : modifiers) {
+                auto modifierName = modifier.as< std::string >();
+                auto modifierIt =
+                    Air75::modifiersByModifierName.find(modifierName);
                 auto modifierCode = modifierIt->second;
                 code |= modifierCode;
             }

@@ -18,9 +18,9 @@
 #include "access.hpp"
 
 #if defined(__APPLE_CC__) || defined(__APPLE__)
-#include <IOKit/hidsystem/IOHIDLib.h>
+    #include <IOKit/hidsystem/IOHIDLib.h>
 
-std::optional<bool> checkHIDAccess() {
+std::optional< bool > checkHIDAccess() {
     switch (IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)) {
         case kIOHIDAccessTypeGranted:
             return true;
@@ -37,12 +37,11 @@ bool requestHIDAccess() {
     return IOHIDRequestAccess(kIOHIDRequestTypeListenEvent);
 }
 
-const char *hidAccessFailureMessage = "Please grant nudelta input monitoring permissions in your System Preferences. Nudelta will now quit.";
+const char *hidAccessFailureMessage =
+    "Please grant nudelta input monitoring permissions in your System Preferences. Nudelta will now quit.";
 
-#else
-// Not implemented/Can't check
-
-std::optional<bool> checkHIDAccess() {
+#elif defined(__gnu_linux__)
+std::optional< bool > checkHIDAccess() {
     return true;
 }
 
@@ -50,6 +49,22 @@ bool requestHIDAccess() {
     return true;
 }
 
-const char *hidAccessFailureMessage = "Unable to read HID devices. Consider running Nudelta as a superuser or checking your operating system's HID access permissions.";
+const char *hidAccessFailureMessage =
+    "Unable to read HID devices. Try running these commands: \n\n"
+    "echo 'SUBSYSTEMS==\"usb\", ATTRS{idVendor}==\"05ac\", ATTRS{idProduct}==\"024f\", TAG+=\"uaccess\"' | sudo tee /etc/udev/rules.d/70-nudelta.rules\n"
+    "sudo udevadm control --reload-rules && sudo udevadm trigger";
+#else
+// Not implemented/Can't check
+
+std::optional< bool > checkHIDAccess() {
+    return true;
+}
+
+bool requestHIDAccess() {
+    return true;
+}
+
+const char *hidAccessFailureMessage =
+    "Unable to read HID devices. Consider running Nudelta as a superuser or checking your operating system's HID access permissions.";
 
 #endif

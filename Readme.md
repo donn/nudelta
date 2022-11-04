@@ -1,6 +1,6 @@
 <h1 align="center"> ν∂ / nudelta </h1>
 
-> Note: This software is in EARLY ALPHA.
+> Note: This software is in beta. Nudelta is an unofficial product and is not affiliated with NuPhy Studio.
 
 A (WIP) open-source alternative to the [Nuphy Console](https://nuphy.com/pages/nuphy-console) for the [Air75 Mechanical Wireless Keyboard](https://nuphy.com/collections/keyboards/products/air75) by reverse-engineering the keyboard's USB protocol.
 
@@ -13,8 +13,6 @@ What this has:
     * Includes modifying the key as well as adding meta/alt/ctrl/shift or any combination thereof as modifiers
 
 What this DOESN'T have:
-* A GUI
-    * Would like to make one but it would take too much time.
 * Macros
     * Need to reverse engineer those.
 * Support for Halo65/Air60
@@ -74,3 +72,5 @@ nudelta -r
 
 ## License
 The GNU General Public License v3 or, at your option, any later version. Check '[License](/License)'.
+
+> NuPhy® is a registered trademark of NuPhy Studio

@@ -1,8 +1,24 @@
+/*
+    Nudelta Console
+    Copyright (C) 2022 Mohamed Gaber
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 import air75_keycodes from "../../res/air75_keycodes.yml"
 
 class Key {
     constructor({ id, color, label, width, name, remappable }) {
-        console.log(id);
         this.id = id;
         this.color = color ?? "white";
         this.label = label ?? this.id.toUpperCase();
@@ -33,7 +49,7 @@ export const Air75 = {
             new Key({ id: "del", color: "gray", name: "Delete" })
         ],
         [
-            new Key({ id: "grave", label: "`" }),
+            new Key({ id: "grave", label: "`", color: "gray" }),
             new Key({ id: "num1", label: "1" }),
             new Key({ id: "num2", label: "2" }),
             new Key({ id: "num3", label: "3" }),

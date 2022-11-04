@@ -14,3 +14,7 @@ raw
 !CMakeLists.txt
 /*.yml
 !example.yml
+
+# UI
+node_modules/
+.DS_Store

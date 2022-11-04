@@ -1,29 +1,26 @@
-const { ipcRenderer } = require("electron");
+/*
+    Nudelta Console
+    Copyright (C) 2022 Mohamed Gaber
 
-const macOS = process.platform == "darwin";
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-function tweaks() {
-}
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-window.addEventListener('DOMContentLoaded', tweaks);
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+const { contextBridge, ipcRenderer } = require("electron");
 
-ipcRenderer.on("load-keymap", (ev, { keymap }) => {
-    console.log(keymap);
-    let keys = keymap.keys ?? {};
-    let rawFound = false;
-    for (let key in keys) {
-        let remap = keys[key];
-        if (typeof remap == "string") {
-            keys[key] = { key: remap };
-        }
-        if (key.raw != null) {
-            rawFound = true;
-            delete key.raw;
-        }
-    }
-    window.remap.set(keys);
-});
-
-ipcRenderer.on("save-keymap", (ev, { filePath }) => {
-    ipcRenderer.send("save-keymap-callback", { remap: window.remap.get(), filePath })
+contextBridge.exposeInMainWorld('ipc', {
+    onLoadKeymap: (callback) => ipcRenderer.on("load-keymap", callback),
+    onSaveKeymap: (callback) => ipcRenderer.on("save-keymap", callback),
+    getKeyboardInfo: () => ipcRenderer.send("get-keyboard-info"),
+    onGetKeyboardInfo: (callback) => ipcRenderer.on("get-keyboard-info-reply", callback),
+    sendRemap: (remap) => ipcRenderer.send("write-yaml", remap)
 });
