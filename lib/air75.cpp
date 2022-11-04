@@ -60,7 +60,6 @@ std::optional< Air75 > Air75::find() {
                     }
                 }
             } else {
-
                 if (seeker->product_string == nullptr) {
                     throw permissions_error(hidAccessFailureMessage);
                 }
@@ -100,7 +99,7 @@ static int get_report(
     if (!hidAccess.value()) {
         throw std::runtime_error(hidAccessFailureMessage);
     }
-    
+
     auto bytesWritten =
         hid_send_feature_report(handle, requestInfo, REQUEST_SIZE);
     if (bytesWritten < 0) {

@@ -64,6 +64,14 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [macos, linux]
     steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Set default for env.NEW_TAG
         run: echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
       - name: Download Linux App
