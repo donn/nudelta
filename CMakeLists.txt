@@ -4,11 +4,12 @@ cmake_policy(SET CMP0048 NEW)
 cmake_policy(SET CMP0091 NEW)
 cmake_policy(SET CMP0042 NEW)
 
-# Read the JSON file.
+project(nudelta)
+
+# Get version from package.json
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/package.json PACKAGE_JSON)
 string(JSON NUDELTA_VERSION GET ${PACKAGE_JSON} "version")
-
-project(nudelta VERSION ${NUDELTA_VERSION} LANGUAGES CXX)
+set(PROJECT_VERSION ${NUDELTA_VERSION})
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
