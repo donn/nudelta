@@ -34,7 +34,7 @@ jobs:
           name: linux-appimage
           path: ./nudelta-amd64.AppImage
   macos:
-    name: Build (maCOS)
+    name: Build (macOS)
     runs-on: macos-11
     steps:
       - name: Check out Git repository
@@ -52,7 +52,7 @@ jobs:
       - name: Build Distribution
         run: |
           yarn
-          yarn build .
+          yarn build
           cp -r ./dist/*.zip ./nudelta-amd64.app.zip
       - name: Upload App
         uses: actions/upload-artifact@v2
