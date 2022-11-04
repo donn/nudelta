@@ -69,12 +69,12 @@ jobs:
       - name: Download Linux App
         uses: actions/download-artifact@v2
         with:
-          name: linux-app
+          name: linux-appimage
           path: /tmp
       - name: Download Mac App
         uses: actions/download-artifact@v2
         with:
-          name: mac-appimage
+          name: mac-app
           path: /tmp
       - name: Check for new version
         if: ${{ env.BRANCH_NAME == 'integrate_gui' }}
@@ -87,11 +87,6 @@ jobs:
         with:
           tag: "${{ env.NEW_TAG }}"
           repo-token: "${{ secrets.MY_TOKEN }}"
-      - name: Publish
-        if: ${{ env.NEW_TAG != 'NO_NEW_TAG' }}
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
       - name: Upload Release Asset
         if: ${{ env.NEW_TAG != 'NO_NEW_TAG' }}
         uses: softprops/action-gh-release@v1
