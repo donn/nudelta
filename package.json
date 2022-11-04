@@ -13,7 +13,7 @@
     "yaml": "^2.1.3"
   },
   "scripts": {
-    "build": "yarn build-native && yarn build-ui && electron-builder",
+    "build": "yarn build-native && yarn build-ui && electron-builder --publish never",
     "build-native": "cmake-js && cp ./build/Release/* .",
     "build-ui": "rollup -c",
     "watch": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec sh -c \"yarn build-ui && electron .\""
