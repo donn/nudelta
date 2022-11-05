@@ -84,8 +84,11 @@ static const size_t MAX_READABLE_SIZE = 0x7FF;
 static const size_t REQUEST_SIZE = 6;
 static const uint8_t REQUEST_0[] = {0x05, 0x83, 0xb6, 0x00, 0x00, 0x00};
 static const uint8_t REQUEST_1[] = {0x05, 0x88, 0xb8, 0x00, 0x00, 0x00};
-static const uint8_t REQUEST_2[] =
-    {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}; // Keymap
+
+static const uint8_t WINDOWS_KEYMAP_GET_HEADER[] =
+    {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00};
+static const uint8_t MAC_KEYMAP_GET_HEADER[] =
+    {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00};
 
 static int get_report(
     hid_device *handle,
@@ -128,8 +131,10 @@ get_report(hid_device *handle, const uint8_t *requestInfo) {
     return std::vector< uint8_t >(readBuffer, readBuffer + read);
 }
 
-static const uint8_t KEYMAP_WRITE_HEADER[] =
+static const uint8_t WINDOWS_KEYMAP_WRITE_HEADER[] =
     {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00};
+static const uint8_t MAC_KEYMAP_WRITE_HEADER[] =
+    {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00};
 
 void set_report(hid_device *handle, uint8_t *data, size_t dataSize) {
     auto hidAccess = checkHIDAccess();
@@ -171,7 +176,7 @@ std::vector< uint32_t > Air75::getKeymap() {
         hid_close(current);
     };
 
-    auto keymapReport = get_report(current, REQUEST_2);
+    auto keymapReport = get_report(current, WINDOWS_KEYMAP_GET_HEADER);
 
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint32_t *)&keymapReport[8];
@@ -186,7 +191,9 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap) {
         hid_close(current);
     };
 
-    size_t count = (sizeof KEYMAP_WRITE_HEADER) + (keymap.size() * 4);
+    auto header = WINDOWS_KEYMAP_WRITE_HEADER;
+    size_t headerSize = sizeof WINDOWS_KEYMAP_WRITE_HEADER;
+    size_t count = headerSize + (keymap.size() * 4);
 
     uint8_t *buffer = new uint8_t[count];
     SCOPE_EXIT {
@@ -197,13 +204,9 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap) {
     auto *start_pointer = (uint8_t *)&(*keymap.begin());
     auto *end_pointer = (uint8_t *)&(*keymap.end());
 
-    std::copy(
-        KEYMAP_WRITE_HEADER,
-        KEYMAP_WRITE_HEADER + sizeof KEYMAP_WRITE_HEADER,
-        buffer
-    );
+    std::copy(header, header + sizeof headerSize, buffer);
 
-    std::copy(start_pointer, end_pointer, buffer + sizeof KEYMAP_WRITE_HEADER);
+    std::copy(start_pointer, end_pointer, buffer + sizeof headerSize);
     set_report(current, buffer, count);
 }
 
