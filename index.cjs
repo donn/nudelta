@@ -1,6 +1,6 @@
 // Modules to control application life and create native browser window
 const electron = require("electron");
-const { app, dialog, BrowserWindow, Menu, ipcMain } = electron;
+const { app, dialog, BrowserWindow, Menu, ipcMain, clipboard } = electron;
 
 const macOS = process.platform == "darwin";
 
@@ -8,23 +8,24 @@ const path = require("path");
 const fs = require("fs-extra");
 const YAML = require("yaml");
 
+const libnd = require("./node-libnd.node");
+
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 1240,
         height: 720,
         webPreferences: {
-            preload: path.join(__dirname, 'src', 'preload.js'),
-            contextIsolation: false
-        }
+            preload: path.join(__dirname, 'ui', 'src', 'preload.js')
+        },
+        icon: path.join(__dirname, 'res', 'nudelta.icns')
     });
 
     // and load the index.html of the app.
-    mainWindow.loadFile(path.join(__dirname, 'index.html'))
+    mainWindow.loadFile(path.join(__dirname, 'ui', 'index.html'))
 
-    const menu = Menu.buildFromTemplate([
-        { role: 'appMenu' },
-        {
+    const menu = Menu.buildFromTemplate(
+        (macOS ? [{ role: 'appMenu' }] : []).concat([{
             label: 'File',
             submenu: [
                 {
@@ -50,11 +51,19 @@ function createWindow() {
 
                         let value = fs.readFileSync(mainWindow.currentFile, "utf8");
 
-                        let keymap = YAML.parse(value);
+                        try {
+                            libnd.validateYAML(value);
 
-                        mainWindow.webContents.send("load-keymap",
-                            { keymap }
-                        );
+                            let keymap = YAML.parse(value);
+
+                            mainWindow.webContents.send("load-keymap",
+                                { keymap }
+                            );
+                        } catch (err) {
+                            await dialog.showErrorBox("Invalid YAML file", err.message).catch(err => {
+                                console.error(err);
+                            });
+                        }
                     }
                 },
                 {
@@ -72,6 +81,14 @@ function createWindow() {
                         });
 
                         mainWindow.webContents.send("save-keymap", { filePath });
+                    }
+                },
+                {
+                    type: "normal",
+                    label: 'Reload Keyboard',
+                    accelerator: "CommandOrControl+R",
+                    click: async () => {
+                        sendKeyboardInfo(mainWindow);
                     }
                 },
                 macOS ? { role: 'close' } : { role: 'quit' }
@@ -105,37 +122,56 @@ function createWindow() {
                 }
             ]
         }
-    ]);
+        ]));
     Menu.setApplicationMenu(menu);
-
-    // Open the DevTools.
-    // mainWindow.webContents.openDevTools()
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
     createWindow()
 
     app.on('activate', function () {
-        // On macOS it's common to re-create a window in the app when the
-        // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
-})
+});
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
     if (!macOS) app.quit()
-})
+});
 
-ipcMain.on("save-keymap-callback", async (ev, { remap, filePath }) => {
+ipcMain.on("save-keymap-callback", async (_, { remap, filePath }) => {
     let string = YAML.stringify(remap);
     await fs.writeFile(filePath, string);
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+async function sendKeyboardInfo(sender) {
+    try {
+        let info = libnd.getKeyboardInfo();
+        sender.send("get-keyboard-info-reply",
+            { info }
+        );
+    } catch (err) {
+        let message = err.message;
+        let commands = message.split("\n\n")[1];
+        if (commands ?? false) {
+            clipboard.writeText(commands);
+            message = "Unable to read HID devices. Please run the commands copied to your clipboard in a terminal window then restart Nudelta."
+        }
+        dialog.showErrorBox("Permissions Error", message);
+    }
+}
+
+ipcMain.on("get-keyboard-info", (ev) => sendKeyboardInfo(ev.sender));
+
+ipcMain.on("write-yaml", async (ev, remap) => {
+    let serialized = YAML.stringify({ "keys": remap });
+    try {
+        libnd.setKeymapFromYAML(serialized);
+    } catch (err) {
+        dialog.showErrorBox("Failed to write keymap", err.message);
+        await sendKeyboardInfo(ev.sender);
+        return;
+    }
+    await dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
+        message: "Wrote keymap successfully!"
+    });
+});

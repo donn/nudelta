@@ -119,6 +119,8 @@ class Air75 {
             keycodesByKeyName;
         static const std::unordered_map< std::string, uint32_t >
             modifiersByModifierName;
+        static void
+        validateYAMLKeymap(const std::string &yamlString, bool rawOk = true);
     private:
         std::vector< uint8_t > request0();
         std::vector< uint8_t > request1();

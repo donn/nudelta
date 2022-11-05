@@ -1,0 +1,104 @@
+name: CI
+
+# Events that trigger workflow
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+
+jobs:
+  linux:
+    name: Build (Linux)
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Clone Submodules
+        run: git submodule update --init
+      - name: Build Distribution
+        run: |
+          docker build -t appimage-build .
+          id=$(docker create appimage-build) ; \
+          docker cp $id:/nudelta.AppImage nudelta-amd64.AppImage ; \
+          docker rm -v $id
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-appimage
+          path: ./nudelta-amd64.AppImage
+  macos:
+    name: Build (macOS)
+    runs-on: macos-11
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Clone Submodules
+        run: git submodule update --init
+      - name: Get Python Dependencies
+        run: python3 -m pip install cmake pyyaml
+      - name: Build Distribution
+        run: |
+          yarn
+          yarn build
+          cp -r ./dist/*.zip ./nudelta-amd64.app.zip
+      - name: Upload App
+        uses: actions/upload-artifact@v2
+        with:
+          name: mac-app
+          path: ./nudelta-amd64.app.zip
+  publish:
+    name: Publish
+    runs-on: ubuntu-20.04
+    needs: [macos, linux]
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Set default for env.NEW_TAG
+        run: echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
+      - name: Download Linux App
+        uses: actions/download-artifact@v2
+        with:
+          name: linux-appimage
+          path: /tmp
+      - name: Download Mac App
+        uses: actions/download-artifact@v2
+        with:
+          name: mac-app
+          path: /tmp
+      - name: Check for new version
+        if: ${{ env.BRANCH_NAME == 'main' }}
+        run: |
+          cd ${GITHUB_WORKSPACE}/ && python3 .github/scripts/generate_tag.py
+      - name: Tag Commit
+        if: ${{ env.NEW_TAG != 'NO_NEW_TAG' }}
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          tag: "${{ env.NEW_TAG }}"
+          repo-token: "${{ secrets.MY_TOKEN }}"
+      - name: Upload Release Asset
+        if: ${{ env.NEW_TAG != 'NO_NEW_TAG' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          files: |
+            /tmp/nudelta-amd64.app.zip
+            /tmp/nudelta-amd64.AppImage

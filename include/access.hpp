@@ -20,7 +20,15 @@
 
 #include "common.hpp"
 
-std::optional<bool> checkHIDAccess();
+#include <stdexcept>
+
+class permissions_error : public std::runtime_error {
+    public:
+        permissions_error(const std::string &what = "")
+            : std::runtime_error(what) {}
+};
+
+std::optional< bool > checkHIDAccess();
 bool requestHIDAccess();
 extern const char *hidAccessFailureMessage;
 
