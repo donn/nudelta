@@ -87,7 +87,7 @@ jobs:
       - name: Check for new version
         if: ${{ env.BRANCH_NAME == 'integrate_gui' }}
         run: |
-          cd ${GITHUB_WORKSPACE}/ && ./venv/bin/python3 .github/scripts/generate_tag.py
+          cd ${GITHUB_WORKSPACE}/ && python3 .github/scripts/generate_tag.py
       - name: Tag Commit
         if: ${{ env.NEW_TAG != 'NO_NEW_TAG' }}
         uses: tvdias/github-tagger@v0.0.1
