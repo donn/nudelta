@@ -1,7 +1,7 @@
 {
   "name": "nudelta",
   "author": "Mohamed Gaber",
-  "version": "0.3.0-pre",
+  "version": "0.3.0",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/donn/nudelta#readme",
   "description": "an open source alternative to the nuphy console",

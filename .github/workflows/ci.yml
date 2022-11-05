@@ -85,7 +85,7 @@ jobs:
           name: mac-app
           path: /tmp
       - name: Check for new version
-        if: ${{ env.BRANCH_NAME == 'integrate_gui' }}
+        if: ${{ env.BRANCH_NAME == 'main' }}
         run: |
           cd ${GITHUB_WORKSPACE}/ && python3 .github/scripts/generate_tag.py
       - name: Tag Commit
@@ -99,7 +99,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.NEW_TAG }}
-          prerelease: true
           files: |
             /tmp/nudelta-amd64.app.zip
             /tmp/nudelta-amd64.AppImage
