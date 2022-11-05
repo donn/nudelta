@@ -172,6 +172,6 @@ ipcMain.on("write-yaml", async (ev, remap) => {
         return;
     }
     await dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
-        message: "Wrote keymap successfully!"
+        message: "Wrote Windows keymap successfully!"
     });
 });

@@ -24,15 +24,28 @@ What this DOESN'T have:
 
 
 ## Running Requirements
-* An x86, x86_64 or Apple Silicon processor
-* Linux only: [libusb](https://github.com/libusb/libusb) installed
+* An x86, x86_64 or Apple Silicon processor (w/ Rosetta)
 
 ### Build Requirements
 * C++17 Compiler
 * Python 3.6+ w/ Cmake, Pyyaml
     * `python3 -m pip install cmake pyyaml`
+* Node 14+ with Yarn
 
-## Building
+## GUI (Build)
+
+```sh
+git clone https://github.com/donn/nudelta
+cd nudelta
+git submodule update --init --recursive
+rm -rf build
+yarn
+yarn build
+```
+
+The Linux AppImage will be found under ./dist, and the Mac app will be found under ./dist/mac.
+
+## CLI (Build)
 ```sh
 git clone https://github.com/donn/nudelta
 cd nudelta
@@ -44,7 +57,7 @@ make -j$(nproc)
 sudo make install
 ```
 
-## Usage
+## CLI (Usage)
 
 You will need to use **sudo** on Linux. On macOS, you will need to grant Input Monitoring permissions to whichever Terminal host you're using to run Nudelta, likely Terminal.app.
 
