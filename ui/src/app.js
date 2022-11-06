@@ -38,7 +38,7 @@ class Remap {
 }
 
 window.keyboardFoundString = null;
-window.currentKey = "esc";
+window.currentKey = null;
 window.remap = new Remap();
 
 function writeYAML() {
@@ -52,9 +52,10 @@ function redrawKeyboard() {
     container.innerHTML = "";
     container.appendChild(n("div", e => {
         e.className = "keyboard card";
-        for (let currentRow in Air75.layout) {
+        let layout = window.layout;
+        for (let currentRow in layout) {
             currentRow = Number(currentRow);
-            let row = Air75.layout[currentRow];
+            let row = layout[currentRow];
             let currentColumn = 1;
             for (let key of row) {
                 e.appendChild(n("div", e => {
@@ -65,11 +66,16 @@ function redrawKeyboard() {
                     let label = key.label;
                     let labelColor = (colorResolved == "white") ? "var(--gray)"
                         : "var(--white)";
+                    let className = "key";
+
                     if (remap[key.id] ?? false) {
-                        e.className = "key modified"
-                    } else {
-                        e.className = "key";
+                        className += " modified";
                     }
+
+                    if (key.altLabel) {
+                        className += " altlabel";
+                    }
+                    e.className = className;
                     e.style = `
                         background-color: ${color};
                         grid-column-start: ${currentColumn};
@@ -78,11 +84,15 @@ function redrawKeyboard() {
                         grid-row-end: ${currentRow + 1};
                     `;
                     e.onclick = onClickKey;
+                    e.setAttribute("data", JSON.stringify(key));
                     currentColumn += width;
                     e.appendChild(n("p", e => {
                         let styleString = `text-shadow: 0 0 0 ${labelColor};`;
                         e.style = styleString;
                         e.innerHTML = label;
+                        if (key.altLabel) {
+                            e.innerHTML = `${key.altLabel} <br /> ${key.label}`;
+                        }
                     }))
                 }));
             }
@@ -96,75 +106,91 @@ function redrawOptions() {
     container.innerHTML = "";
     container.appendChild(n("div", e => {
         e.className = "option-matrix card";
-        let key = Air75.byID[currentKey];
-        if (!key.remappable) {
-            e.appendChild(n("p", e => {
-                e.innerHTML = `The ${key.name} key cannot be remapped.`
-            }))
-            return
-        }
-
-        let currentRemap = remap[window.currentKey] ?? {};
-        let currentModifiers = currentRemap.modifiers ?? [];
+        let key = window.currentKey;
         let modifierCount = 1;
-        for (let id in modifiers) {
-            let modifier = modifiers[id];
-            e.appendChild(n("div", e => {
-                if (currentModifiers.indexOf(id) !== -1) {
-                    e.className = "key selected";
-                } else {
-                    e.className = "key";
-                }
-                e.id = `modifier-${id}`;
+        if (key) {
+            if (!key.remappable) {
+                e.appendChild(n("p", e => {
+                    e.innerHTML = `The ${key.name} key cannot be remapped.`
+                }))
+                return
+            }
+
+            let currentRemap = remap[key.id] ?? {};
+            let currentModifiers = currentRemap.modifiers ?? key.defaultModifiers;
+            for (let id in modifiers) {
+                let modifier = modifiers[id];
+                e.appendChild(n("div", e => {
+                    if (currentModifiers.indexOf(id) !== -1) {
+                        e.className = "key selected";
+                    } else {
+                        e.className = "key";
+                    }
+                    e.id = `modifier-${id}`;
+                    e.style = `
+                        grid-column-start: ${modifierCount};
+                        grid-column-end: ${modifierCount};
+                        grid-row-start: 2;
+                        grid-row-end: 2;
+    
+                    `;
+                    e.appendChild(n("p", e => {
+                        e.innerHTML = modifier.label;
+                    }))
+                    e.onclick = onClickModifier;
+                }));
+                modifierCount += 1;
+            }
+            e.appendChild(n("select", e => {
+                e.id = `keycode-selector`;
                 e.style = `
                     grid-column-start: ${modifierCount};
-                    grid-column-end: ${modifierCount};
+                    grid-column-end: ${modifierCount + 3};
                     grid-row-start: 2;
                     grid-row-end: 2;
-
                 `;
-                e.appendChild(n("p", e => {
-                    e.innerHTML = modifier.label;
-                }))
-                e.onclick = onClickModifier;
+                for (let keycode in Air75.keycodes) {
+                    e.appendChild(n("option", e => {
+                        e.innerHTML = keycode;
+                        if (keycode == currentRemap.key) {
+                            e.selected = true;
+                        } else if (currentRemap.key == null && keycode == key.defaultMapping) {
+                            e.selected = true;
+                        }
+                    }));
+                }
+                e.onchange = updateKeymap;
             }));
-            modifierCount += 1;
+
+            e.appendChild(n("h3", e => {
+                e.style = `
+                    grid-column-start: ${1};
+                    grid-column-end: ${modifierCount + 3};
+                    grid-row-start: 1;
+                    grid-row-end: 1;
+                `;
+                e.innerHTML = `Current Key: ${key.name}`;
+            }))
+            modifierCount += 3;
+        } else {
+            e.appendChild(n("h3", e => {
+                e.style = `
+                    grid-column-start: 1;
+                    grid-column-end: ${modifierCount + 3};
+                    grid-row-start: 1;
+                    grid-row-end: 1;
+                `;
+                e.id = "no-key-selected";
+                e.innerHTML = "No key selected.";
+            }));
+            modifierCount += 3;
         }
-        e.appendChild(n("select", e => {
-            e.id = `keycode-selector`;
-            e.style = `
-                grid-column-start: ${modifierCount};
-                grid-column-end: ${modifierCount + 3};
-                grid-row-start: 2;
-                grid-row-end: 2;
-            `;
-            for (let key in Air75.keycodes) {
-                e.appendChild(n("option", e => {
-                    e.innerHTML = key;
-                    if (key == currentRemap.key) {
-                        e.selected = true;
-                    } else if (currentRemap.key == null && key == window.currentKey) {
-                        e.selected = true;
-                    }
-                }));
-            }
-            e.onchange = updateKeymap;
-        }));
-        e.appendChild(n("h3", e => {
-            e.style = `
-                grid-column-start: ${1};
-                grid-column-end: ${modifierCount + 3};
-                grid-row-start: 1;
-                grid-row-end: 1;
-            `;
-            e.innerHTML = `Current Key: ${key.name}`;
-        }))
 
 
         e.appendChild(n("p", e => {
             e.style = `
-                grid-column-start: ${modifierCount + 5};
-                grid-column-end: ${modifierCount + 9};
+                grid-column-start: ${modifierCount + 2};
+                grid-column-end: ${modifierCount + 6};
                 grid-row-start: 1;
                 grid-row-end: 1;
             `;
@@ -179,8 +205,8 @@ function redrawOptions() {
             }
             e.id = `write-key`;
             e.style = `
-                grid-column-start: ${modifierCount + 5};
-                grid-column-end: ${modifierCount + 9};
+                grid-column-start: ${modifierCount + 2};
+                grid-column-end: ${modifierCount + 6};
                 grid-row-start: 2;
                 grid-row-end: 2;
             `;
@@ -192,34 +218,52 @@ function redrawOptions() {
 
     }))
 }
+
+function setsEqual(lhs, rhs) {
+    const _difference = new Set(lhs);
+    for (const elem of rhs) {
+        if (_difference.has(elem)) {
+            _difference.delete(elem);
+        } else {
+            _difference.add(elem);
+        }
+    }
+    return _difference.size == 0;
+}
+
 /**
  * 
  * @param {Event} event 
  */
 function updateKeymap(event) {
     let remap = window.remap.get();
-    let currentRemap = remap[window.currentKey] ?? {};
+    let key = window.currentKey;
+
+    let currentRemap = remap[key.id] ?? {};
 
     let incomingID = g("#keycode-selector").value;
-    let incomingModifiers = [];
+    let incomingModifiers = new Set();
+    let defaultModifiers = new Set(key.defaultModifiers);
     for (let modifier in modifiers) {
         let modifierNode = g(`#modifier-${modifier}`);
         let selected = modifierNode.className.includes("selected");
         if (selected) {
-            incomingModifiers.push(modifier);
+            incomingModifiers.add(modifier);
         }
     }
 
-    if (incomingID == window.currentKey && incomingModifiers.length == 0) {
-        remap[window.currentKey] = {};
-        delete remap[window.currentKey];
+    let modifiersEqual = setsEqual(incomingModifiers, defaultModifiers);
+
+    if (incomingID == key.defaultMapping && modifiersEqual) {
+        remap[key.id] = {};
+        delete remap[key.id];
     } else {
         currentRemap.key = incomingID;
-        currentRemap.modifiers = incomingModifiers;
-        if (currentRemap.modifiers.length == 0) {
+        currentRemap.modifiers = [...incomingModifiers];
+        if (modifiersEqual) {
             delete currentRemap.modifiers;
         }
-        remap[window.currentKey] = currentRemap;
+        remap[key.id] = currentRemap;
     }
 
     window.remap.set(remap);
@@ -245,12 +289,14 @@ function onClickModifier(event) {
  * @param {MouseEvent} event 
  */
 function onClickKey(event) {
-    window.currentKey = event.target.id;
+    window.currentKey = JSON.parse(event.target.getAttribute("data"));
     redrawOptions();
 }
 
 
 async function main() {
+    window.layout = Air75.getLayout("win");
+
     let app = g(".app");
 
     app.appendChild(n("div", e => {
@@ -284,15 +330,10 @@ async function main() {
 
     window.ipc.onLoadKeymap((_, { keymap }) => {
         let keys = keymap.keys ?? {};
-        let rawFound = false;
         for (let key in keys) {
             let remap = keys[key];
             if (typeof remap == "string") {
                 keys[key] = { key: remap };
-            }
-            if (key.raw != null) {
-                rawFound = true;
-                delete key.raw;
             }
         }
         window.remap.set(keys);

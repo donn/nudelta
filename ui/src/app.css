@@ -46,6 +46,11 @@ body {
     text-align: center;
 }
 
+p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 .app > p {
     padding: 0px 0px 0px 0px;
     margin-block-start: 0;
@@ -83,13 +88,21 @@ body {
 .key {
     border-radius: 12.5px;
     display: flex;
-    text-align: center;
     justify-content: center;
-    padding-top: 5px;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
     padding-left: 2.5px;
     padding-right: 2.5px;
     color: transparent;
     user-select: none;
+}
+
+.key.altlabel {
+    justify-content: normal;
+    padding-top: 0.75em;
+    padding-bottom: 0px;
+    padding-left: 7.5px;
+    padding-right: 2.5px;
 }
 
 .keyboard {
