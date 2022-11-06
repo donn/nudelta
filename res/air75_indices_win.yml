@@ -1,4 +1,4 @@
-# dict Air75::indicesByKeyName
+# dict Air75::indicesByKeyNameWin
 capslock: 3
 lctrl: 5
 lshift: 4
@@ -7,6 +7,11 @@ lmeta: 11
 rctrl: 65
 rshift: 82
 ralt: 53
+
+up: 149
+down: 150
+left: 151
+right: 152
 
 pgup: 91
 pgdn: 92
@@ -19,18 +24,6 @@ space: 35
 backspace: 79
 
 esc: 0
-f1: 180
-f2: 181
-f3: 182
-f4: 183
-f5: 184
-f6: 185
-f7: 186
-f8: 187
-f9: 188
-f10: 189
-f11: 190
-f12: 191
 del: 209
 
 grave: 1
@@ -83,15 +76,20 @@ fwdslash: 64
 comma: 164
 period: 165
 
-# -- Non-standard
-screenshot: 78
-assistant: 84
-
-# -- Fn Combinations
-fn_up: 197
-fn_down: 198
-fn_left: 199
-fn_right: 200
+# Fn + Tab + R switches which one of the following two requires Fn to be held
+# -- Function Keys
+f1: 180
+f2: 181
+f3: 182
+f4: 183
+f5: 184
+f6: 185
+f7: 186
+f8: 187
+f9: 188
+f10: 189
+f11: 190
+f12: 191
 
 # -- Multimedia Keys
 brightnessdown: 132
@@ -106,3 +104,13 @@ forward: 140
 mute: 141
 volumedown: 142
 volumeup: 143
+
+# -- Misc. Fn Combinations
+fn_up: 197
+fn_down: 198
+fn_left: 199
+fn_right: 200
+
+# -- Non-standard
+screenshot: 78
+assistant: 84

@@ -170,13 +170,16 @@ std::vector< uint8_t > Air75::request1() {
     return get_report(current, REQUEST_1);
 }
 
-std::vector< uint32_t > Air75::getKeymap() {
+std::vector< uint32_t > Air75::getKeymap(bool mac) {
     auto current = handle();
     SCOPE_EXIT {
         hid_close(current);
     };
 
-    auto keymapReport = get_report(current, WINDOWS_KEYMAP_GET_HEADER);
+    auto keymapReport = get_report(
+        current,
+        mac ? MAC_KEYMAP_GET_HEADER : WINDOWS_KEYMAP_GET_HEADER
+    );
 
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint32_t *)&keymapReport[8];
@@ -185,7 +188,7 @@ std::vector< uint32_t > Air75::getKeymap() {
     return std::vector< uint32_t >(start_pointer, end_pointer);
 }
 
-void Air75::setKeymap(const std::vector< uint32_t > &keymap) {
+void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     auto current = handle();
     SCOPE_EXIT {
         hid_close(current);
@@ -193,6 +196,11 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap) {
 
     auto header = WINDOWS_KEYMAP_WRITE_HEADER;
     size_t headerSize = sizeof WINDOWS_KEYMAP_WRITE_HEADER;
+    if (mac) {
+        header = MAC_KEYMAP_WRITE_HEADER;
+        headerSize = sizeof MAC_KEYMAP_WRITE_HEADER;
+    }
+
     size_t count = headerSize + (keymap.size() * 4);
 
     uint8_t *buffer = new uint8_t[count];
@@ -210,25 +218,43 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap) {
     set_report(current, buffer, count);
 }
 
-void Air75::validateYAMLKeymap(const std::string &yamlString, bool rawOk) {
+const char *TOP_LEVEL_WIN = "keys";
+const char *TOP_LEVEL_MAC = "mackeys";
+
+void Air75::validateYAMLKeymap(
+    const std::string &yamlString,
+    bool rawOk,
+    bool mac
+) {
     auto config = YAML::Load(yamlString);
 
-    auto keys = config["keys"];
-    if (keys.Type() != YAML::NodeType::Map) {
-        throw std::runtime_error(
-            "Invalid config file: key 'keys' is not a map.\n"
-        );
+    auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
+    auto &indices =
+        mac ? Air75::indicesByKeyNameMac : Air75::indicesByKeyNameWin;
+
+    auto keys = config[topLevelKey];
+
+    if (keys.Type() != YAML::NodeType::Map && !keys.IsNull()
+        && keys.IsDefined()) {
+        auto errorMessage =
+            fmt::format("Invalid config file: '{}' is not a map.", topLevelKey);
+        throw std::runtime_error(errorMessage);
+    }
+
+    if (keys.IsNull() || !keys.IsDefined()) {
+        return;
     }
 
     for (auto entry : keys) {
         auto keyID = entry.first.as< std::string >();
 
-        auto keyIt = Air75::indicesByKeyName.find(keyID);
-        if (Air75::indicesByKeyName.find(keyID)
-            == Air75::indicesByKeyName.end()) {
+        auto keyIt = indices.find(keyID);
+        if (indices.find(keyID) == indices.end()) {
             auto errorMessage = fmt::format(
-                "Invalid config file: a key for '{}' does not exist.\n",
-                keyID
+                "Invalid config in {}: a key for '{}' does not exist in '{}' mode.",
+                topLevelKey,
+                keyID,
+                mac ? "Mac" : "Windows"
             );
             throw std::runtime_error(errorMessage);
         }
@@ -247,7 +273,8 @@ void Air75::validateYAMLKeymap(const std::string &yamlString, bool rawOk) {
         if (raw.IsDefined() && !raw.IsNull()) {
             if (!rawOk) {
                 auto errorMessage = fmt::format(
-                    "Raw configurations are not supported by the Nudelta GUI.\n",
+                    "Invalid config in {}.{}: raw configurations are not supported by the Nudelta GUI.",
+                    topLevelKey,
                     keyID
                 );
                 throw std::runtime_error(errorMessage);
@@ -260,7 +287,9 @@ void Air75::validateYAMLKeymap(const std::string &yamlString, bool rawOk) {
         if (Air75::keycodesByKeyName.find(codeID)
             == Air75::keycodesByKeyName.end()) {
             auto errorMessage = fmt::format(
-                "Invalid config file: a code for key '{}' was not found.",
+                "Invalid config in {}.{}: a code for key '{}' was not found.",
+                topLevelKey,
+                keyID,
                 codeID
             );
             throw std::runtime_error(errorMessage);
@@ -271,7 +300,8 @@ void Air75::validateYAMLKeymap(const std::string &yamlString, bool rawOk) {
         if (modifiers.IsDefined() and !modifiers.IsNull()) {
             if (modifiers.Type() != YAML::NodeType::Sequence) {
                 throw std::runtime_error(fmt::format(
-                    "Invalid config file: {}.modifiers is not an array.",
+                    "Invalid config in {}.{}: modifiers is not an array.",
+                    topLevelKey,
                     keyID
                 ));
             }
@@ -281,7 +311,9 @@ void Air75::validateYAMLKeymap(const std::string &yamlString, bool rawOk) {
                     Air75::modifiersByModifierName.find(modifierName);
                 if (modifierIt == Air75::modifiersByModifierName.end()) {
                     throw std::runtime_error(fmt::format(
-                        "Unknown modifier {}: make sure you're not adding a direction, e.g. lalt instead of alt",
+                        "Invalid config in {}.{}: Unknown modifier {}: make sure you're not adding a direction, e.g. lalt instead of alt",
+                        topLevelKey,
+                        keyID,
                         modifierName
                     ));
                 }
@@ -290,52 +322,63 @@ void Air75::validateYAMLKeymap(const std::string &yamlString, bool rawOk) {
     }
 }
 
-void Air75::setKeymapFromYAML(const std::string &yamlString) {
-    validateYAMLKeymap(yamlString);
+void Air75::setKeymapFromYAML(const std::string &yamlString, bool mac) {
+    validateYAMLKeymap(yamlString, true, false);
+    validateYAMLKeymap(yamlString, true, true);
 
     auto config = YAML::Load(yamlString);
 
-    auto writableKeymap = Air75::defaultKeymap;
-    auto keys = config["keys"];
-    for (auto entry : keys) {
-        auto keyID = entry.first.as< std::string >();
+    auto writableKeymap =
+        mac ? Air75::defaultKeymapMac : Air75::defaultKeymapWin;
 
-        auto keyIt = Air75::indicesByKeyName.find(keyID);
-        auto key = keyIt->second;
+    auto &indices =
+        mac ? Air75::indicesByKeyNameMac : Air75::indicesByKeyNameWin;
 
-        auto codeObject = entry.second;
-        if (entry.second.IsScalar()) {
-            auto codeID = codeObject.as< std::string >();
-            codeObject = YAML::Node();
-            codeObject["key"] = codeID;
-        }
+    auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
+    auto keys = config[topLevelKey];
 
-        // If "raw" exists: just set it and ignore everything else
-        auto raw = codeObject["raw"];
-        if (raw.IsDefined() && !raw.IsNull()) {
-            writableKeymap[key] = raw.as< uint32_t >();
-            continue;
-        }
+    if (!keys.IsNull() && keys.IsDefined()) {
+        for (auto entry : keys) {
+            auto keyID = entry.first.as< std::string >();
 
-        auto codeID = codeObject["key"].as< std::string >();
-        auto codeIt = Air75::keycodesByKeyName.find(codeID);
+            auto keyIt = indices.find(keyID);
+            auto key = keyIt->second;
 
-        auto code = codeIt->second;
-        auto modifiers = codeObject["modifiers"];
-        if (modifiers.IsDefined() and !modifiers.IsNull()) {
-            for (auto modifier : modifiers) {
-                auto modifierName = modifier.as< std::string >();
-                auto modifierIt =
-                    Air75::modifiersByModifierName.find(modifierName);
-                auto modifierCode = modifierIt->second;
-                code |= modifierCode;
+            auto codeObject = entry.second;
+            if (entry.second.IsScalar()) {
+                auto codeID = codeObject.as< std::string >();
+                codeObject = YAML::Node();
+                codeObject["key"] = codeID;
             }
+
+            // If "raw" exists: just set it and ignore everything else
+            auto raw = codeObject["raw"];
+            if (raw.IsDefined() && !raw.IsNull()) {
+                writableKeymap[key] = raw.as< uint32_t >();
+                continue;
+            }
+
+            auto codeID = codeObject["key"].as< std::string >();
+            auto codeIt = Air75::keycodesByKeyName.find(codeID);
+
+            auto code = codeIt->second;
+            auto modifiers = codeObject["modifiers"];
+            if (modifiers.IsDefined() and !modifiers.IsNull()) {
+                for (auto modifier : modifiers) {
+                    auto modifierName = modifier.as< std::string >();
+                    auto modifierIt =
+                        Air75::modifiersByModifierName.find(modifierName);
+                    auto modifierCode = modifierIt->second;
+                    code |= modifierCode;
+                }
+            }
+            writableKeymap[key] = code;
         }
-        writableKeymap[key] = code;
     }
-    setKeymap(writableKeymap);
+
+    setKeymap(writableKeymap, mac);
 }
 
-void Air75::resetKeymap() {
-    setKeymap(Air75::defaultKeymap);
+void Air75::resetKeymap(bool mac) {
+    setKeymap(mac ? Air75::defaultKeymapMac : Air75::defaultKeymapWin, mac);
 }

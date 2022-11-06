@@ -28,75 +28,6 @@
 
 class Air75 {
     public:
-        enum class Key {
-            escape = 0,
-            grave = 1,
-            capslock = 3,
-            lshift = 4,
-            lctrl = 5,
-            lalt = 17,
-            ralt = 53,
-            rctrl = 65,
-
-            tab = 2,
-            space = 35,
-            backspace = 79,
-
-            num1 = 145,
-            num2 = 146,
-            num3 = 147,
-            num4 = 148,
-            num5 = 31,
-            num6 = 37,
-            num7 = 43,
-            num8 = 49,
-            num9 = 55,
-            num0 = 61,
-
-            a = 9,
-            b = 34,
-            c = 22,
-            d = 21,
-            e = 20,
-            f = 166,
-            g = 162,
-            h = 39,
-            i = 50,
-            j = 45,
-            k = 51,
-            l = 57,
-            m = 46,
-            n = 11,
-            o = 12,
-            p = 62,
-            q = 157,
-            r = 26,
-            s = 163,
-            t = 32,
-            u = 18,
-            v = 28,
-            w = 158,
-            x = 16,
-            y = 38,
-            z = 10,
-
-            semicolon = 63,
-            minus = 67,
-            equal = 73,
-            quote = 69,
-            lbracket = 68,
-            rbracket = 159,
-            backslash = 160,
-            comma = 164,
-            period = 165,
-
-            pgup = 91,
-            pgdn = 92,
-            home = 93,
-            end = 94,
-            del = 209,
-        };
-
         uint16_t firmware;
         std::string productString;
         std::string path;
@@ -105,22 +36,31 @@ class Air75 {
             : productString(to_utf8(productString)), path(path),
               firmware(firmware) {}
 
-        std::vector< uint32_t > getKeymap();
-        void setKeymap(const std::vector< uint32_t > &keymap);
-        void setKeymapFromYAML(const std::string &yamlString);
-        void resetKeymap();
+        std::vector< uint32_t > getKeymap(bool mac = false);
+        void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
+        void setKeymapFromYAML(const std::string &yamlString, bool mac = false);
+        void resetKeymap(bool mac = false);
 
         static std::optional< Air75 > find();
 
-        static const std::vector< uint32_t > defaultKeymap;
+        static const std::vector< uint32_t > defaultKeymapWin;
         static const std::unordered_map< std::string, uint32_t >
-            indicesByKeyName;
+            indicesByKeyNameWin;
+
+        static const std::vector< uint32_t > defaultKeymapMac;
+        static const std::unordered_map< std::string, uint32_t >
+            indicesByKeyNameMac;
+
         static const std::unordered_map< std::string, uint32_t >
             keycodesByKeyName;
         static const std::unordered_map< std::string, uint32_t >
             modifiersByModifierName;
-        static void
-        validateYAMLKeymap(const std::string &yamlString, bool rawOk = true);
+
+        static void validateYAMLKeymap(
+            const std::string &yamlString,
+            bool rawOk = true,
+            bool mac = false
+        );
     private:
         std::vector< uint8_t > request0();
         std::vector< uint8_t > request1();

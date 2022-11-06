@@ -13,3 +13,13 @@ keys:
   launchpad:
     key: l
     modifiers: [ctrl, shift]
+mackeys:
+  screenshot:
+    key: s
+    modifiers: [meta, shift]
+  assistant: fnspace
+
+  # unintuitively, f5 and f6 are overridden by the keyboard in mac mode
+  # for backlight controls
+  f5: f5
+  f6: f6
