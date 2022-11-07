@@ -1,4 +1,6 @@
 # dict Air75::keycodesByKeyName
+none: 0x00000000
+
 capslock: 0x39000000
 lctrl: 0xe0000006
 lshift: 0xe1000006
@@ -7,6 +9,7 @@ lmeta: 0xe3000006
 rctrl: 0xe4000006
 rshift: 0xe5000006
 ralt: 0xe6000006
+rmeta: 0xe7000006
 
 pgup: 0x4b000000
 pgdn: 0x4e000000
@@ -108,8 +111,8 @@ backlightcolorup: 0x00030012
 backlightdown: 0x0002000c
 backlightup: 0x0001000c
 
-## Not on Windows layout
-rmeta: 0xe7000006
+## Special
+fnspace: 0x2f000002
 
 ## Apple-specific extra F keys (useful for keyboard shortcuts/software macros)
 f13: 0x68000000

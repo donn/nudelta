@@ -1,6 +1,6 @@
 // Modules to control application life and create native browser window
 const electron = require("electron");
-const { app, dialog, BrowserWindow, Menu, ipcMain, clipboard } = electron;
+const { app, dialog, BrowserWindow, Menu, ipcMain, shell } = electron;
 
 const macOS = process.platform == "darwin";
 
@@ -14,7 +14,7 @@ function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 1240,
-        height: 720,
+        height: 1000,
         webPreferences: {
             preload: path.join(__dirname, 'ui', 'src', 'preload.js')
         },
@@ -37,7 +37,7 @@ function createWindow() {
                             title: "Open Remap File…",
                             buttonLabel: "Open",
                             filters: [
-                                { name: "Nudelta Remap File", extensions: ["yml", "yaml"] }
+                                { name: "Nudelta Config File", extensions: ["yml", "yaml"] }
                             ]
                         });
 
@@ -54,10 +54,10 @@ function createWindow() {
                         try {
                             libnd.validateYAML(value);
 
-                            let keymap = YAML.parse(value);
+                            let config = YAML.parse(value);
 
-                            mainWindow.webContents.send("load-keymap",
-                                { keymap }
+                            mainWindow.webContents.send("load-config",
+                                { config }
                             );
                         } catch (err) {
                             await dialog.showErrorBox("Invalid YAML file", err.message).catch(err => {
@@ -75,12 +75,12 @@ function createWindow() {
                             title: "Save Remap File…",
                             buttonLabel: "Save",
                             filters: [
-                                { name: "Nudelta Remap File", extensions: ["yml", "yaml"] }
+                                { name: "Nudelta Config File", extensions: ["yml", "yaml"] }
                             ],
                             default: mainWindow.currentFile
                         });
 
-                        mainWindow.webContents.send("save-keymap", { filePath });
+                        mainWindow.webContents.send("save-config", { filePath });
                     }
                 },
                 {
@@ -116,9 +116,15 @@ function createWindow() {
                 {
                     label: 'Repo',
                     click: async () => {
-                        const { shell } = electron;
                         await shell.openExternal('https://github.com/donn/nudelta')
                     }
+                },
+                {
+                    label: 'Open Source Acknowledgements',
+                    click: async () => {
+                        await shell.openExternal('https://raw.githubusercontent.com/donn/nudelta/main/OSAcknowledgements.txt');
+                    }
+
                 }
             ]
         }
@@ -138,8 +144,8 @@ app.on('window-all-closed', function () {
     if (!macOS) app.quit()
 });
 
-ipcMain.on("save-keymap-callback", async (_, { remap, filePath }) => {
-    let string = YAML.stringify(remap);
+ipcMain.on("save-config-reply", async (_, { config, filePath }) => {
+    let string = YAML.stringify(config);
     await fs.writeFile(filePath, string);
 });
 
@@ -162,16 +168,17 @@ async function sendKeyboardInfo(sender) {
 
 ipcMain.on("get-keyboard-info", (ev) => sendKeyboardInfo(ev.sender));
 
-ipcMain.on("write-yaml", async (ev, remap) => {
-    let serialized = YAML.stringify({ "keys": remap });
+ipcMain.on("write-yaml", async (ev, config) => {
+    let serialized = YAML.stringify(config);
+    console.log(`Writing ${serialized}...`)
     try {
         libnd.setKeymapFromYAML(serialized);
     } catch (err) {
-        dialog.showErrorBox("Failed to write keymap", err.message);
+        dialog.showErrorBox("Failed to write config", err.message);
         await sendKeyboardInfo(ev.sender);
         return;
     }
     await dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
-        message: "Wrote Windows keymap successfully!"
+        message: "Wrote configuration successfully!"
     });
 });

@@ -63,14 +63,18 @@ SSCO_Fn(printFirmware) {
 }
 
 SSCO_Fn(resetKeymap) {
+    auto mac = opts.options.find("mac") != opts.options.end();
+
     auto air75 = getKeyboard();
-    air75.resetKeymap();
+    air75.resetKeymap(mac);
     p("Wrote default keymap config to keyboard.\n");
 }
 
 SSCO_Fn(dumpKeymap) {
+    auto mac = opts.options.find("mac") != opts.options.end();
+
     auto air75 = getKeyboard();
-    auto keys = air75.getKeymap();
+    auto keys = air75.getKeymap(mac);
     auto file = opts.options.find("dump-keys")->second;
     auto filePtr = fopen(file.c_str(), "wb");
     if (!filePtr) {
@@ -87,7 +91,7 @@ SSCO_Fn(dumpKeymap) {
     auto end = (char *)&*keys.end();
     fwrite(seeker, 1, end - seeker, filePtr);
 
-    p("Wrote current keymap to '{}'.\n", file);
+    p("Wrote current {} keymap to '{}'.\n", mac ? "Mac" : "Windows", file);
 
     auto hexFileIterator = opts.options.find("dump-hex-to");
     if (hexFileIterator != opts.options.end()) {
@@ -115,8 +119,10 @@ SSCO_Fn(dumpKeymap) {
 }
 
 SSCO_Fn(loadKeymap) {
+    auto mac = opts.options.find("mac") != opts.options.end();
+
     auto air75 = getKeyboard();
-    auto keys = air75.getKeymap();
+    auto keys = air75.getKeymap(mac);
     auto file = opts.options.find("load-keys")->second;
     auto filePtr = fopen(file.c_str(), "rb");
     if (!filePtr) {
@@ -137,19 +143,26 @@ SSCO_Fn(loadKeymap) {
         (uint32_t *)(readBuffer + 1024)
     );
 
-    air75.setKeymap(keymap);
+    air75.setKeymap(keymap, mac);
 
-    p("Wrote keymap '{}' to keyboard.", file);
+    p("Wrote keymap '{}' to the keyboard's {} mode.\n",
+      file,
+      mac ? "Mac" : "Windows");
 }
 
 SSCO_Fn(loadYAML) {
+    auto mac = opts.options.find("mac") != opts.options.end();
+
     auto air75 = getKeyboard();
     auto configPath = opts.options.find("load-profile")->second;
 
     std::string configStr;
     std::getline(std::ifstream(configPath), configStr, '\0');
+    air75.setKeymapFromYAML(configStr, mac);
 
-    air75.setKeymapFromYAML(configStr);
+    p("Wrote keymap '{}' to the keyboard's {} mode.\n",
+      configPath,
+      mac ? "Mac" : "Windows");
 }
 
 int main(int argc, char *argv[]) {
@@ -179,6 +192,10 @@ int main(int argc, char *argv[]) {
              "Print the Air75 keyboard's firmware and exit.",
              false,
              printFirmware},
+         Opt{"mac",
+             'M',
+             "Perform operations on the Mac mode of the keyboard instead of the windows one.",
+             false},
          Opt{"reset-keys",
              'r',
              "Restore the original keymap.",

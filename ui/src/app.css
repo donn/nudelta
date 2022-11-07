@@ -46,10 +46,15 @@ body {
     text-align: center;
 }
 
+p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 .app > p {
     padding: 0px 0px 0px 0px;
     margin-block-start: 0;
-    margin-block-end: 40px;
+    margin-block-end: 10px;
 }
 
 .app h1 {
@@ -65,7 +70,7 @@ body {
 .keyboard-container {
     display: inline-block;
     width: 1000px;
-    height: 350px;
+    height: auto;
     padding: 10px;
 }
 
@@ -83,13 +88,21 @@ body {
 .key {
     border-radius: 12.5px;
     display: flex;
-    text-align: center;
     justify-content: center;
-    padding-top: 5px;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
     padding-left: 2.5px;
     padding-right: 2.5px;
     color: transparent;
     user-select: none;
+}
+
+.key.altlabel {
+    justify-content: normal;
+    padding-top: 0.75em;
+    padding-bottom: 0px;
+    padding-left: 7.5px;
+    padding-right: 2.5px;
 }
 
 .keyboard {
@@ -98,6 +111,8 @@ body {
     gap: 5px;
     left: 0;
     right: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .keyboard > .key {
@@ -119,6 +134,7 @@ body {
 
 .option-matrix {
     font-size: 12pt;
+    width: 800px;
 }
 
 .option-matrix > .key {
@@ -146,10 +162,25 @@ body {
     font-family: monospace;
 }
 
+#keyboard-field {
+    display: flex;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#keyboard-field > p {
+    display: block;
+}
+
 #write-key {
     background-color: var(--gray);
     cursor: not-allowed;
     pointer-events: none;
+    display: flex;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #write-key.active {

@@ -18,9 +18,9 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld('ipc', {
-    onLoadKeymap: (callback) => ipcRenderer.on("load-keymap", callback),
-    onSaveKeymap: (callback) => ipcRenderer.on("save-keymap", callback),
+    onLoadConfig: (callback) => ipcRenderer.on("load-config", callback),
+    onSaveConfig: (callback) => ipcRenderer.on("save-config", callback),
     getKeyboardInfo: () => ipcRenderer.send("get-keyboard-info"),
     onGetKeyboardInfo: (callback) => ipcRenderer.on("get-keyboard-info-reply", callback),
-    sendRemap: (remap) => ipcRenderer.send("write-yaml", remap)
+    sendConfig: (remap) => ipcRenderer.send("write-yaml", remap)
 });

@@ -22,3 +22,5 @@ node_modules/
 dist/
 *.node
 *.AppImage
+
+!OSAcknowledgements.txt

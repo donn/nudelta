@@ -1,7 +1,7 @@
 {
   "name": "nudelta",
   "author": "Mohamed Gaber",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/donn/nudelta#readme",
   "description": "an open source alternative to the nuphy console",
@@ -25,6 +25,7 @@
     "cmake-js": "^7.0.0",
     "electron": "^21.2.1",
     "electron-builder": "^23.6.0",
+    "license-checker": "^25.0.1",
     "node-addon-api": "^5.0.0",
     "nodemon": "^2.0.9",
     "rollup": "^2.26.10",
