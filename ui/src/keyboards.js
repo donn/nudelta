@@ -18,38 +18,132 @@
 import air75_keycodes from "../../res/air75_keycodes.yml"
 
 class Key {
-    constructor({ id, color, label, width, name, remappable, altLabel, defaultMapping, defaultModifiers }) {
+    constructor({ id, color, label, width, name, remappable, defaultMapping, defaultModifiers, altLabel, altID, altName, altDefaultMapping, altDefaultModifiers }) {
         this.id = id;
         this.color = color ?? "white";
         this.label = label ?? this.id.toUpperCase();
         this.width = width ?? 1.0;
         this.name = name ?? this.id.charAt(0).toUpperCase() + this.id.slice(1);
         this.remappable = remappable ?? true;
-        this.altLabel = altLabel;
         this.defaultMapping = defaultMapping ?? this.id;
         this.defaultModifiers = defaultModifiers ?? [];
+
+        this.altLabel = altLabel ?? null;
+        this.altID = altID ?? null;
+        this.altName = altName ?? null;
+        this.altDefaultMapping = altDefaultMapping ?? this.id;
+        this.altDefaultModifiers = altDefaultModifiers ?? this.defaultModifiers;
     }
 }
 
 export const Air75 = {
     keycodes: air75_keycodes,
-    getLayout(profile) {
-        let mac = profile === "mac";
+    getLayout(mode) {
+        let mac = mode === "mac";
         return [
             [
                 new Key({ id: "esc", color: "mint", name: "Escape" }),
-                new Key({ id: "f1", label: "F1", altLabel: "🔅" }),
-                new Key({ id: "f2", label: "F2", altLabel: "🔆" }),
-                new Key({ id: "f3", label: "F3", altLabel: " " }),
-                new Key({ id: "f4", label: "F4", altLabel: " " }),
-                new Key({ id: "f5", color: "gray", label: "F5", altLabel: " ", defaultMapping: mac ? "backlightdown" : null }),
-                new Key({ id: "f6", color: "gray", label: "F6", altLabel: " ", defaultMapping: mac ? "backlightup" : null }),
-                new Key({ id: "f7", color: "gray", label: "F7", altLabel: "⏪︎" }),
-                new Key({ id: "f8", color: "gray", label: "F8", altLabel: "⏯︎" }),
-                new Key({ id: "f9", label: "F9", altLabel: "⏩︎" }),
-                new Key({ id: "f10", label: "F10", altLabel: "🔈" }),
-                new Key({ id: "f11", label: "F11", altLabel: "🔉" }),
-                new Key({ id: "f12", label: "F12", altLabel: "🔊" }),
+                new Key({
+                    id: "f1",
+
+                    altLabel: "🔅",
+                    altID: mac ? "fn_f1" : "brightnessdown",
+                    altName: mac ? "F1 (with Fn held)" : "Brightness Down", altDefaultMapping: mac ? "f1" : "brightnessdown"
+                }),
+                new Key({
+                    id: "f2",
+
+                    altLabel: "🔆",
+                    altID: mac ? "fn_f2" : "brightnessup",
+                    altName: mac ? "F2 (with Fn held)" : "Brightness Up",
+                    altDefaultMapping: mac ? "f2" : "brightnessup"
+                }),
+                new Key({
+                    id: "f3",
+
+                    altLabel: " ",
+                    altID: mac ? "fn_f3" : "missioncontrol",
+                    altName: mac ? "F3 (with Fn held)" : "Mission Control",
+                    altDefaultMapping: mac ? "f3" : "none"
+                }),
+                new Key({
+                    id: "f4",
+
+                    altLabel: " ",
+                    altID: mac ? "fn_f4" : "launchpad",
+                    altName: mac ? "F4 (with Fn held)" : "Launchpad",
+                    altDefaultMapping: mac ? "f4" : "none"
+                }),
+                new Key({
+                    id: "f5",
+                    color: "gray",
+                    defaultMapping: mac ? "backlightdown" : null,
+
+                    altLabel: " ",
+                    altID: mac ? "fn_f5" : "backlightdown",
+                    altName: mac ? "F5 (with Fn held)" : "Backlight Down",
+                    altDefaultMapping: mac ? "f5" : "backlightdown"
+                }),
+                new Key({
+                    id: "f6",
+                    color: "gray",
+                    defaultMapping: mac ? "backlightup" : null,
+
+                    altLabel: " ",
+                    altID: mac ? "fn_f6" : "backlightup",
+                    altName: mac ? "F6 (with Fn held)" : "Backlight Up",
+                    altDefaultMapping: mac ? "f6" : "backlightup"
+                }),
+                new Key({
+                    id: "f7",
+                    color: "gray",
+
+                    altLabel: "⏪︎",
+                    altID: mac ? "fn_f7" : "rewind",
+                    altName: mac ? "F7 (with Fn held)" : "Rewind",
+                    altDefaultMapping: mac ? "f7" : "rewind"
+                }),
+                new Key({
+                    id: "f8",
+                    color: "gray",
+
+                    altLabel: "⏯︎",
+                    altID: mac ? "fn_f8" : "playpause",
+                    altName: mac ? "F8 (with Fn held)" : "Play/Pause Toggle",
+                    altDefaultMapping: mac ? "f8" : "playpause"
+                }),
+                new Key({
+                    id: "f9",
+
+                    altLabel: "⏩︎",
+                    altID: mac ? "fn_f9" : "forward",
+                    altName: mac ? "F9 (with Fn held)" : "Fast-Forward",
+                    altDefaultMapping: mac ? "f9" : "forward"
+                }),
+                new Key({
+                    id: "f10",
+
+                    altLabel: "🔈",
+                    altID: mac ? "fn_f10" : "mute",
+                    altName: mac ? "F10 (with Fn held)" : "Mute",
+                    altDefaultMapping: mac ? "f10" : "mute"
+                }),
+                new Key({
+                    id: "f11",
+
+                    altLabel: "🔉",
+                    altID: mac ? "fn_f11" : "volumedown",
+                    altName: mac ? "F11 (with Fn held)" : "Volume Down",
+                    altDefaultMapping: mac ? "f11" : "volumedown"
+                }),
+                new Key({
+                    id: "f12",
+
+                    altLabel: "🔊",
+                    altID: mac ? "fn_f12" : "volumeup",
+                    altName: mac ? "F12 (with Fn held)" : "Volume Up",
+                    altDefaultMapping: mac ? "f12" : "volumeup"
+                }),
                 new Key({ id: "screenshot", color: "gray", label: "✂️", defaultMapping: mac ? "num4" : "s", defaultModifiers: ["meta", "shift"] }),
                 new Key({ id: "assistant", color: "gray", label: "🐱", defaultMapping: mac ? "fnspace" : "c", defaultModifiers: mac ? [] : ["meta"] }),
                 new Key({ id: "del", color: "gray", name: "Delete" })

@@ -106,6 +106,7 @@ Napi::Value setKeymapFromYAML(const Napi::CallbackInfo &info) {
 
         auto keymapYAML = info[0].As< Napi::String >().Utf8Value();
         air75.setKeymapFromYAML(keymapYAML);
+        air75.setKeymapFromYAML(keymapYAML, true);
     } catch (std::runtime_error &e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
     }
