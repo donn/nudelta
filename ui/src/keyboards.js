@@ -98,7 +98,7 @@ export const Air75 = {
                     id: "f7",
                     color: "gray",
 
-                    altLabel: "⏪︎",
+                    altLabel: " ",
                     altID: mac ? "fn_f7" : "rewind",
                     altName: mac ? "F7 (with Fn held)" : "Rewind",
                     altDefaultMapping: mac ? "f7" : "rewind"
@@ -107,7 +107,7 @@ export const Air75 = {
                     id: "f8",
                     color: "gray",
 
-                    altLabel: "⏯︎",
+                    altLabel: " ",
                     altID: mac ? "fn_f8" : "playpause",
                     altName: mac ? "F8 (with Fn held)" : "Play/Pause Toggle",
                     altDefaultMapping: mac ? "f8" : "playpause"
@@ -115,7 +115,7 @@ export const Air75 = {
                 new Key({
                     id: "f9",
 
-                    altLabel: "⏩︎",
+                    altLabel: " ",
                     altID: mac ? "fn_f9" : "forward",
                     altName: mac ? "F9 (with Fn held)" : "Fast-Forward",
                     altDefaultMapping: mac ? "f9" : "forward"
