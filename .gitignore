@@ -22,5 +22,6 @@ node_modules/
 dist/
 *.node
 *.AppImage
+yarn-error.log
 
 !OSAcknowledgements.txt

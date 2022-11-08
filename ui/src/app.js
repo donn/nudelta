@@ -184,11 +184,11 @@ function drawOptionArray(e, remap, id, defaultMapping, defaultModifiers, alt, co
         e.id = elementID;
         e.style = `
             grid-column-start: ${column};
-            grid-column-end: ${column + 1};
+            grid-column-end: ${column + 2};
             grid-row-start: ${row};
             grid-row-end: ${row + 1};
         `;
-        column += 1;
+        column += 2;
         for (let keycode in Air75.keycodes) {
             e.appendChild(n("option", e => {
                 e.innerHTML = keycode;
@@ -213,13 +213,8 @@ function redrawOptions() {
         e.className = "option-matrix card";
         let key = window.currentKey;
         let columnCount = 1;
-        if (key) {
-            if (!key.remappable) {
-                e.appendChild(n("p", e => {
-                    e.innerHTML = `The ${key.name} key cannot be remapped.`
-                }))
-                return
-            }
+        if (key && key.remappable) {
+            let altIDExists = !!(key.altID);
 
             columnCount = drawOptionArray(
                 e,
@@ -229,14 +224,14 @@ function redrawOptions() {
                 key.defaultModifiers,
                 false,
                 1,
-                2
+                altIDExists ? 2 : 3
             );
             e.appendChild(n("h3", e => {
                 e.style = `
                     grid-column-start: 1;
                     grid-column-end: ${columnCount};
-                    grid-row-start: 1;
-                    grid-row-end: 2;
+                    grid-row-start: ${altIDExists ? 1 : 2};
+                    grid-row-end: ${altIDExists ? 2 : 3};
                 `;
                 e.innerHTML = `${key.name}`;
             }))
@@ -271,18 +266,29 @@ function redrawOptions() {
                 }))
             }
 
+        } else if (key && !key.remappable) {
+            e.appendChild(n("h3", e => {
+                e.style = `
+                    grid-column-start: 1;
+                    grid-column-end: ${columnCount + 6};
+                    grid-row-start: 2;
+                    grid-row-end: 5;
+                `;
+                e.innerHTML = `The ${key.name} key cannot be remapped.`;
+            }));
+            columnCount += 6;
         } else {
             e.appendChild(n("h3", e => {
                 e.style = `
                     grid-column-start: 1;
-                    grid-column-end: ${columnCount + 5};
-                    grid-row-start: 1;
+                    grid-column-end: ${columnCount + 6};
+                    grid-row-start: 2;
                     grid-row-end: 5;
                 `;
                 e.id = "no-key-selected";
                 e.innerHTML = "No key selected.";
             }));
-            columnCount += 5;
+            columnCount += 6;
         }
 
         columnCount += 1;
@@ -294,7 +300,7 @@ function redrawOptions() {
                 grid-row-start: 2;
                 grid-row-end: 3;
             `;
-            e.id = "keyboard-field";
+            e.className = "keyboard-field";
             e.appendChild(n("p", e => {
                 e.innerHTML = window.keyboardFoundString ?? "No keyboard found.<br />File > Reload Keyboard to retry.";
             }))
@@ -305,7 +311,7 @@ function redrawOptions() {
             if (window.keyboardFoundString) {
                 e.className = `key active`;
             }
-            e.id = `write-key`;
+            e.className = `write-key`;
             e.style = `
                 grid-column-start: ${columnCount};
                 grid-column-end: ${columnCount + 3};

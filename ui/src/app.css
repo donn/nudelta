@@ -86,13 +86,15 @@ p {
 }
 
 .key {
+    box-sizing: border-box;
+    height: 55px;
     border-radius: 12.5px;
     display: flex;
     justify-content: center;
     padding-top: 1.5em;
     padding-bottom: 1.5em;
-    padding-left: 2.5px;
-    padding-right: 2.5px;
+    padding-left: 0.75em;
+    padding-right: 0.75em;
     color: transparent;
     user-select: none;
 }
@@ -100,9 +102,7 @@ p {
 .key.altlabel {
     justify-content: normal;
     padding-top: 0.75em;
-    padding-bottom: 0px;
-    padding-left: 7.5px;
-    padding-right: 2.5px;
+    padding-bottom: 0.75em;
 }
 
 .keyboard {
@@ -160,20 +160,21 @@ p {
     text-align: center;
     font-size: 12pt;
     font-family: monospace;
+    height: 55px;
 }
 
-#keyboard-field {
+.keyboard-field {
     display: flex;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#keyboard-field > p {
-    display: block;
+.keyboard-field > p {
+    display: inline-block;
 }
 
-#write-key {
+.write-key {
     background-color: var(--gray);
     cursor: not-allowed;
     pointer-events: none;
@@ -183,13 +184,13 @@ p {
     align-items: center;
 }
 
-#write-key.active {
+.write-key.active {
     background-color: var(--mint);
     cursor: pointer;
     pointer-events: all;
 }
 
-#write-key.active:hover {
+.write-key.active:hover {
     background-color: var(--mint-light);
     cursor: pointer;
     pointer-events: all;

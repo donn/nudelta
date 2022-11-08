@@ -46,14 +46,14 @@ export const Air75 = {
                 new Key({
                     id: "f1",
 
-                    altLabel: "🔅",
+                    altLabel: " ",
                     altID: mac ? "fn_f1" : "brightnessdown",
                     altName: mac ? "F1 (with Fn held)" : "Brightness Down", altDefaultMapping: mac ? "f1" : "brightnessdown"
                 }),
                 new Key({
                     id: "f2",
 
-                    altLabel: "🔆",
+                    altLabel: " ",
                     altID: mac ? "fn_f2" : "brightnessup",
                     altName: mac ? "F2 (with Fn held)" : "Brightness Up",
                     altDefaultMapping: mac ? "f2" : "brightnessup"
@@ -123,7 +123,7 @@ export const Air75 = {
                 new Key({
                     id: "f10",
 
-                    altLabel: "🔈",
+                    altLabel: " ",
                     altID: mac ? "fn_f10" : "mute",
                     altName: mac ? "F10 (with Fn held)" : "Mute",
                     altDefaultMapping: mac ? "f10" : "mute"
@@ -131,7 +131,7 @@ export const Air75 = {
                 new Key({
                     id: "f11",
 
-                    altLabel: "🔉",
+                    altLabel: " ",
                     altID: mac ? "fn_f11" : "volumedown",
                     altName: mac ? "F11 (with Fn held)" : "Volume Down",
                     altDefaultMapping: mac ? "f11" : "volumedown"
@@ -139,7 +139,7 @@ export const Air75 = {
                 new Key({
                     id: "f12",
 
-                    altLabel: "🔊",
+                    altLabel: " ",
                     altID: mac ? "fn_f12" : "volumeup",
                     altName: mac ? "F12 (with Fn held)" : "Volume Up",
                     altDefaultMapping: mac ? "f12" : "volumeup"
