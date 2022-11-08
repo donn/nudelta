@@ -16,13 +16,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 @font-face {
-    font-family: 'Nunito';
-    src: url('nunito-latin-500-normal.woff2') format('woff2');
+    font-family: "Nunito";
+    src: url("nunito-latin-500-normal.woff2") format("woff2");
 }
 
 body {
     --mint-ul: #f3fbfa;
-    --mint-light: #8ed8d0; 
+    --mint-light: #8ed8d0;
     --mint: #55d4b9;
     --orange: #ff6832;
     --yellow: #febe00;
@@ -31,13 +31,13 @@ body {
 
     --darker-bg: #161619;
     --dark-bg: #222222;
-    
+
     padding: 0;
     margin: 0;
     background-color: var(--darker-bg);
     width: 100%;
     color: white;
-    font-family: 'Nunito';
+    font-family: "Nunito";
 }
 
 .app {

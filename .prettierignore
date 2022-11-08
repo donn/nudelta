@@ -1,0 +1,8 @@
+/modules
+/submodules
+/build
+/dist
+**/node_modules
+**/*.md
+**/*.yml
+**/*.yaml

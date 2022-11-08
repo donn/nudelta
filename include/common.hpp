@@ -25,10 +25,10 @@
 #include <exception>
 #include <fmt/core.h>
 #include <locale>
+#include <optional>
 #include <string>
 #include <sysexits.h>
 #include <vector>
-#include <optional>
 
 std::string to_utf8(std::wstring in);
 void prettyPrintBinary(const std::vector< uint8_t > &in, FILE *f = stdout);
