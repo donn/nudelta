@@ -92,7 +92,7 @@ function redrawKeyboard() {
     let remap = window.config.getRemap(window.mode);
     container.innerHTML = "";
     container.appendChild(
-        n("div", e => {
+        n("div", (e) => {
             e.className = "keyboard card";
             let layout = Air75.getLayout(window.mode);
             for (let currentRow in layout) {
@@ -101,7 +101,7 @@ function redrawKeyboard() {
                 let currentColumn = 1;
                 for (let key of row) {
                     e.appendChild(
-                        n("div", e => {
+                        n("div", (e) => {
                             e.id = key.id;
                             let width = key.width * 4;
                             let colorResolved = key.color;
@@ -122,17 +122,17 @@ function redrawKeyboard() {
                             }
                             e.className = className;
                             e.style = `
-                        background-color: ${color};
-                        grid-column-start: ${currentColumn};
-                        grid-column-end: ${currentColumn + width};
-                        grid-row-start: ${currentRow + 1};
-                        grid-row-end: ${currentRow + 1};
-                    `;
+                                background-color: ${color};
+                                grid-column-start: ${currentColumn};
+                                grid-column-end: ${currentColumn + width};
+                                grid-row-start: ${currentRow + 1};
+                                grid-row-end: ${currentRow + 1};
+                            `;
                             e.onclick = onClickKey;
                             e.setAttribute("data", JSON.stringify(key));
                             currentColumn += width;
                             e.appendChild(
-                                n("p", e => {
+                                n("span", (e) => {
                                     let styleString = `text-shadow: 0 0 0 ${labelColor};`;
                                     e.style = styleString;
                                     e.innerHTML = label;
@@ -169,7 +169,7 @@ function drawOptionArray(
     for (let modifierID in modifiers) {
         let modifier = modifiers[modifierID];
         e.appendChild(
-            n("div", e => {
+            n("div", (e) => {
                 if (currentModifiers.indexOf(modifierID) !== -1) {
                     e.className = "key selected";
                 } else {
@@ -188,7 +188,7 @@ function drawOptionArray(
 
             `;
                 e.appendChild(
-                    n("p", e => {
+                    n("span", (e) => {
                         e.innerHTML = modifier.label;
                     })
                 );
@@ -198,22 +198,22 @@ function drawOptionArray(
         column += 1;
     }
     e.appendChild(
-        n("select", e => {
+        n("select", (e) => {
             let elementID = "keycode-selector";
             if (alt) {
                 elementID += "-alt";
             }
             e.id = elementID;
             e.style = `
-            grid-column-start: ${column};
-            grid-column-end: ${column + 2};
-            grid-row-start: ${row};
-            grid-row-end: ${row + 1};
-        `;
+                grid-column-start: ${column};
+                grid-column-end: ${column + 2};
+                grid-row-start: ${row};
+                grid-row-end: ${row + 1};
+            `;
             column += 2;
             for (let keycode in Air75.keycodes) {
                 e.appendChild(
-                    n("option", e => {
+                    n("option", (e) => {
                         e.innerHTML = keycode;
                         if (keycode == currentRemap.key) {
                             e.selected = true;
@@ -238,7 +238,7 @@ function redrawOptions() {
     let remap = window.config.getRemap(window.mode);
     container.innerHTML = "";
     container.appendChild(
-        n("div", e => {
+        n("div", (e) => {
             e.className = "option-matrix card";
             let key = window.currentKey;
             let columnCount = 1;
@@ -256,13 +256,13 @@ function redrawOptions() {
                     altIDExists ? 2 : 3
                 );
                 e.appendChild(
-                    n("h3", e => {
+                    n("h3", (e) => {
                         e.style = `
-                    grid-column-start: 1;
-                    grid-column-end: ${columnCount};
-                    grid-row-start: ${altIDExists ? 1 : 2};
-                    grid-row-end: ${altIDExists ? 2 : 3};
-                `;
+                            grid-column-start: 1;
+                            grid-column-end: ${columnCount};
+                            grid-row-start: ${altIDExists ? 1 : 2};
+                            grid-row-end: ${altIDExists ? 2 : 3};
+                        `;
                         e.innerHTML = `${key.name}`;
                     })
                 );
@@ -278,23 +278,23 @@ function redrawOptions() {
                         4
                     );
                     e.appendChild(
-                        n("h3", e => {
+                        n("h3", (e) => {
                             e.style = `
-                        grid-column-start: 1;
-                        grid-column-end: ${columnCount};
-                        grid-row-start: 3;
-                        grid-row-end: 4;
-                    `;
+                                grid-column-start: 1;
+                                grid-column-end: ${columnCount};
+                                grid-row-start: 3;
+                                grid-row-end: 4;
+                            `;
                             e.innerHTML = `${key.altName}`;
                         })
                     );
                 } else {
                     e.appendChild(
-                        n("h3", e => {
+                        n("h3", (e) => {
                             e.style = `
                         grid-column-start: 1;
                         grid-column-end: ${columnCount};
-                        grid-row-start: 3;
+                        grid-row-start: 4;
                         grid-row-end: 5;
                     `;
                         })
@@ -302,26 +302,26 @@ function redrawOptions() {
                 }
             } else if (key && !key.remappable) {
                 e.appendChild(
-                    n("h3", e => {
+                    n("h3", (e) => {
                         e.style = `
-                    grid-column-start: 1;
-                    grid-column-end: ${columnCount + 6};
-                    grid-row-start: 2;
-                    grid-row-end: 5;
-                `;
+                            grid-column-start: 1;
+                            grid-column-end: ${columnCount + 6};
+                            grid-row-start: 2;
+                            grid-row-end: 5;
+                        `;
                         e.innerHTML = `The ${key.name} key cannot be remapped.`;
                     })
                 );
                 columnCount += 6;
             } else {
                 e.appendChild(
-                    n("h3", e => {
+                    n("h3", (e) => {
                         e.style = `
-                    grid-column-start: 1;
-                    grid-column-end: ${columnCount + 6};
-                    grid-row-start: 2;
-                    grid-row-end: 5;
-                `;
+                            grid-column-start: 1;
+                            grid-column-end: ${columnCount + 6};
+                            grid-row-start: 2;
+                            grid-row-end: 5;
+                        `;
                         e.id = "no-key-selected";
                         e.innerHTML = "No key selected.";
                     })
@@ -332,16 +332,16 @@ function redrawOptions() {
             columnCount += 1;
 
             e.appendChild(
-                n("div", e => {
+                n("div", (e) => {
                     e.style = `
-                grid-column-start: ${columnCount};
-                grid-column-end: ${columnCount + 3};
-                grid-row-start: 2;
-                grid-row-end: 3;
-            `;
+                        grid-column-start: ${columnCount};
+                        grid-column-end: ${columnCount + 3};
+                        grid-row-start: 2;
+                        grid-row-end: 3;
+                    `;
                     e.className = "keyboard-field";
                     e.appendChild(
-                        n("p", e => {
+                        n("p", (e) => {
                             e.innerHTML =
                                 window.keyboardFoundString ??
                                 "No keyboard found.<br />File > Reload Keyboard to retry.";
@@ -351,20 +351,19 @@ function redrawOptions() {
             );
 
             e.appendChild(
-                n("div", e => {
-                    e.className = `key`;
+                n("div", (e) => {
+                    e.className = `key write-key`;
                     if (window.keyboardFoundString) {
-                        e.className = `key active`;
+                        e.className = `key write-key active`;
                     }
-                    e.className = `write-key`;
                     e.style = `
-                grid-column-start: ${columnCount};
-                grid-column-end: ${columnCount + 3};
-                grid-row-start: 3;
-                grid-row-end: 4;
-            `;
+                        grid-column-start: ${columnCount};
+                        grid-column-end: ${columnCount + 3};
+                        grid-row-start: 3;
+                        grid-row-end: 4;
+                    `;
                     e.appendChild(
-                        n("p", e => {
+                        n("p", (e) => {
                             e.innerHTML = "WRITE";
                         })
                     );
@@ -483,10 +482,10 @@ async function main() {
     let app = g(".app");
 
     app.appendChild(
-        n("div", e => {
+        n("div", (e) => {
             e.style = "padding-top: 10px;";
             e.appendChild(
-                n("h1", e => {
+                n("h1", (e) => {
                     e.innerHTML = "νδ";
                 })
             );
@@ -494,9 +493,9 @@ async function main() {
     );
 
     app.appendChild(
-        n("p", e => {
+        n("p", (e) => {
             e.appendChild(
-                n("div", e => {
+                n("div", (e) => {
                     e.className = "keyboard-container";
                 })
             );
@@ -506,17 +505,17 @@ async function main() {
     redrawKeyboard();
 
     app.appendChild(
-        n("p", e => {
+        n("p", (e) => {
             e.appendChild(
-                n("label", e => {
+                n("label", (e) => {
                     e.className = "toggle-switchy";
                     e.setAttribute("data-style", "rounded");
                     e.setAttribute("for", "mode-switcher");
                     e.appendChild(
-                        n("input", e => {
+                        n("input", (e) => {
                             e.id = "mode-switcher";
                             e.setAttribute("type", "checkbox");
-                            e.onchange = ev => {
+                            e.onchange = (ev) => {
                                 window.mode = ev.target.checked ? "mac" : "win";
                                 window.currentKey = null;
                                 console.log(window.mode);
@@ -526,10 +525,10 @@ async function main() {
                         })
                     );
                     e.appendChild(
-                        n("span", e => {
+                        n("span", (e) => {
                             e.className = "toggle";
                             e.appendChild(
-                                n("span", e => {
+                                n("span", (e) => {
                                     e.className = "switch";
                                 })
                             );
@@ -541,9 +540,9 @@ async function main() {
     );
 
     app.appendChild(
-        n("p", e => {
+        n("p", (e) => {
             e.appendChild(
-                n("div", e => {
+                n("div", (e) => {
                     e.className = "option-container";
                 })
             );
@@ -551,6 +550,11 @@ async function main() {
     );
 
     redrawOptions();
+
+    window.ipc.onGetVersion((_, { version }) => {
+        console.log(version);
+    });
+    window.ipc.getVersion();
 
     window.ipc.onGetKeyboardInfo((_, { info }) => {
         window.keyboardFoundString = info;

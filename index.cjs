@@ -13,8 +13,8 @@ const libnd = require("./node-libnd.node");
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 1240,
-        height: 1000,
+        width: 1100,
+        height: 900,
         webPreferences: {
             preload: path.join(__dirname, "ui", "src", "preload.js"),
         },
@@ -75,7 +75,7 @@ function createWindow() {
                                         "Invalid YAML file",
                                         err.message
                                     )
-                                    .catch(err => {
+                                    .catch((err) => {
                                         console.error(err);
                                     });
                             }
@@ -192,7 +192,7 @@ async function sendKeyboardInfo(sender) {
     }
 }
 
-ipcMain.on("get-keyboard-info", ev => sendKeyboardInfo(ev.sender));
+ipcMain.on("get-keyboard-info", (ev) => sendKeyboardInfo(ev.sender));
 
 ipcMain.on("write-yaml", async (ev, config) => {
     let serialized = YAML.stringify(config);
@@ -207,4 +207,8 @@ ipcMain.on("write-yaml", async (ev, config) => {
     await dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
         message: "Wrote configuration successfully!",
     });
+});
+
+ipcMain.on("get-version", async (ev) => {
+    ev.sender.send("get-version-reply", { version: app.getVersion() });
 });

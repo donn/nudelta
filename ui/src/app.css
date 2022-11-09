@@ -87,7 +87,6 @@ p {
 
 .key {
     box-sizing: border-box;
-    height: 55px;
     border-radius: 12.5px;
     display: flex;
     justify-content: center;
@@ -117,6 +116,12 @@ p {
 
 .keyboard > .key {
     box-shadow: 0 0 2px 1px gray !important;
+    height: 55px;
+}
+
+.keyboard > .key > span {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .keyboard > .key:hover {
@@ -156,11 +161,14 @@ p {
     cursor: pointer;
 }
 
+.option-matrix > .key > span {
+    display: block;
+}
+
 .option-matrix > select {
     text-align: center;
     font-size: 12pt;
     font-family: monospace;
-    height: 55px;
 }
 
 .keyboard-field {
@@ -170,15 +178,10 @@ p {
     align-items: center;
 }
 
-.keyboard-field > p {
-    display: inline-block;
-}
-
 .write-key {
     background-color: var(--gray);
     cursor: not-allowed;
     pointer-events: none;
-    display: flex;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -192,6 +195,4 @@ p {
 
 .write-key.active:hover {
     background-color: var(--mint-light);
-    cursor: pointer;
-    pointer-events: all;
 }

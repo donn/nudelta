@@ -10,7 +10,7 @@ async function main() {
     let prod = await Checker.initp({ start: ".", production: true });
     let dev = await Checker.initp({ start: ".", development: true });
 
-    let compile = packages => {
+    let compile = (packages) => {
         let final = ``;
         for (let name in packages) {
             let info = packages[name];
@@ -38,7 +38,7 @@ async function main() {
         try {
             let licenseFile = fs
                 .readdirSync(modulePath)
-                .filter(f => f.toLowerCase().includes("license"))[0];
+                .filter((f) => f.toLowerCase().includes("license"))[0];
             let licensePath = path.join(modulePath, licenseFile);
 
             customText += `
@@ -59,7 +59,7 @@ async function main() {
     fs.writeFileSync("./OSAcknowledgements.txt", custom.join("\n"));
 }
 
-main().catch(err => {
+main().catch((err) => {
     console.error(err);
     process.exit(-1);
 });

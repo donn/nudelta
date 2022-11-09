@@ -18,6 +18,6 @@ export const n = (tag, scope) => {
 };
 export const g = document.querySelector.bind(document);
 
-export const toElement = str => {
+export const toElement = (str) => {
     return new DOMParser().parseFromString(str, "text/xml").firstElementChild;
 };
