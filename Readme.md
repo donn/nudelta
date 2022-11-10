@@ -4,15 +4,14 @@
 
 ![Screenshot of Nudelta Console](./res/screencap.png)
 
-A (WIP) open-source alternative to the [Nuphy Console](https://nuphy.com/pages/nuphy-console) for the [Air75 Mechanical Wireless Keyboard](https://nuphy.com/collections/keyboards/products/air75) by reverse-engineering the keyboard's USB protocol.
+A (WIP) open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console) for the [Air75 Mechanical Wireless Keyboard](https://nuphy.com/collections/keyboards/products/air75) by reverse-engineering the keyboard's USB protocol.
 
 What this has:
 * Support for NuPhy Air75 on Linux and macOS
-    * Tested on Manjaro Linux and macOS 12.4 Monterey
-* The ability to back up and dump keymaps to binary formats
-* The ability to dump keymaps to a human-readable hex format
-* Loading keymap modifications from a `.yml` configuration file
-    * Includes modifying the key as well as adding meta/alt/ctrl/shift or any combination thereof as modifiers
+    * Tested on Ubuntu 20.04, Manjaro and macOS 12.4 Monterey
+* Loading and saving keymap modifications from a `.yml` configuration file
+* The ability to back up and dump keymaps to binary formats (CLI)
+* The ability to dump keymaps to a human-readable hex format (CLI)
 
 What this DOESN'T have:
 * Macros
@@ -32,7 +31,7 @@ What this DOESN'T have:
     * `python3 -m pip install cmake pyyaml`
 * Node 14+ with Yarn
 
-## GUI (Build)
+## Build (GUI)
 
 ```sh
 git clone https://github.com/donn/nudelta
@@ -45,7 +44,7 @@ yarn build
 
 The Linux AppImage will be found under ./dist, and the Mac app will be found under ./dist/mac.
 
-## CLI (Build)
+## Build (CLI)
 ```sh
 git clone https://github.com/donn/nudelta
 cd nudelta
@@ -57,7 +56,7 @@ make -j$(nproc)
 sudo make install
 ```
 
-## CLI (Usage)
+## CLI Usage
 
 You will need to use **sudo** on Linux. On macOS, you will need to grant Input Monitoring permissions to whichever Terminal host you're using to run Nudelta, likely Terminal.app.
 
@@ -88,4 +87,4 @@ nudelta -r
 ## License
 The GNU General Public License v3 or, at your option, any later version. Check '[License](/License)'.
 
-> NuPhy® is a registered trademark of NuPhy Studio
+> NuPhy® is a registered trademark of NuPhy Studio.

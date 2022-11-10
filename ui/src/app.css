@@ -16,13 +16,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 @font-face {
-    font-family: 'Nunito';
-    src: url('nunito-latin-500-normal.woff2') format('woff2');
+    font-family: "Nunito";
+    src: url("nunito-latin-500-normal.woff2") format("woff2");
 }
 
 body {
     --mint-ul: #f3fbfa;
-    --mint-light: #8ed8d0; 
+    --mint-light: #8ed8d0;
     --mint: #55d4b9;
     --orange: #ff6832;
     --yellow: #febe00;
@@ -31,13 +31,13 @@ body {
 
     --darker-bg: #161619;
     --dark-bg: #222222;
-    
+
     padding: 0;
     margin: 0;
     background-color: var(--darker-bg);
     width: 100%;
     color: white;
-    font-family: 'Nunito';
+    font-family: "Nunito";
 }
 
 .app {
@@ -86,13 +86,14 @@ p {
 }
 
 .key {
+    box-sizing: border-box;
     border-radius: 12.5px;
     display: flex;
     justify-content: center;
     padding-top: 1.5em;
     padding-bottom: 1.5em;
-    padding-left: 2.5px;
-    padding-right: 2.5px;
+    padding-left: 0.75em;
+    padding-right: 0.75em;
     color: transparent;
     user-select: none;
 }
@@ -100,9 +101,7 @@ p {
 .key.altlabel {
     justify-content: normal;
     padding-top: 0.75em;
-    padding-bottom: 0px;
-    padding-left: 7.5px;
-    padding-right: 2.5px;
+    padding-bottom: 0.75em;
 }
 
 .keyboard {
@@ -117,6 +116,12 @@ p {
 
 .keyboard > .key {
     box-shadow: 0 0 2px 1px gray !important;
+    height: 55px;
+}
+
+.keyboard > .key > span {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .keyboard > .key:hover {
@@ -156,41 +161,38 @@ p {
     cursor: pointer;
 }
 
+.option-matrix > .key > span {
+    display: block;
+}
+
 .option-matrix > select {
     text-align: center;
     font-size: 12pt;
     font-family: monospace;
 }
 
-#keyboard-field {
+.keyboard-field {
     display: flex;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#keyboard-field > p {
-    display: block;
-}
-
-#write-key {
+.write-key {
     background-color: var(--gray);
     cursor: not-allowed;
     pointer-events: none;
     display: flex;
-    display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#write-key.active {
+.write-key.active {
     background-color: var(--mint);
     cursor: pointer;
     pointer-events: all;
 }
 
-#write-key.active:hover {
+.write-key.active:hover {
     background-color: var(--mint-light);
-    cursor: pointer;
-    pointer-events: all;
 }

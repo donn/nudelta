@@ -32,4 +32,4 @@ class Hid {
         ~Hid() { hid_exit(); }
 };
 
-auto _ = Hid(); 
+auto _ = Hid();

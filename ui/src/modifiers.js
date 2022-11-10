@@ -17,15 +17,15 @@
 */
 export default {
     shift: {
-        label: "⇧"
+        label: "⇧",
     },
     alt: {
-        label: "⌥"
+        label: "⌥",
     },
     ctrl: {
-        label: "⌃"
+        label: "⌃",
     },
     meta: {
-        label: "⌘"
-    }
-}
+        label: "⌘",
+    },
+};
