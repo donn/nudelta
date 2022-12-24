@@ -1,7 +1,7 @@
 {
     "name": "nudelta",
     "author": "Mohamed Gaber",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "license": "GPL-3.0-or-later",
     "homepage": "https://github.com/donn/nudelta#readme",
     "description": "An open-source alternative to the NuPhy Console",
@@ -14,7 +14,7 @@
     },
     "scripts": {
         "build": "yarn build-native && yarn build-ui && electron-builder --publish never",
-        "build-native": "cmake-js && cp ./build/Release/* .",
+        "build-native": "cmake-js -l silly && node ./util/copy.js ./build/Release/node-libnd.node ./node-libnd.node",
         "build-ui": "rollup -c",
         "watch": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec sh -c \"yarn build-ui && electron .\"",
         "format": "prettier --write . && clang-format -i include/*.hpp lib/*.cpp src/*.cpp",
@@ -65,6 +65,11 @@
                 "zip"
             ],
             "icon": "./res/nudelta.icns"
+        },
+        "win": {
+            "target": [
+                "portable"
+            ]
         }
     },
     "prettier": {

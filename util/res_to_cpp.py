@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import os
+import sys
 import yaml
 
-__dir__ = os.path.abspath(os.path.dirname(__file__))
+resource_dir = sys.argv[1]
 
 print('#include "common.hpp"')
 print('#include "air75.hpp"')
-for file in os.listdir(__dir__):
-    file_path = os.path.join(__dir__, file)
+for file in os.listdir(resource_dir):
+    file_path = os.path.join(resource_dir, file)
     if not file.endswith(".yml"):
         continue
 

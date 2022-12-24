@@ -19,6 +19,7 @@
 #define _air75_hpp
 #include "common.hpp"
 
+#include <functional>
 #include <hidapi.h>
 #include <locale>
 #include <optional>
@@ -31,10 +32,14 @@ class Air75 {
         uint16_t firmware;
         std::string productString;
         std::string path;
+        std::optional< std::string > writePath;
 
-        Air75(std::wstring productString, std::string path, uint16_t firmware)
-            : productString(to_utf8(productString)), path(path),
-              firmware(firmware) {}
+        Air75(
+            std::string path,
+            uint16_t firmware,
+            std::optional< std::string > writePath = std::nullopt
+        )
+            : path(path), firmware(firmware), writePath(writePath) {}
 
         std::vector< uint32_t > getKeymap(bool mac = false);
         void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
@@ -62,10 +67,12 @@ class Air75 {
             bool mac = false
         );
     private:
-        std::vector< uint8_t > request0();
-        std::vector< uint8_t > request1();
-
-        hid_device *handle();
+        struct Handles {
+                hid_device *read;
+                hid_device *write;
+                std::function< void(Air75::Handles &) > cleanup;
+        };
+        Handles getHandles();
 };
 
 #endif

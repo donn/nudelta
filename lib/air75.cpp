@@ -23,10 +23,166 @@
 #include <scope_guard.hpp>
 #include <yaml-cpp/yaml.h>
 
-hid_device *Air75::handle() {
-    return hid_open_path(path.c_str());
+Air75::Handles Air75::getHandles() {
+    auto readHandle = hid_open_path(path.c_str());
+    auto writeHandle = readHandle;
+    if (writePath.has_value()) {
+        writeHandle = hid_open_path(writePath.value().c_str());
+    }
+
+    auto cleanup = [](Air75::Handles &handles) {
+        if (handles.write != handles.read) {
+            hid_close(handles.write);
+        }
+        hid_close(handles.read);
+    };
+
+    return {readHandle, writeHandle, cleanup};
 }
 
+static const size_t MAX_READABLE_SIZE = 0x7FF;
+static const size_t REQUEST_SIZE = 6;
+
+static const uint8_t REQUEST_0[] = {0x05, 0x83, 0xb6, 0x00, 0x00, 0x00};
+static const uint8_t REQUEST_1[] = {0x05, 0x88, 0xb8, 0x00, 0x00, 0x00};
+
+static const uint8_t WINDOWS_KEYMAP_GET_HEADER[] =
+    {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00};
+static const uint8_t MAC_KEYMAP_GET_HEADER[] =
+    {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00};
+
+static int get_report(
+    hid_device *readHandle,
+    hid_device *writeHandle,
+    const uint8_t *requestInfo,
+    uint8_t *readBuffer
+) {
+    auto hidAccess = checkHIDAccess();
+    if (!hidAccess.has_value()) {
+        hidAccess = requestHIDAccess();
+    }
+    if (!hidAccess.value()) {
+        throw std::runtime_error(hidAccessFailureMessage);
+    }
+
+    auto bytesWritten =
+        hid_send_feature_report(writeHandle, requestInfo, REQUEST_SIZE);
+    if (bytesWritten < 0) {
+        auto errorString = fmt::format(
+            "Failed to write to keyboard: {}",
+            to_utf8(hid_error(writeHandle))
+        );
+        throw std::runtime_error(errorString);
+    } else {
+        d("Wrote {} bytes.\n", bytesWritten);
+    }
+    readBuffer[0] = 0x06;
+    auto bytesRead =
+        hid_get_feature_report(readHandle, readBuffer, MAX_READABLE_SIZE);
+    if (bytesRead < 0) {
+        auto errorString = fmt::format(
+            "Failed to read from keyboard: {}",
+            to_utf8(hid_error(readHandle))
+        );
+        throw std::runtime_error("Failed to read from keyboard");
+    } else {
+        d("Read {} bytes.\n", bytesRead);
+    }
+
+    return bytesRead;
+}
+
+static std::vector< uint8_t > get_report(
+    hid_device *readHandle,
+    hid_device *writeHandle,
+    const uint8_t *requestInfo
+) {
+    uint8_t readBuffer[2048];
+
+    auto read = get_report(readHandle, writeHandle, requestInfo, readBuffer);
+
+    return std::vector< uint8_t >(readBuffer, readBuffer + read);
+}
+
+static const uint8_t WINDOWS_KEYMAP_WRITE_HEADER[] =
+    {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00};
+static const uint8_t MAC_KEYMAP_WRITE_HEADER[] =
+    {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00};
+
+void set_report(hid_device *writeHandle, uint8_t *data, size_t dataSize) {
+    auto hidAccess = checkHIDAccess();
+    if (!hidAccess.has_value()) {
+        hidAccess = requestHIDAccess();
+    }
+    if (!hidAccess.value()) {
+        throw std::runtime_error(hidAccessFailureMessage);
+    }
+    auto bytesWritten = hid_send_feature_report(writeHandle, data, dataSize);
+    if (bytesWritten < 0) {
+        auto errorString = fmt::format(
+            "Failed to write to keyboard: {}",
+            to_utf8(hid_error(writeHandle))
+        );
+        throw std::runtime_error(errorString);
+    } else {
+        d("Wrote {} bytes.\n", bytesWritten);
+    }
+}
+
+#ifdef _WIN32
+std::string writeCol = "col05";
+std::string readCol = "col06";
+
+// Windows is different: there are two paths: one for reading and one for
+// writing.
+std::optional< Air75 > Air75::find() {
+    std::optional< Air75 > keyboard;
+
+    auto seeker = hid_enumerate(0x05ac, 0x024f);
+    SCOPE_EXIT {
+        hid_free_enumeration(seeker);
+    };
+
+    uint32_t fw = 0x0;
+    std::optional< std::string > writePath;
+    std::optional< std::string > readPath;
+
+    bool multipleWarned = false;
+    while (seeker != nullptr) {
+        if (seeker->interface_number == 1 && seeker->usage == 1
+            && seeker->usage_page == 65280) {
+
+            auto path = std::string(seeker->path);
+            for (auto it = path.begin(); it != path.end(); it++) {
+                *it = std::tolower(*it);
+            }
+            if (path.find(writeCol) != -1) {
+                if (writePath.has_value()) {
+                    throw std::runtime_error(
+                        "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
+                    );
+                }
+                writePath = seeker->path;
+                fw = seeker->release_number;
+            } else if (path.find(readCol) != -1) {
+                if (readPath.has_value()) {
+                    throw std::runtime_error(
+                        "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
+                    );
+                }
+                readPath = seeker->path;
+            }
+        }
+        seeker = seeker->next;
+    }
+
+    if (writePath.has_value() && readPath.has_value()) {
+        return Air75(readPath.value(), fw, writePath);
+    }
+
+    return std::nullopt;
+}
+#else
 std::optional< Air75 > Air75::find() {
     std::optional< Air75 > keyboard;
 
@@ -79,119 +235,30 @@ std::optional< Air75 > Air75::find() {
 
     return std::nullopt;
 }
-
-static const size_t MAX_READABLE_SIZE = 0x7FF;
-static const size_t REQUEST_SIZE = 6;
-static const uint8_t REQUEST_0[] = {0x05, 0x83, 0xb6, 0x00, 0x00, 0x00};
-static const uint8_t REQUEST_1[] = {0x05, 0x88, 0xb8, 0x00, 0x00, 0x00};
-
-static const uint8_t WINDOWS_KEYMAP_GET_HEADER[] =
-    {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00};
-static const uint8_t MAC_KEYMAP_GET_HEADER[] =
-    {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00};
-
-static int get_report(
-    hid_device *handle,
-    const uint8_t *requestInfo,
-    uint8_t *readBuffer
-) {
-    auto hidAccess = checkHIDAccess();
-    if (!hidAccess.has_value()) {
-        hidAccess = requestHIDAccess();
-    }
-    if (!hidAccess.value()) {
-        throw std::runtime_error(hidAccessFailureMessage);
-    }
-
-    auto bytesWritten =
-        hid_send_feature_report(handle, requestInfo, REQUEST_SIZE);
-    if (bytesWritten < 0) {
-        throw std::runtime_error("Failed to write to keyboard");
-    } else {
-        d("Wrote {} bytes.\n", bytesWritten);
-    }
-    readBuffer[0] = 0x06;
-    auto bytesRead =
-        hid_get_feature_report(handle, readBuffer, MAX_READABLE_SIZE);
-    if (bytesRead < 0) {
-        throw std::runtime_error("Failed to read from keyboard");
-    } else {
-        d("Read {} bytes.\n", bytesRead);
-    }
-
-    return bytesRead;
-}
-
-static std::vector< uint8_t >
-get_report(hid_device *handle, const uint8_t *requestInfo) {
-    uint8_t readBuffer[2048];
-
-    auto read = get_report(handle, requestInfo, readBuffer);
-
-    return std::vector< uint8_t >(readBuffer, readBuffer + read);
-}
-
-static const uint8_t WINDOWS_KEYMAP_WRITE_HEADER[] =
-    {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00};
-static const uint8_t MAC_KEYMAP_WRITE_HEADER[] =
-    {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00};
-
-void set_report(hid_device *handle, uint8_t *data, size_t dataSize) {
-    auto hidAccess = checkHIDAccess();
-    if (!hidAccess.has_value()) {
-        hidAccess = requestHIDAccess();
-    }
-    if (!hidAccess.value()) {
-        throw std::runtime_error(hidAccessFailureMessage);
-    }
-    auto bytesWritten = hid_send_feature_report(handle, data, dataSize);
-    if (bytesWritten < 0) {
-        throw std::runtime_error("Failed to write to keyboard.");
-    } else {
-        d("Wrote {} bytes.\n", bytesWritten);
-    }
-}
-
-std::vector< uint8_t > Air75::request0() {
-    auto current = handle();
-    SCOPE_EXIT {
-        hid_close(current);
-    };
-
-    return get_report(current, REQUEST_0);
-}
-
-std::vector< uint8_t > Air75::request1() {
-    auto current = handle();
-    SCOPE_EXIT {
-        hid_close(current);
-    };
-
-    return get_report(current, REQUEST_1);
-}
+#endif
 
 std::vector< uint32_t > Air75::getKeymap(bool mac) {
-    auto current = handle();
+    auto handles = getHandles();
     SCOPE_EXIT {
-        hid_close(current);
+        handles.cleanup(handles);
     };
 
     auto keymapReport = get_report(
-        current,
+        handles.read,
+        handles.write,
         mac ? MAC_KEYMAP_GET_HEADER : WINDOWS_KEYMAP_GET_HEADER
     );
-
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint32_t *)&keymapReport[8];
-    auto *end_pointer = (uint32_t *)&(*keymapReport.end());
+    auto *end_pointer = (uint32_t *)(&keymapReport[0] + keymapReport.size());
 
     return std::vector< uint32_t >(start_pointer, end_pointer);
 }
 
 void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
-    auto current = handle();
+    auto handles = getHandles();
     SCOPE_EXIT {
-        hid_close(current);
+        handles.cleanup(handles);
     };
 
     auto header = WINDOWS_KEYMAP_WRITE_HEADER;
@@ -210,12 +277,12 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
 
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint8_t *)&(*keymap.begin());
-    auto *end_pointer = (uint8_t *)&(*keymap.end());
+    auto *end_pointer = (uint8_t *)(&*keymap.begin() + keymap.size());
 
     std::copy(header, header + sizeof headerSize, buffer);
 
     std::copy(start_pointer, end_pointer, buffer + sizeof headerSize);
-    set_report(current, buffer, count);
+    set_report(handles.read, buffer, count);
 }
 
 const char *TOP_LEVEL_WIN = "keys";
@@ -297,7 +364,7 @@ void Air75::validateYAMLKeymap(
 
         auto code = codeIt->second;
         auto modifiers = codeObject["modifiers"];
-        if (modifiers.IsDefined() and !modifiers.IsNull()) {
+        if (modifiers.IsDefined() && !modifiers.IsNull()) {
             if (modifiers.Type() != YAML::NodeType::Sequence) {
                 throw std::runtime_error(fmt::format(
                     "Invalid config in {}.{}: modifiers is not an array.",
@@ -363,7 +430,7 @@ void Air75::setKeymapFromYAML(const std::string &yamlString, bool mac) {
 
             auto code = codeIt->second;
             auto modifiers = codeObject["modifiers"];
-            if (modifiers.IsDefined() and !modifiers.IsNull()) {
+            if (modifiers.IsDefined() && !modifiers.IsNull()) {
                 for (auto modifier : modifiers) {
                     auto modifierName = modifier.as< std::string >();
                     auto modifierIt =

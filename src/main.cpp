@@ -33,7 +33,7 @@ Air75 getKeyboard() {
     auto air75Optional = Air75::find();
     if (!air75Optional.has_value()) {
         throw std::runtime_error(
-            "Couldn't find a NuPhy Air75 connected to this device"
+            "Couldn't find a NuPhy Air75 connected to this device. Make sure it's plugged in via USB."
         );
     }
 
@@ -77,18 +77,20 @@ SSCO_Fn(dumpKeymap) {
     auto keys = air75.getKeymap(mac);
     auto file = opts.options.find("dump-keys")->second;
     auto filePtr = fopen(file.c_str(), "wb");
+
     if (!filePtr) {
         throw std::runtime_error(
             fmt::format("Failed to open '{}' for writing", file)
         );
     }
+
     SCOPE_EXIT {
         fclose(filePtr);
     };
 
     // ALERT: Endianness-defined Behavior
     auto seeker = (char *)&*keys.begin();
-    auto end = (char *)&*keys.end();
+    auto end = (char *)(&*keys.begin() + keys.size());
     fwrite(seeker, 1, end - seeker, filePtr);
 
     p("Wrote current {} keymap to '{}'.\n", mac ? "Mac" : "Windows", file);
@@ -109,7 +111,7 @@ SSCO_Fn(dumpKeymap) {
         prettyPrintBinary(
             std::vector< uint8_t >(
                 (uint8_t *)&*keys.begin(),
-                (uint8_t *)&*keys.end()
+                (uint8_t *)(&*keys.begin() + keys.size())
             ),
             hexFilePtr
         );
@@ -172,17 +174,12 @@ int main(int argc, char *argv[]) {
     }
     if (!hidAccess.value()) {
         p(stderr, "{}\n", hidAccessFailureMessage);
-        return EX_NOPERM;
+        return -1;
     }
     using Opt = SSCO::Option;
 
     SSCO::Options options(
-        {Opt{"help",
-             'h',
-             "Show this message and exit.",
-             false,
-             [&](SSCO::Result &_) { options.printHelp(std::cout); }},
-         Opt{"version",
+        {Opt{"version",
              'V',
              "Show the current version of this app and exit.",
              false,
@@ -225,14 +222,14 @@ int main(int argc, char *argv[]) {
             if (!opts.value().options.size()) {
                 options.printHelp(std::cout);
             }
-            return EX_OK;
+            return 0;
         } else {
             options.printHelp(std::cout);
-            return EX_USAGE;
+            return 1;
         }
     } catch (std::runtime_error &e) {
         p(stderr, "[ERROR] {}\n", e.what());
-        return EX_DATAERR;
+        return -1;
     }
 
     return 0;
