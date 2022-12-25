@@ -24,20 +24,20 @@
 #include <yaml-cpp/yaml.h>
 
 Air75::Handles Air75::getHandles() {
-    auto readHandle = hid_open_path(path.c_str());
-    auto writeHandle = readHandle;
-    if (writePath.has_value()) {
-        writeHandle = hid_open_path(writePath.value().c_str());
+    auto dataHandle = hid_open_path(path.c_str());
+    auto requestHandle = dataHandle;
+    if (requestPath.has_value()) {
+        requestHandle = hid_open_path(requestPath.value().c_str());
     }
 
     auto cleanup = [](Air75::Handles &handles) {
-        if (handles.write != handles.read) {
-            hid_close(handles.write);
+        if (handles.request != handles.data) {
+            hid_close(handles.request);
         }
-        hid_close(handles.read);
+        hid_close(handles.data);
     };
 
-    return {readHandle, writeHandle, cleanup};
+    return {dataHandle, requestHandle, cleanup};
 }
 
 static const size_t MAX_READABLE_SIZE = 0x7FF;
@@ -52,8 +52,8 @@ static const uint8_t MAC_KEYMAP_GET_HEADER[] =
     {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00};
 
 static int get_report(
-    hid_device *readHandle,
-    hid_device *writeHandle,
+    hid_device *dataHandle,
+    hid_device *requestHandle,
     const uint8_t *requestInfo,
     uint8_t *readBuffer
 ) {
@@ -66,11 +66,11 @@ static int get_report(
     }
 
     auto bytesWritten =
-        hid_send_feature_report(writeHandle, requestInfo, REQUEST_SIZE);
+        hid_send_feature_report(requestHandle, requestInfo, REQUEST_SIZE);
     if (bytesWritten < 0) {
         auto errorString = fmt::format(
             "Failed to write to keyboard: {}",
-            to_utf8(hid_error(writeHandle))
+            to_utf8(hid_error(requestHandle))
         );
         throw std::runtime_error(errorString);
     } else {
@@ -78,11 +78,11 @@ static int get_report(
     }
     readBuffer[0] = 0x06;
     auto bytesRead =
-        hid_get_feature_report(readHandle, readBuffer, MAX_READABLE_SIZE);
+        hid_get_feature_report(dataHandle, readBuffer, MAX_READABLE_SIZE);
     if (bytesRead < 0) {
         auto errorString = fmt::format(
             "Failed to read from keyboard: {}",
-            to_utf8(hid_error(readHandle))
+            to_utf8(hid_error(dataHandle))
         );
         throw std::runtime_error("Failed to read from keyboard");
     } else {
@@ -93,13 +93,13 @@ static int get_report(
 }
 
 static std::vector< uint8_t > get_report(
-    hid_device *readHandle,
-    hid_device *writeHandle,
+    hid_device *dataHandle,
+    hid_device *requestHandle,
     const uint8_t *requestInfo
 ) {
     uint8_t readBuffer[2048];
 
-    auto read = get_report(readHandle, writeHandle, requestInfo, readBuffer);
+    auto read = get_report(dataHandle, requestHandle, requestInfo, readBuffer);
 
     return std::vector< uint8_t >(readBuffer, readBuffer + read);
 }
@@ -109,7 +109,7 @@ static const uint8_t WINDOWS_KEYMAP_WRITE_HEADER[] =
 static const uint8_t MAC_KEYMAP_WRITE_HEADER[] =
     {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00};
 
-void set_report(hid_device *writeHandle, uint8_t *data, size_t dataSize) {
+void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
     auto hidAccess = checkHIDAccess();
     if (!hidAccess.has_value()) {
         hidAccess = requestHIDAccess();
@@ -117,11 +117,11 @@ void set_report(hid_device *writeHandle, uint8_t *data, size_t dataSize) {
     if (!hidAccess.value()) {
         throw std::runtime_error(hidAccessFailureMessage);
     }
-    auto bytesWritten = hid_send_feature_report(writeHandle, data, dataSize);
+    auto bytesWritten = hid_send_feature_report(requestHandle, data, dataSize);
     if (bytesWritten < 0) {
         auto errorString = fmt::format(
             "Failed to write to keyboard: {}",
-            to_utf8(hid_error(writeHandle))
+            to_utf8(hid_error(requestHandle))
         );
         throw std::runtime_error(errorString);
     } else {
@@ -130,11 +130,12 @@ void set_report(hid_device *writeHandle, uint8_t *data, size_t dataSize) {
 }
 
 #ifdef _WIN32
+// Win is different: there are multiple "channels" each with a different path
+// - So far, I've identified col06 as the one for keymap data, col05 for
+// requests
 std::string writeCol = "col05";
-std::string readCol = "col06";
+std::string dataCol = "col06";
 
-// Windows is different: there are two paths: one for reading and one for
-// writing.
 std::optional< Air75 > Air75::find() {
     std::optional< Air75 > keyboard;
 
@@ -143,9 +144,9 @@ std::optional< Air75 > Air75::find() {
         hid_free_enumeration(seeker);
     };
 
-    uint32_t fw = 0x0;
-    std::optional< std::string > writePath;
-    std::optional< std::string > readPath;
+    uint32_t firmware = 0x0;
+    std::optional< std::string > dataPath;
+    std::optional< std::string > requestPath;
 
     bool multipleWarned = false;
     while (seeker != nullptr) {
@@ -157,27 +158,27 @@ std::optional< Air75 > Air75::find() {
                 *it = std::tolower(*it);
             }
             if (path.find(writeCol) != -1) {
-                if (writePath.has_value()) {
+                if (requestPath.has_value()) {
                     throw std::runtime_error(
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
-                writePath = seeker->path;
-                fw = seeker->release_number;
-            } else if (path.find(readCol) != -1) {
-                if (readPath.has_value()) {
+                requestPath = seeker->path;
+                firmware = seeker->release_number;
+            } else if (path.find(dataCol) != -1) {
+                if (dataPath.has_value()) {
                     throw std::runtime_error(
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
-                readPath = seeker->path;
+                dataPath = seeker->path;
             }
         }
         seeker = seeker->next;
     }
 
-    if (writePath.has_value() && readPath.has_value()) {
-        return Air75(readPath.value(), fw, writePath);
+    if (dataPath.has_value() && requestPath.has_value()) {
+        return Air75(dataPath.value(), firmware, requestPath);
     }
 
     return std::nullopt;
@@ -219,11 +220,7 @@ std::optional< Air75 > Air75::find() {
                 if (seeker->product_string == nullptr) {
                     throw permissions_error(hidAccessFailureMessage);
                 }
-                keyboard = Air75(
-                    seeker->product_string,
-                    seeker->path,
-                    seeker->release_number
-                );
+                keyboard = Air75(seeker->path, seeker->release_number);
             }
         }
         seeker = seeker->next;
@@ -244,8 +241,8 @@ std::vector< uint32_t > Air75::getKeymap(bool mac) {
     };
 
     auto keymapReport = get_report(
-        handles.read,
-        handles.write,
+        handles.data,
+        handles.request,
         mac ? MAC_KEYMAP_GET_HEADER : WINDOWS_KEYMAP_GET_HEADER
     );
     // ALERT: Endianness-defined Behavior
@@ -282,7 +279,7 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     std::copy(header, header + sizeof headerSize, buffer);
 
     std::copy(start_pointer, end_pointer, buffer + sizeof headerSize);
-    set_report(handles.read, buffer, count);
+    set_report(handles.data, buffer, count);
 }
 
 const char *TOP_LEVEL_WIN = "keys";

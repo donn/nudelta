@@ -8,12 +8,41 @@ on:
   pull_request:
 
 jobs:
+  windows:
+    name: Build (Windows)
+    runs-on: windows-10
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Clone Submodules
+        run: git submodule update --init
+      - name: Get Python Dependencies
+        run: python3 -m pip install cmake pyyaml
+      - name: Build Distribution
+        shell: pwsh
+        run: |
+          yarn
+          yarn build
+          cd .\dist
+          Compress-Archive *.exe .\nudelta-amd64.exe.zip
+          cp .\nudelta-amd64.exe.zip ..
+      - name: Upload App
+        uses: actions/upload-artifact@v3
+        with:
+          name: win-app
+          path: ./nudelta-amd64.exe.zip
   linux:
     name: Build (Linux)
     runs-on: ubuntu-20.04
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -29,7 +58,7 @@ jobs:
           docker cp $id:/nudelta.AppImage nudelta-amd64.AppImage ; \
           docker rm -v $id
       - name: Upload AppImage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux-appimage
           path: ./nudelta-amd64.AppImage
@@ -38,7 +67,7 @@ jobs:
     runs-on: macos-11
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -55,7 +84,7 @@ jobs:
           yarn build
           cp -r ./dist/*.zip ./nudelta-amd64.app.zip
       - name: Upload App
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: mac-app
           path: ./nudelta-amd64.app.zip
@@ -65,7 +94,7 @@ jobs:
     needs: [macos, linux]
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -75,14 +104,19 @@ jobs:
       - name: Set default for env.NEW_TAG
         run: echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
       - name: Download Linux App
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: linux-appimage
           path: /tmp
       - name: Download Mac App
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: mac-app
+          path: /tmp
+      - name: Download Windows App
+        uses: actions/download-artifact@v3
+        with:
+          name: win-app
           path: /tmp
       - name: Check for new version
         if: ${{ env.BRANCH_NAME == 'main' }}
@@ -101,4 +135,5 @@ jobs:
           tag_name: ${{ env.NEW_TAG }}
           files: |
             /tmp/nudelta-amd64.app.zip
+            /tmp/nudelta-amd64.exe.zip
             /tmp/nudelta-amd64.AppImage

@@ -32,11 +32,12 @@ Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
 
         auto air75 = air75Optional.value();
 
-        auto string = fmt::format(
-            "NuPhy Air75 (Firmware {:04x}) at {}",
-            air75.firmware,
-            air75.path
-        );
+        auto string =
+            fmt::format("NuPhy Air75 (Firmware {:04x})", air75.firmware);
+
+        if (air75.path.length() <= 20) {
+            string = fmt::format("{} at {}", string, air75.path);
+        }
 
         return Napi::String::New(env, string);
     } catch (permissions_error &e) {
