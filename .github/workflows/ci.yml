@@ -22,11 +22,6 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Clone Submodules
         run: git submodule update --init
-      - name: Get Python Dependencies
-        run: |
-          python3 -m pip install cmake pyyaml
-          python3 -m pip show cmake
-          python3 -m pip show pyyaml
       - name: Build Distribution
         shell: pwsh
         run: |
@@ -81,13 +76,7 @@ jobs:
         run: git submodule update --init
       - name: Get Python3
         run: |
-          brew install python3
-          which python3
-      - name: Get Python Dependencies
-        run: |
-          python3 -m pip install cmake pyyaml
-          python3 -m pip show cmake
-          python3 -m pip show pyyaml
+          brew install cmake
       - name: Build Distribution
         run: |
           yarn

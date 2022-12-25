@@ -14,7 +14,7 @@ ENV CC=/opt/rh/devtoolset-11/root/usr/bin/gcc \
 
 ## Python
 RUN python3 -m pip install --upgrade pip wheel
-RUN python3 -m pip install cmake pyyaml
+RUN python3 -m pip install cmake
 
 ## Node
 RUN curl -L https://raw.githubusercontent.com/tj/n/master/bin/n > /usr/bin/n

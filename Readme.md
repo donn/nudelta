@@ -27,8 +27,7 @@ What this DOESN'T have:
 
 ### Build Requirements
 * C++17 Compiler
-* Python 3.6+ w/ Cmake, Pyyaml
-    * `python3 -m pip install cmake pyyaml`
+* Cmake
 * Node 14+ with Yarn
 
 ## Build (GUI)

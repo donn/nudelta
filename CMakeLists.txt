@@ -26,38 +26,6 @@ add_subdirectory(submodules/fmt)
 add_subdirectory(submodules/yaml-cpp)
 add_subdirectory(submodules/ssco)
 
-# Python/PIP
-find_package(
-        Python3
-        REQUIRED
-        COMPONENTS Interpreter
-)
-
-execute_process(
-        COMMAND ${Python3_EXECUTABLE} -m pip --version
-        RESULT_VARIABLE PIP_VERSION_CHECK
-        OUTPUT_QUIET
-)
-if (NOT ${PIP_VERSION_CHECK} EQUAL 0)
-    message(
-            FATAL_ERROR
-            "PIP is not installed.\nYou may want to install it using the following command:\n 
-            '${Python3_EXECUTABLE} -m ensurepip'"
-    )
-endif()
-
-execute_process(
-        COMMAND ${Python3_EXECUTABLE} -m pip show pyyaml
-        RESULT_VARIABLE PYYAML_CHECK
-        OUTPUT_QUIET
-)
-if (NOT ${PYYAML_CHECK} EQUAL 0)
-    message(
-            FATAL_ERROR
-            "The 'pyyaml' package is not installed.\nYou may want to install it using the following command:\n  ${Python3_EXECUTABLE} -m pip install pyyaml"
-    )
-endif()
-
 # Common
 include_directories(include)
 
@@ -65,8 +33,8 @@ include_directories(include)
 file (GLOB yml_files "res/*.yml")
 add_custom_command(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
-     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/util/res_to_cpp.py ${CMAKE_CURRENT_LIST_DIR}/res > ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
-     DEPENDS ${yml_files} util/res_to_cpp.py
+     COMMAND node ${CMAKE_CURRENT_LIST_DIR}/util/res_to_cpp.js ${CMAKE_CURRENT_LIST_DIR}/res > ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
+     DEPENDS ${yml_files} util/res_to_cpp.js
 )
 add_custom_target(res_file ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 
