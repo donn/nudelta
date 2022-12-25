@@ -10,7 +10,7 @@ on:
 jobs:
   windows:
     name: Build (Windows)
-    runs-on: windows-10
+    runs-on: windows-2019
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
