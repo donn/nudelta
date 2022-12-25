@@ -13,7 +13,7 @@
     },
     "scripts": {
         "build": "yarn build-native && yarn build-ui && electron-builder --publish never",
-        "build-native": "cmake-js -l silly && node ./util/copy.js ./build/Release/node-libnd.node ./node-libnd.node",
+        "build-native": "node util\\build-native.js",
         "build-ui": "rollup -c",
         "watch": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec sh -c \"yarn build-ui && electron .\"",
         "format": "prettier --write . && clang-format -i include/*.hpp lib/*.cpp src/*.cpp",
@@ -43,7 +43,8 @@
     "main": "index.cjs",
     "cmake-js": {
         "runtime": "electron",
-        "runtimeVersion": "21.2.1"
+        "runtimeVersion": "21.2.1",
+        "arch": "x64"
     },
     "build": {
         "appId": "website.donn.nudelta",
