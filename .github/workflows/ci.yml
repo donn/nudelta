@@ -8,12 +8,39 @@ on:
   pull_request:
 
 jobs:
+  windows:
+    name: Build (Windows)
+    runs-on: windows-2019
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Clone Submodules
+        run: git submodule update --init
+      - name: Build Distribution
+        shell: pwsh
+        run: |
+          yarn
+          yarn build
+          cd .\dist
+          Compress-Archive *.exe .\nudelta-amd64.exe.zip
+          cp .\nudelta-amd64.exe.zip ..
+      - name: Upload App
+        uses: actions/upload-artifact@v3
+        with:
+          name: win-app
+          path: ./nudelta-amd64.exe.zip
   linux:
     name: Build (Linux)
     runs-on: ubuntu-20.04
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -29,7 +56,7 @@ jobs:
           docker cp $id:/nudelta.AppImage nudelta-amd64.AppImage ; \
           docker rm -v $id
       - name: Upload AppImage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux-appimage
           path: ./nudelta-amd64.AppImage
@@ -38,7 +65,7 @@ jobs:
     runs-on: macos-11
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -47,25 +74,26 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Clone Submodules
         run: git submodule update --init
-      - name: Get Python Dependencies
-        run: python3 -m pip install cmake pyyaml
+      - name: Get Python3
+        run: |
+          brew install cmake
       - name: Build Distribution
         run: |
           yarn
           yarn build
           cp -r ./dist/*.zip ./nudelta-amd64.app.zip
       - name: Upload App
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: mac-app
           path: ./nudelta-amd64.app.zip
   publish:
     name: Publish
     runs-on: ubuntu-20.04
-    needs: [macos, linux]
+    needs: [macos, linux, windows]
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -75,14 +103,19 @@ jobs:
       - name: Set default for env.NEW_TAG
         run: echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
       - name: Download Linux App
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: linux-appimage
           path: /tmp
       - name: Download Mac App
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: mac-app
+          path: /tmp
+      - name: Download Windows App
+        uses: actions/download-artifact@v3
+        with:
+          name: win-app
           path: /tmp
       - name: Check for new version
         if: ${{ env.BRANCH_NAME == 'main' }}
@@ -99,6 +132,20 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.NEW_TAG }}
+          body: |
+            ![Screencap](https://raw.githubusercontent.com/donn/nudelta/main/res/screencap.png)
+
+            Both a Windows .exe, a macOS .app and a Linux AppImage have been built.
+
+            On Windows, you will need to download and unzip the `.exe` file. You may see a Windows SmartScreen warning- you can safely ignore it.
+
+            On macOS, you will need to download and unzip the `.app` file, then **Right-click > Open** the app on macOS. The app is not code-signed or notarized.
+            * Please note that you will need Rosetta as there is no Apple Silicon build at the moment.
+
+            To run the AppImage on Linux, download it, enable "allow executing file as program" in its properties (pictured below), then double-click it.
+
+            ![Setting Linux permission with Gnome](https://raw.githubusercontent.com/donn/nudelta/main/res/linux_exec_permission.png)
           files: |
             /tmp/nudelta-amd64.app.zip
+            /tmp/nudelta-amd64.exe.zip
             /tmp/nudelta-amd64.AppImage

@@ -27,7 +27,6 @@
 #include <locale>
 #include <optional>
 #include <string>
-#include <sysexits.h>
 #include <vector>
 
 std::string to_utf8(std::wstring in);

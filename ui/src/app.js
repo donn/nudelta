@@ -344,7 +344,7 @@ function redrawOptions() {
                         n("p", (e) => {
                             e.innerHTML =
                                 window.keyboardFoundString ??
-                                "No keyboard found.<br />File > Reload Keyboard to retry.";
+                                "No keyboard found.<br />Make sure it's plugged in, then File > Reload Keyboard to retry.";
                         })
                     );
                 })

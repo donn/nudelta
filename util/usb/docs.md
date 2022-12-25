@@ -37,16 +37,16 @@ Each key appears to be assigned a word.
 
 ## Qualifiers
 ## Byte 0
-00 -> Normal Key
-02 -> Unknown: Used for exactly 34 keys. Seems to be generating redundant keycode: 1, 2, q...
-04 -> Multimedia Key
-06 -> Modifier Key
+* 00 -> Normal Key
+* 02 -> Unknown: Used for exactly 34 keys. Seems to be generating redundant keycode: 1, 2, q...
+* 04 -> Multimedia Key
+* 06 -> Modifier Key
     - Curiously, modifier scancodes appear to work just fine without it from what I see.
-0b -> Backlight Effect
-0c -> Backlight Intensity
-0d -> Unknown: Two keys, appearing to be cycling through something i do not know
-0e -> A variety of on-keyboard functions
-12 -> Backlight Color
+* 0b -> Backlight Effect
+* 0c -> Backlight Intensity
+* 0d -> Unknown: Two keys, appearing to be cycling through something i do not know
+* 0e -> A variety of on-keyboard functions / """"Fn Layer""""
+* 12 -> Backlight Color
 
 ## Byte 1
 Appears unused, always 00
@@ -56,30 +56,29 @@ Appears unused, always 00
 
 Modifiers: OR between:
 
-- 0001 (ctrl)
-- 0010 (shift)
-- 0100 (alt)
-- 1000 (meta)
+* 0001 (ctrl)
+* 0010 (shift)
+* 0100 (alt)
+* 1000 (meta)
 
-Four upper bits appear unused
+Four upper bits appear unused.
 
 ### Backlight Intensity
 * 01: Decrease Backlight
 * 02: Increase Backlight
 
 ### Backlight Effects/Color
-
 * 02: Cycle Backward
 * 03: Cycle Forward
 
-
 ## Byte 3
 ### 0e
-0c -> Bluetooth Device 1
-0d -> Bluetooth Device 2
-0e -> Bluetooth Device 3
-0f -> 2.4 GHz Receiver
-11-16 -> No damn clue
+* 0c -> Bluetooth Device 1
+* 0d -> Bluetooth Device 2
+* 0e -> Bluetooth Device 3
+* 0f -> 2.4 GHz Receiver
+* 11-16 -> No damn clue
+
 ### everything else
 A **scancode**. See https://wiki.archlinux.org/title/Keyboard_input
 
