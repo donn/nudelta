@@ -66,7 +66,7 @@ file (GLOB yml_files "res/*.yml")
 add_custom_command(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/util/res_to_cpp.py ${CMAKE_CURRENT_LIST_DIR}/res > ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
-     DEPENDS ${yml_files} res/to_cpp.py
+     DEPENDS ${yml_files} util/res_to_cpp.py
 )
 add_custom_target(res_file ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/res.cpp)
 
