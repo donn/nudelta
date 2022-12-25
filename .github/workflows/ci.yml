@@ -132,6 +132,19 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.NEW_TAG }}
+          body: |
+            ![Screencap](https://raw.githubusercontent.com/donn/nudelta/main/res/screencap.png)
+
+            Both a Windows .exe, a macOS .app and a Linux AppImage have been built.
+
+            On Windows, you will need to download and unzip the `.exe` file. You may see a Windows SmartScreen warning- you can safely ignore it.
+
+            On macOS, you will need to download and unzip the `.app` file, then **Right-click > Open** the app on macOS. The app is not code-signed or notarized.
+            * Please note that you will need Rosetta as there is no Apple Silicon build at the moment.
+
+            To run the AppImage on Linux, download it, enable "allow executing file as program" in its properties (pictured below), then double-click it.
+
+            ![Setting Linux permission with Gnome](https://raw.githubusercontent.com/donn/nudelta/main/res/linux_exec_permission.png)
           files: |
             /tmp/nudelta-amd64.app.zip
             /tmp/nudelta-amd64.exe.zip

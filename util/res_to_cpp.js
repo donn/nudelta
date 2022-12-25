@@ -25,9 +25,11 @@ for (let file of fs.readdirSync(resourceDir)) {
         for (let integer of object) {
             print(`    0x${integer.toString(16)},`);
         }
-        print("};")
+        print("};");
     } else if (type == "dict") {
-        print(`const std::unordered_map<std::string, std::uint32_t> ${name} = {`);
+        print(
+            `const std::unordered_map<std::string, std::uint32_t> ${name} = {`
+        );
         for (let key in object) {
             let integer = object[key];
             print(`    { "${key}", 0x${integer.toString(16)} },`);

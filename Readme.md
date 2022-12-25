@@ -1,4 +1,9 @@
-<h1 align="center"> ν∂ / nudelta </h1>
+<h1 align="center"> ν∂ / Nudelta </h1>
+<p align="center">
+    <a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPLv3%202.0-blue.svg" alt="License: GPLv3"/></a>
+    <img src="https://github.com/donn/nudelta/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI Status" />
+</p>
+
 
 > Note: This software is in beta. Nudelta is an unofficial product and is not affiliated with NuPhy Studio.
 
@@ -7,8 +12,7 @@
 A (WIP) open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console) for the [Air75 Mechanical Wireless Keyboard](https://nuphy.com/collections/keyboards/products/air75) by reverse-engineering the keyboard's USB protocol.
 
 What this has:
-* Support for NuPhy Air75 on Linux and macOS
-    * Tested on Ubuntu 20.04, Manjaro and macOS 12.4 Monterey
+* Support for NuPhy Air75 on Windows 10+, macOS 11+, and Linux
 * Loading and saving keymap modifications from a `.yml` configuration file
 * The ability to back up and dump keymaps to binary formats (CLI)
 * The ability to dump keymaps to a human-readable hex format (CLI)
@@ -55,9 +59,11 @@ make -j$(nproc)
 sudo make install
 ```
 
-## CLI Usage
+## Using the CLI
 
 You will need to use **sudo** on Linux. On macOS, you will need to grant Input Monitoring permissions to whichever Terminal host you're using to run Nudelta, likely Terminal.app.
+
+No special permissions are required on Windows as far as I can tell.
 
 ### Load a custom profile
 
