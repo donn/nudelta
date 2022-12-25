@@ -23,7 +23,10 @@ jobs:
       - name: Clone Submodules
         run: git submodule update --init
       - name: Get Python Dependencies
-        run: python3 -m pip install cmake pyyaml
+        run: |
+          python3 -m pip install cmake pyyaml
+          python3 -m pip show cmake
+          python3 -m pip show pyyaml
       - name: Build Distribution
         shell: pwsh
         run: |
@@ -81,7 +84,10 @@ jobs:
           brew install python3
           which python3
       - name: Get Python Dependencies
-        run: python3 -m pip install cmake pyyaml
+        run: |
+          python3 -m pip install cmake pyyaml
+          python3 -m pip show cmake
+          python3 -m pip show pyyaml
       - name: Build Distribution
         run: |
           yarn
@@ -95,7 +101,7 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-20.04
-    needs: [macos, linux]
+    needs: [macos, linux, windows]
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
