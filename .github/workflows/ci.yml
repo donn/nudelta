@@ -24,9 +24,9 @@ jobs:
         run: git submodule update --init
       - name: Get Python Dependencies
         run: |
-          python3-32 -m pip install cmake pyyaml
-          python3-32 -m pip show cmake
-          python3-32 -m pip show pyyaml
+          python3 -m pip install cmake pyyaml
+          python3 -m pip show cmake
+          python3 -m pip show pyyaml
       - name: Build Distribution
         shell: pwsh
         run: |
