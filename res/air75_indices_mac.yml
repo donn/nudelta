@@ -7,7 +7,7 @@ lmeta: 17
 rctrl: 65
 rshift: 82
 rmeta: 53
-# fn not remappable
+fn: 59
 
 pgup: 91
 pgdn: 92

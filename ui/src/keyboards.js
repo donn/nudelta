@@ -375,7 +375,7 @@ export const Air75 = {
                     width: 1,
                     color: "gray",
                     name: "Function",
-                    remappable: false,
+                    remappable: false
                 }),
                 new Key({
                     id: "rctrl",
