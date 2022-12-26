@@ -10,6 +10,7 @@ rctrl: 0xe4000006
 rshift: 0xe5000006
 ralt: 0xe6000006
 rmeta: 0xe7000006
+fn: 0x00000020
 
 pgup: 0x4b000000
 pgdn: 0x4e000000

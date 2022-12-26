@@ -76,9 +76,19 @@ class Config {
     }
 }
 
+window.unsafeRemapping = false;
+function safetyOff(silent = false) {
+    if (!silent) {
+        alert("Enabling unsafe remapping.\nIf you remap Fn, this will change even your factory reset shortcut, so be careful!");
+    }
+    window.unsafe = true;
+    redrawOptions();
+}
 window.mode = "win";
 window.keyboardFoundString = null;
+window.lastKey = null;
 window.currentKey = null;
+window.clickCount = 0;
 window.config = new Config();
 
 function writeYAML() {
@@ -152,13 +162,15 @@ function redrawKeyboard() {
 function drawOptionArray(
     e,
     remap,
-    id,
-    defaultMapping,
-    defaultModifiers,
+    key,
     alt,
     column,
     row
 ) {
+    let id = key.id;
+    let defaultMapping = key.defaultMapping;
+    let defaultModifiers = key.defaultModifiers;
+
     let currentRemap = {};
     let currentModifiers = defaultModifiers;
     if (remap[id]) {
@@ -181,12 +193,11 @@ function drawOptionArray(
                 }
                 e.id = elementID;
                 e.style = `
-                grid-column-start: ${column};
-                grid-column-end: ${column};
-                grid-row-start: ${row};
-                grid-row-end: ${row + 1};
-
-            `;
+                    grid-column-start: ${column};
+                    grid-column-end: ${column};
+                    grid-row-start: ${row};
+                    grid-row-end: ${row + 1};
+                `;
                 e.appendChild(
                     n("span", (e) => {
                         e.innerHTML = modifier.label;
@@ -242,15 +253,14 @@ function redrawOptions() {
             e.className = "option-matrix card";
             let key = window.currentKey;
             let columnCount = 1;
-            if (key && key.remappable) {
+            let remappable = (key && key.remappable) || window.unsafe;
+            if (key && remappable) {
                 let altIDExists = !!key.altID;
 
                 columnCount = drawOptionArray(
                     e,
                     remap,
-                    key.id,
-                    key.defaultMapping,
-                    key.defaultModifiers,
+                    key,
                     false,
                     1,
                     altIDExists ? 2 : 3
@@ -266,13 +276,11 @@ function redrawOptions() {
                         e.innerHTML = `${key.name}`;
                     })
                 );
-                if (key.altID) {
+                if (altIDExists) {
                     columnCount = drawOptionArray(
                         e,
                         remap,
-                        key.altID,
-                        key.altDefaultMapping,
-                        key.altDefaultModifiers,
+                        key,
                         true,
                         1,
                         4
@@ -292,15 +300,15 @@ function redrawOptions() {
                     e.appendChild(
                         n("h3", (e) => {
                             e.style = `
-                        grid-column-start: 1;
-                        grid-column-end: ${columnCount};
-                        grid-row-start: 4;
-                        grid-row-end: 5;
-                    `;
+                                grid-column-start: 1;
+                                grid-column-end: ${columnCount};
+                                grid-row-start: 4;
+                                grid-row-end: 5;
+                            `;
                         })
                     );
                 }
-            } else if (key && !key.remappable) {
+            } else if (key && !remappable) {
                 e.appendChild(
                     n("h3", (e) => {
                         e.style = `
@@ -474,7 +482,22 @@ function onClickModifier(event) {
  * @param {MouseEvent} event
  */
 function onClickKey(event) {
+    window.lastKey = window.currentKey;
     window.currentKey = JSON.parse(event.target.getAttribute("data"));
+    if (window.lastKey && window.lastKey.id == window.currentKey.id) {
+        window.clickCount += 1;
+    } else {
+        window.clickCount = 1;
+    }
+    if (!window.currentKey.remappable) {
+        let remap = window.config.getRemap(window.mode);
+
+        if (remap[window.currentKey.id]) {
+            safetyOff(true);
+        } else if (window.clickCount == 5) {
+            safetyOff();
+        }
+    }
     redrawOptions();
 }
 

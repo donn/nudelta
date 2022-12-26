@@ -47,6 +47,7 @@ Each key appears to be assigned a word.
 * 0d -> Unknown: Two keys, appearing to be cycling through something i do not know
 * 0e -> A variety of on-keyboard functions / """"Fn Layer""""
 * 12 -> Backlight Color
+* 20 -> Fn Key only
 
 ## Byte 1
 Appears unused, always 00
