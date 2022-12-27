@@ -1,6 +1,6 @@
 <h1 align="center"> ν∂ / Nudelta </h1>
 <p align="center">
-    <a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPLv3%202.0-blue.svg" alt="License: GPLv3"/></a>
+    <a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPLv3"/></a>
     <img src="https://github.com/donn/nudelta/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI Status" />
 </p>
 
@@ -81,7 +81,7 @@ keys:
 See [example.yml](example.yml) for a profile and somewhat more detailed examples.
 
 You can find a list of:
-  * Replaceable keys in [res/air75_indices.yml](res/air75_indices.yml).
+  * Replaceable keys (for the Windows mode) in [res/air75_indices_win.yml](res/air75_indices_win.yml).
   * Replacement keycodes in [res/air75_keycodes.yml](res/air75_keycodes.yml).
 
 ### Reset keymap to default
