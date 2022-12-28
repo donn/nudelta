@@ -18,7 +18,7 @@
 #include "access.hpp"
 
 #if defined(__APPLE_CC__) || defined(__APPLE__)
-    #include <IOKit/hidsystem/IOHIDLib.h>
+#include <IOKit/hidsystem/IOHIDLib.h>
 
 std::optional< bool > checkHIDAccess() {
     switch (IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)) {
@@ -38,7 +38,7 @@ bool requestHIDAccess() {
 }
 
 const char *hidAccessFailureMessage =
-    "Please grant nudelta input monitoring permissions in your System Preferences.";
+    "Please grant Nudelta input monitoring permissions in your System Preferences.";
 
 #elif defined(__gnu_linux__)
 std::optional< bool > checkHIDAccess() {

@@ -47,7 +47,7 @@ Air75 getKeyboard() {
 }
 
 SSCO_Fn(printVersion) {
-    p("nudelta console v{}\n", NUDELTA_VERSION);
+    p("Nudelta Utility v{}\n", NUDELTA_VERSION);
     p("Copyright (c) Mohamed Gaber 2022\n");
     p(R"(
 Licensed under the GNU General Public License, version 3, or at your option,
