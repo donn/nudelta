@@ -321,34 +321,34 @@ export const Air75 = {
                 }),
                 mac
                     ? new Key({
-                          id: "lalt",
-                          label: "OPT",
-                          name: "Left Alt/Option",
-                          width: 1.25,
-                          color: "gray",
-                      })
+                        id: "lalt",
+                        label: "OPT",
+                        name: "Left Alt/Option",
+                        width: 1.25,
+                        color: "gray",
+                    })
                     : new Key({
-                          id: "lmeta",
-                          label: "WIN",
-                          name: "Left Meta",
-                          width: 1.25,
-                          color: "gray",
-                      }),
+                        id: "lmeta",
+                        label: "WIN",
+                        name: "Left Meta",
+                        width: 1.25,
+                        color: "gray",
+                    }),
                 mac
                     ? new Key({
-                          id: "lmeta",
-                          label: "CMD",
-                          name: "Left Meta",
-                          width: 1.25,
-                          color: "gray",
-                      })
+                        id: "lmeta",
+                        label: "CMD",
+                        name: "Left Meta",
+                        width: 1.25,
+                        color: "gray",
+                    })
                     : new Key({
-                          id: "lalt",
-                          label: "ALT",
-                          name: "Left Alt/Option",
-                          width: 1.25,
-                          color: "gray",
-                      }),
+                        id: "lalt",
+                        label: "ALT",
+                        name: "Left Alt/Option",
+                        width: 1.25,
+                        color: "gray",
+                    }),
                 new Key({
                     id: "space",
                     label: "",
@@ -358,19 +358,19 @@ export const Air75 = {
                 }),
                 mac
                     ? new Key({
-                          id: "rmeta",
-                          label: "CMD",
-                          name: "Right Meta",
-                          width: 1,
-                          color: "gray",
-                      })
+                        id: "rmeta",
+                        label: "CMD",
+                        name: "Right Meta",
+                        width: 1,
+                        color: "gray",
+                    })
                     : new Key({
-                          id: "ralt",
-                          label: "ALT",
-                          name: "Right Alt/Option",
-                          width: 1,
-                          color: "gray",
-                      }),
+                        id: "ralt",
+                        label: "ALT",
+                        name: "Right Alt/Option",
+                        width: 1,
+                        color: "gray",
+                    }),
                 new Key({
                     id: "fn",
                     width: 1,
@@ -454,11 +454,11 @@ export const Halo75 = {
                 new Key({
                     id: "f5",
                     color: "dark",
-                    defaultMapping: mac ? "mic" : null,
+                    defaultMapping: mac ? "voice_command" : null,
 
-                    altID: mac ? "fn_f5" : "mic",
+                    altID: mac ? "fn_f5" : "voice_command",
                     altName: mac ? "F5 (Fn layer)" : "Mic",
-                    altDefaultMapping: mac ? "f5" : "mic",
+                    altDefaultMapping: mac ? "f5" : "f5",
                 }),
                 new Key({
                     id: "f6",
@@ -697,34 +697,34 @@ export const Halo75 = {
                 }),
                 mac
                     ? new Key({
-                          id: "lalt",
-                          label: "Opt",
-                          name: "Left Alt/Option",
-                          width: 1.25,
-                          color: "dark",
-                      })
+                        id: "lalt",
+                        label: "Opt",
+                        name: "Left Alt/Option",
+                        width: 1.25,
+                        color: "dark",
+                    })
                     : new Key({
-                          id: "lmeta",
-                          label: "Win",
-                          name: "Left Meta",
-                          width: 1.25,
-                          color: "dark",
-                      }),
+                        id: "lmeta",
+                        label: "Win",
+                        name: "Left Meta",
+                        width: 1.25,
+                        color: "dark",
+                    }),
                 mac
                     ? new Key({
-                          id: "lmeta",
-                          label: "⌘",
-                          name: "Left Meta",
-                          width: 1.25,
-                          color: "dark",
-                      })
+                        id: "lmeta",
+                        label: "⌘",
+                        name: "Left Meta",
+                        width: 1.25,
+                        color: "dark",
+                    })
                     : new Key({
-                          id: "lalt",
-                          label: "Alt",
-                          name: "Left Alt/Option",
-                          width: 1.25,
-                          color: "dark",
-                      }),
+                        id: "lalt",
+                        label: "Alt",
+                        name: "Left Alt/Option",
+                        width: 1.25,
+                        color: "dark",
+                    }),
                 new Key({
                     id: "space",
                     label: "",
@@ -734,19 +734,19 @@ export const Halo75 = {
                 }),
                 mac
                     ? new Key({
-                          id: "rmeta",
-                          label: "⌘",
-                          name: "Right Meta",
-                          width: 1.25,
-                          color: "dark",
-                      })
+                        id: "rmeta",
+                        label: "⌘",
+                        name: "Right Meta",
+                        width: 1.25,
+                        color: "dark",
+                    })
                     : new Key({
-                          id: "ralt",
-                          label: "Alt",
-                          name: "Right Alt/Option",
-                          width: 1.25,
-                          color: "dark",
-                      }),
+                        id: "ralt",
+                        label: "Alt",
+                        name: "Right Alt/Option",
+                        width: 1.25,
+                        color: "dark",
+                    }),
                 new Key({
                     id: "fn",
                     label: "Fn",

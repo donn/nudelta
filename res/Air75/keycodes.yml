@@ -138,7 +138,7 @@ backlightup: 0x0001000c
 
 ## Special
 fnspace: 0x2f000002
-mic: 0xcf000004
+voice_command: 0xcf000004
 search: 0x2000000e
 
 ## Apple-specific extra F keys (useful for keyboard shortcuts/software macros)

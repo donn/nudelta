@@ -101,7 +101,7 @@ brightnessdown: 180
 brightnessup: 181
 missioncontrol: 182
 launchpad: 183
-mic: 184
+voice_command: 184
 search: 185
 rewind: 186
 playpause: 187

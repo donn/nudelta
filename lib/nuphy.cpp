@@ -30,6 +30,10 @@ NuPhy::Handles NuPhy::getHandles() {
         requestHandle = hid_open_path(requestPath.c_str());
     }
 
+    if (dataHandle == nullptr || requestHandle == nullptr) {
+        throw std::runtime_error("Failed to open device. Ensure your permissions are properly set up.");
+    }
+
     auto cleanup = [](NuPhy::Handles &handles) {
         if (handles.request != handles.data) {
             hid_close(handles.request);
@@ -292,7 +296,7 @@ void NuPhy::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     auto *end_pointer = (uint8_t *)(keymap.data() + keymap.size());
 
     std::copy(header.data(), header.data() + header.size(), buffer);
-    std::copy(start_pointer, end_pointer, header.data() + header.size());
+    std::copy(start_pointer, end_pointer, buffer + header.size());
 
     set_report(handles.data, buffer, count);
 }
