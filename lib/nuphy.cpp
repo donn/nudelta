@@ -24,10 +24,10 @@
 #include <yaml-cpp/yaml.h>
 
 NuPhy::Handles NuPhy::getHandles() {
-    auto dataHandle = hid_open_path(path.c_str());
+    auto dataHandle = hid_open_path(dataPath.c_str());
     auto requestHandle = dataHandle;
-    if (requestPath.has_value()) {
-        requestHandle = hid_open_path(requestPath.value().c_str());
+    if (requestPath != dataPath) {
+        requestHandle = hid_open_path(requestPath.c_str());
     }
 
     auto cleanup = [](NuPhy::Handles &handles) {
@@ -126,6 +126,16 @@ void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
     }
 }
 
+static std::shared_ptr < NuPhy > createKeyboard(std::string name, std::string dataPath, std::string requestPath, uint16_t firmware) {
+    if (name == "Air75") {
+        return std::make_shared< Air75 >(dataPath, requestPath, firmware);
+    }
+    if (name == "Halo75") {
+        return std::make_shared< Halo75 >(dataPath, requestPath, firmware);
+    }
+    return nullptr;
+}
+
 #ifdef _WIN32
 // Win is different: there are multiple "channels" each with a different path
 // - So far, I've identified col06 as the one for keymap data, col05 for
@@ -133,22 +143,23 @@ void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
 std::string writeCol = "col05";
 std::string dataCol = "col06";
 
-std::optional< Air75 > NuPhy::find() {
-    std::optional< Air75 > keyboard;
-
+std::shared_ptr< NuPhy > NuPhy::find() {
     auto seeker = hid_enumerate(0x05ac, 0x024f);
     SCOPE_EXIT {
         hid_free_enumeration(seeker);
     };
 
-    uint32_t firmware = 0x0;
+    uint16_t firmware = 0x0;
+    std::optional< std::string > productName;
     std::optional< std::string > dataPath;
     std::optional< std::string > requestPath;
 
     bool multipleWarned = false;
     while (seeker != nullptr) {
         if (seeker->interface_number == 1 && seeker->usage == 1
-            && seeker->usage_page == 0xFF00) {
+            && seeker->usage_page == 0xFF00
+            && (!keyboardName.has_value()
+                || keyboardName.value() == to_utf8(seeker->productName))) {
 
             auto path = std::string(seeker->path);
             for (auto it = path.begin(); it != path.end(); it++) {
@@ -160,6 +171,7 @@ std::optional< Air75 > NuPhy::find() {
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
+                productName = to_utf8(seeker->productName);
                 requestPath = seeker->path;
                 firmware = seeker->release_number;
             } else if (path.find(dataCol) != -1) {
@@ -168,6 +180,7 @@ std::optional< Air75 > NuPhy::find() {
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
+                productName = to_utf8(seeker->productName);
                 dataPath = seeker->path;
             }
         }
@@ -175,7 +188,8 @@ std::optional< Air75 > NuPhy::find() {
     }
 
     if (dataPath.has_value() && requestPath.has_value()) {
-        return Air75(dataPath.value(), firmware, requestPath);
+        assert(productName.has_value());
+        return createKeyboard(productName.value(), dataPath.value(), requestPath.value(), firmware);
     }
 
     return std::nullopt;
@@ -194,8 +208,8 @@ std::shared_ptr< NuPhy > NuPhy::find() {
         if (seeker->interface_number == 1) {
             if (keyboard != nullptr) {
                 // We only care if the path is different, because that means a
-                // different device entirely
-                if (keyboard->path != std::string(seeker->path)) {
+                // different device on Mac and Linux
+                if (keyboard->dataPath != std::string(seeker->path)) {
                     if (!multipleWarned) {
                         p(stderr,
                           "[Warning] Multiple NuPhy keyboards found! Please keep only one plugged in. Only the first matched device will be used.\n"
@@ -207,15 +221,12 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                 if (seeker->product_string == nullptr) {
                     throw permissions_error(hidAccessFailureMessage);
                 }
-                if (to_utf8(seeker->product_string) == "Air75") {
-                    keyboard = std::make_shared< Air75 >(
-                        seeker->path,
-                        seeker->release_number
-                    );
-                } else {
+                auto productName = to_utf8(seeker->product_string);
+                keyboard = createKeyboard(productName, seeker->path, seeker->path, seeker->release_number);
+                if (keyboard == nullptr) {
                     throw std::runtime_error(fmt::format(
                         "The NuPhy {} is currently unsupported.",
-                        to_utf8(seeker->product_string)
+                        productName
                     ));
                 }
             }
@@ -243,7 +254,7 @@ std::vector< uint32_t > NuPhy::getKeymap(bool mac) {
     );
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint32_t *)&keymapReport[8];
-    auto *end_pointer = (uint32_t *)(keymapReport.size(), +keymapReport.size());
+    auto *end_pointer = (uint32_t *)(keymapReport.data() + keymapReport.size());
 
     return std::vector< uint32_t >(start_pointer, end_pointer);
 }
@@ -306,7 +317,6 @@ void NuPhy::validateYAMLKeymap(
     for (auto entry : keys) {
         auto keyID = entry.first.as< std::string >();
 
-        auto keyIt = indices.find(keyID);
         if (indices.find(keyID) == indices.end()) {
             auto errorMessage = fmt::format(
                 "Invalid config in {}: a key for '{}' does not exist in '{}' mode.",
@@ -316,8 +326,6 @@ void NuPhy::validateYAMLKeymap(
             );
             throw std::runtime_error(errorMessage);
         }
-
-        auto key = keyIt->second;
 
         auto codeObject = entry.second;
         if (entry.second.IsScalar()) {
@@ -341,7 +349,6 @@ void NuPhy::validateYAMLKeymap(
         }
 
         auto codeID = codeObject["key"].as< std::string >();
-        auto codeIt = keycodes.find(codeID);
         if (keycodes.find(codeID) == keycodes.end()) {
             auto errorMessage = fmt::format(
                 "Invalid config in {}.{}: a code for key '{}' was not found.",
@@ -352,7 +359,6 @@ void NuPhy::validateYAMLKeymap(
             throw std::runtime_error(errorMessage);
         }
 
-        auto code = codeIt->second;
         auto modifiers = codeObject["modifiers"];
         if (modifiers.IsDefined() && !modifiers.IsNull()) {
             if (modifiers.Type() != YAML::NodeType::Sequence) {

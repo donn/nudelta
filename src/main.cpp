@@ -37,10 +37,18 @@ std::shared_ptr< NuPhy > getKeyboard() {
         );
     }
 
-    p("Found NuPhy {} at path {} (Firmware {:04x})\n",
-      keyboard->getName(),
-      keyboard->path,
-      keyboard->firmware);
+    if (keyboard->dataPath == keyboard->requestPath) {
+        p("Found NuPhy {} at path {} (Firmware {:04x})\n",
+        keyboard->getName(),
+        keyboard->dataPath,
+        keyboard->firmware);
+    } else {
+        p("Found NuPhy {} at paths ({}, {}) (Firmware {:04x})\n",
+        keyboard->getName(),
+        keyboard->dataPath,
+        keyboard->requestPath,
+        keyboard->firmware);
+    }
 
     return keyboard;
 }

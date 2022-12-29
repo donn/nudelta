@@ -30,16 +30,16 @@
 
 class NuPhy { // Abstract
     public:
+        std::string dataPath;
+        std::string requestPath;
         uint16_t firmware;
-        std::string path;
-        std::optional< std::string > requestPath;
 
         NuPhy(
-            std::string path,
-            uint16_t firmware,
-            std::optional< std::string > requestPath = std::nullopt
+            std::string dataPath,
+            std::string requestPath,
+            uint16_t firmware
         )
-            : path(path), firmware(firmware), requestPath(requestPath) {}
+            : dataPath(dataPath), requestPath(requestPath), firmware(firmware) {}
 
         std::vector< uint32_t > getKeymap(bool mac = false);
         void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
@@ -80,11 +80,11 @@ class NuPhy { // Abstract
 class Air75 : public NuPhy {
     public:
         Air75(
-            std::string path,
-            uint16_t firmware,
-            std::optional< std::string > requestPath = std::nullopt
+            std::string dataPath,
+            std::string requestPath,
+            uint16_t firmware
         )
-            : NuPhy(path, firmware, requestPath) {}
+            : NuPhy(dataPath, requestPath, firmware) {}
 
         virtual std::string getName() { return "Air75"; }
         virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) {
@@ -137,11 +137,11 @@ class Air75 : public NuPhy {
 class Halo75 : public NuPhy {
     public:
         Halo75(
-            std::string path,
-            uint16_t firmware,
-            std::optional< std::string > requestPath = std::nullopt
+            std::string dataPath,
+            std::string requestPath,
+            uint16_t firmware
         )
-            : NuPhy(path, firmware, requestPath) {}
+            : NuPhy(dataPath, requestPath, firmware) {}
 
         virtual std::string getName() { return "Halo75"; }
         virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) {

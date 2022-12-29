@@ -36,8 +36,8 @@ Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
             keyboard->firmware
         );
 
-        if (keyboard->path.length() <= 20) {
-            string = fmt::format("{} at {}", string, keyboard->path);
+        if (keyboard->dataPath == keyboard->requestPath && keyboard->dataPath.length() <= 20) {
+            string = fmt::format("{} at {}", string, keyboard->dataPath);
         }
 
         auto object = Napi::Object::New(env);
