@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import air75_keycodes from "../../res/Air75/keycodes.yml";
-import halo75_keycodes from "../../res/Air75/keycodes.yml"; // Windows symlink issue
+import halo75_keycodes from "../../res/Halo75/keycodes.yml";
 
 class Key {
     constructor({
