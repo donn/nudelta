@@ -2,21 +2,19 @@
 import fs from "fs-extra";
 import path from "path";
 import yaml from "yaml";
+import fg from "fast-glob";
 
 const argv = process.argv.slice(2);
 const print = console.log;
 
 let resourceDir = argv[0];
+let globStr = path.join(resourceDir, "**", "*.yml");
+let files = fg.sync(globStr, { absolute: true });
 
 print('#include "common.hpp"');
-print('#include "air75.hpp"');
-for (let file of fs.readdirSync(resourceDir)) {
-    let filePath = path.join(resourceDir, file);
-    if (!filePath.endsWith(".yml")) {
-        continue;
-    }
-
-    let str = fs.readFileSync(filePath, { encoding: "utf8" });
+print('#include "nuphy.hpp"');
+for (let file of files) {
+    let str = fs.readFileSync(file, { encoding: "utf8" });
     let object = yaml.parse(str);
     let lines = str.split("\n");
     let [_, type, name] = lines[0].split(" ");

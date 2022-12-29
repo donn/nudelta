@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import air75_keycodes from "../../res/air75_keycodes.yml";
+import air75_keycodes from "../../res/air75/keycodes.yml";
 
 class Key {
     constructor({

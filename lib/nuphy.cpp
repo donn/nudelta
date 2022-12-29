@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "air75.hpp"
+#include "nuphy.hpp"
 
 #include "access.hpp"
 
@@ -23,14 +23,14 @@
 #include <scope_guard.hpp>
 #include <yaml-cpp/yaml.h>
 
-Air75::Handles Air75::getHandles() {
+NuPhy::Handles NuPhy::getHandles() {
     auto dataHandle = hid_open_path(path.c_str());
     auto requestHandle = dataHandle;
     if (requestPath.has_value()) {
         requestHandle = hid_open_path(requestPath.value().c_str());
     }
 
-    auto cleanup = [](Air75::Handles &handles) {
+    auto cleanup = [](NuPhy::Handles &handles) {
         if (handles.request != handles.data) {
             hid_close(handles.request);
         }
@@ -136,7 +136,7 @@ void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
 std::string writeCol = "col05";
 std::string dataCol = "col06";
 
-std::optional< Air75 > Air75::find() {
+std::optional< Air75 > NuPhy::find() {
     std::optional< Air75 > keyboard;
 
     auto seeker = hid_enumerate(0x05ac, 0x024f);
@@ -184,8 +184,8 @@ std::optional< Air75 > Air75::find() {
     return std::nullopt;
 }
 #else
-std::optional< Air75 > Air75::find() {
-    std::optional< Air75 > keyboard;
+std::shared_ptr< NuPhy > NuPhy::find() {
+    std::shared_ptr< NuPhy > keyboard;
 
     auto seeker = hid_enumerate(0x05ac, 0x024f);
     SCOPE_EXIT {
@@ -194,24 +194,14 @@ std::optional< Air75 > Air75::find() {
 
     bool multipleWarned = false;
     while (seeker != nullptr) {
-        // Check that the manufacturer string isn't Apple or something, avoid
-        // clashing with other keyboards
-        //
-        // manufacturer_string appears to be null on Linux, so we can't test
-        // much there :)
-        bool manufacturerStringOK = true;
-        if (seeker->manufacturer_string != nullptr
-            && to_utf8(seeker->manufacturer_string) != std::string("BY Tech")) {
-            manufacturerStringOK = false;
-        }
         if (seeker->interface_number == 1) {
-            if (keyboard.has_value()) {
+            if (keyboard != nullptr) {
                 // We only care if the path is different, because that means a
                 // different device entirely
-                if (keyboard.value().path != std::string(seeker->path)) {
+                if (keyboard->path != std::string(seeker->path)) {
                     if (!multipleWarned) {
                         p(stderr,
-                          "[Warning] Multiple NuPhy Air75 keyboards found! Please keep only one plugged in. Only the first matched device will be used.\n"
+                          "[Warning] Multiple NuPhy keyboards found! Please keep only one plugged in. Only the first matched device will be used.\n"
                         );
                         multipleWarned = true;
                     }
@@ -220,21 +210,21 @@ std::optional< Air75 > Air75::find() {
                 if (seeker->product_string == nullptr) {
                     throw permissions_error(hidAccessFailureMessage);
                 }
-                keyboard = Air75(seeker->path, seeker->release_number);
+                if (to_utf8(seeker->product_string) == "Air75") {
+                    keyboard = std::make_shared<Air75>(seeker->path, seeker->release_number);
+                } else {
+                    throw std::runtime_error(fmt::format("The NuPhy {} is currently unsupported.", to_utf8(seeker->product_string)));
+                }
             }
         }
         seeker = seeker->next;
     }
 
-    if (keyboard.has_value()) {
-        return keyboard;
-    }
-
-    return std::nullopt;
+    return keyboard;
 }
 #endif
 
-std::vector< uint32_t > Air75::getKeymap(bool mac) {
+std::vector< uint32_t > NuPhy::getKeymap(bool mac) {
     auto handles = getHandles();
     SCOPE_EXIT {
         handles.cleanup(handles);
@@ -252,7 +242,7 @@ std::vector< uint32_t > Air75::getKeymap(bool mac) {
     return std::vector< uint32_t >(start_pointer, end_pointer);
 }
 
-void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
+void NuPhy::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     auto handles = getHandles();
     SCOPE_EXIT {
         handles.cleanup(handles);
@@ -285,16 +275,19 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
 const char *TOP_LEVEL_WIN = "keys";
 const char *TOP_LEVEL_MAC = "mackeys";
 
-void Air75::validateYAMLKeymap(
+void NuPhy::validateYAMLKeymap(
     const std::string &yamlString,
     bool rawOk,
     bool mac
 ) {
     auto config = YAML::Load(yamlString);
 
+    auto keycodes = getKeycodesByKeyName();
+    auto modifiersByName = getModifiersByModifierName();
+    auto writableKeymap = getDefaultKeymap(mac);
+    auto indices = getIndicesByKeyName(mac);
+
     auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
-    auto &indices =
-        mac ? Air75::indicesByKeyNameMac : Air75::indicesByKeyNameWin;
 
     auto keys = config[topLevelKey];
 
@@ -347,9 +340,9 @@ void Air75::validateYAMLKeymap(
         }
 
         auto codeID = codeObject["key"].as< std::string >();
-        auto codeIt = Air75::keycodesByKeyName.find(codeID);
-        if (Air75::keycodesByKeyName.find(codeID)
-            == Air75::keycodesByKeyName.end()) {
+        auto codeIt = keycodes.find(codeID);
+        if (keycodes.find(codeID)
+            == keycodes.end()) {
             auto errorMessage = fmt::format(
                 "Invalid config in {}.{}: a code for key '{}' was not found.",
                 topLevelKey,
@@ -372,8 +365,8 @@ void Air75::validateYAMLKeymap(
             for (auto modifier : modifiers) {
                 auto modifierName = modifier.as< std::string >();
                 auto modifierIt =
-                    Air75::modifiersByModifierName.find(modifierName);
-                if (modifierIt == Air75::modifiersByModifierName.end()) {
+                    modifiersByName.find(modifierName);
+                if (modifierIt == modifiersByName.end()) {
                     throw std::runtime_error(fmt::format(
                         "Invalid config in {}.{}: Unknown modifier {}: make sure you're not adding a direction, e.g. lalt instead of alt",
                         topLevelKey,
@@ -386,63 +379,67 @@ void Air75::validateYAMLKeymap(
     }
 }
 
-void Air75::setKeymapFromYAML(const std::string &yamlString, bool mac) {
+void NuPhy::setKeymapFromYAML(const std::string &yamlString) {
     validateYAMLKeymap(yamlString, true, false);
     validateYAMLKeymap(yamlString, true, true);
 
     auto config = YAML::Load(yamlString);
 
-    auto writableKeymap =
-        mac ? Air75::defaultKeymapMac : Air75::defaultKeymapWin;
+    auto keycodes = getKeycodesByKeyName();
+    auto modifiersByName = getModifiersByModifierName();
 
-    auto &indices =
-        mac ? Air75::indicesByKeyNameMac : Air75::indicesByKeyNameWin;
+    for (auto mac: { true, false } ) {
+        auto writableKeymap = getDefaultKeymap(mac);
+        auto indices = getIndicesByKeyName(mac);
 
-    auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
-    auto keys = config[topLevelKey];
+        auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
+        auto keys = config[topLevelKey];
 
-    if (!keys.IsNull() && keys.IsDefined()) {
-        for (auto entry : keys) {
-            auto keyID = entry.first.as< std::string >();
+        if (!keys.IsNull() && keys.IsDefined()) {
+            for (auto entry : keys) {
+                auto keyID = entry.first.as< std::string >();
 
-            auto keyIt = indices.find(keyID);
-            auto key = keyIt->second;
+                auto keyIt = indices.find(keyID);
+                auto key = keyIt->second;
 
-            auto codeObject = entry.second;
-            if (entry.second.IsScalar()) {
-                auto codeID = codeObject.as< std::string >();
-                codeObject = YAML::Node();
-                codeObject["key"] = codeID;
-            }
-
-            // If "raw" exists: just set it and ignore everything else
-            auto raw = codeObject["raw"];
-            if (raw.IsDefined() && !raw.IsNull()) {
-                writableKeymap[key] = raw.as< uint32_t >();
-                continue;
-            }
-
-            auto codeID = codeObject["key"].as< std::string >();
-            auto codeIt = Air75::keycodesByKeyName.find(codeID);
-
-            auto code = codeIt->second;
-            auto modifiers = codeObject["modifiers"];
-            if (modifiers.IsDefined() && !modifiers.IsNull()) {
-                for (auto modifier : modifiers) {
-                    auto modifierName = modifier.as< std::string >();
-                    auto modifierIt =
-                        Air75::modifiersByModifierName.find(modifierName);
-                    auto modifierCode = modifierIt->second;
-                    code |= modifierCode;
+                auto codeObject = entry.second;
+                if (entry.second.IsScalar()) {
+                    auto codeID = codeObject.as< std::string >();
+                    codeObject = YAML::Node();
+                    codeObject["key"] = codeID;
                 }
-            }
-            writableKeymap[key] = code;
-        }
-    }
 
-    setKeymap(writableKeymap, mac);
+                // If "raw" exists: just set it and ignore everything else
+                auto raw = codeObject["raw"];
+                if (raw.IsDefined() && !raw.IsNull()) {
+                    writableKeymap[key] = raw.as< uint32_t >();
+                    continue;
+                }
+
+                auto codeID = codeObject["key"].as< std::string >();
+                auto codeIt = keycodes.find(codeID);
+
+                auto code = codeIt->second;
+                auto modifiers = codeObject["modifiers"];
+                if (modifiers.IsDefined() && !modifiers.IsNull()) {
+                    for (auto modifier : modifiers) {
+                        auto modifierName = modifier.as< std::string >();
+                        auto modifierIt =
+                            modifiersByName.find(modifierName);
+                        auto modifierCode = modifierIt->second;
+                        code |= modifierCode;
+                    }
+                }
+                writableKeymap[key] = code;
+            }
+        }
+
+        setKeymap(writableKeymap, mac);
+    }
+    
 }
 
-void Air75::resetKeymap(bool mac) {
-    setKeymap(mac ? Air75::defaultKeymapMac : Air75::defaultKeymapWin, mac);
+void NuPhy::resetKeymap() {
+    setKeymap(getDefaultKeymap(false), false);
+    setKeymap(getDefaultKeymap(true), true);
 }

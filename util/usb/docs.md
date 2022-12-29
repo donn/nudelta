@@ -1,14 +1,14 @@
-# Nuphy Console
+# NuPhy Console
 ## Firmware Ver.
 In device descriptor: "bcdDevice"
 
-## Nuphy Console: Boot Up
+## NuPhy Console: Boot Up
 Host: (Set_Report) 05 05 81 00 00 00
 KB: ack
 Host: (Get_Report) Feature,ID:5
 KB: URB_Complete 05 01 02 00 00 00 00 4F
 
-## Nuphy Console: Apply/Write
+## NuPhy Console: Apply/Write
 
 ```
 [W0] Set Report 5: 05 83 b6 00 00 00
