@@ -126,7 +126,12 @@ void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
     }
 }
 
-static std::shared_ptr < NuPhy > createKeyboard(std::string name, std::string dataPath, std::string requestPath, uint16_t firmware) {
+static std::shared_ptr< NuPhy > createKeyboard(
+    std::string name,
+    std::string dataPath,
+    std::string requestPath,
+    uint16_t firmware
+) {
     if (name == "Air75") {
         return std::make_shared< Air75 >(dataPath, requestPath, firmware);
     }
@@ -154,16 +159,15 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     std::optional< std::string > dataPath;
     std::optional< std::string > requestPath;
 
-    bool multipleWarned = false;
     while (seeker != nullptr) {
         if (seeker->interface_number == 1 && seeker->usage == 1
             && seeker->usage_page == 0xFF00
-            && (!keyboardName.has_value()
-                || keyboardName.value() == to_utf8(seeker->productName))) {
+            && (!productName.has_value()
+                || productName.value() == to_utf8(seeker->product_string))) {
 
             auto path = std::string(seeker->path);
             for (auto it = path.begin(); it != path.end(); it++) {
-                *it = std::tolower(*it);
+                *it = char(std::tolower(*it));
             }
             if (path.find(writeCol) != -1) {
                 if (requestPath.has_value()) {
@@ -171,7 +175,7 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
-                productName = to_utf8(seeker->productName);
+                productName = to_utf8(seeker->product_string);
                 requestPath = seeker->path;
                 firmware = seeker->release_number;
             } else if (path.find(dataCol) != -1) {
@@ -180,7 +184,7 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
-                productName = to_utf8(seeker->productName);
+                productName = to_utf8(seeker->product_string);
                 dataPath = seeker->path;
             }
         }
@@ -188,11 +192,15 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     }
 
     if (dataPath.has_value() && requestPath.has_value()) {
-        assert(productName.has_value());
-        return createKeyboard(productName.value(), dataPath.value(), requestPath.value(), firmware);
+        return createKeyboard(
+            productName.value(),
+            dataPath.value(),
+            requestPath.value(),
+            firmware
+        );
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 #else
 std::shared_ptr< NuPhy > NuPhy::find() {
@@ -222,7 +230,12 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                     throw permissions_error(hidAccessFailureMessage);
                 }
                 auto productName = to_utf8(seeker->product_string);
-                keyboard = createKeyboard(productName, seeker->path, seeker->path, seeker->release_number);
+                keyboard = createKeyboard(
+                    productName,
+                    seeker->path,
+                    seeker->path,
+                    seeker->release_number
+                );
                 if (keyboard == nullptr) {
                     throw std::runtime_error(fmt::format(
                         "The NuPhy {} is currently unsupported.",

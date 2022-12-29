@@ -52,9 +52,7 @@ target_link_libraries(nd PRIVATE yaml-cpp)
 target_link_libraries(nd PRIVATE fmt)
 target_link_libraries(nd PRIVATE scope_guard)
 
-if(MSVC)
-  target_compile_options(nd PRIVATE /W4 /WX)
-else()
+if(!MSVC)
   target_compile_options(nd PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 
