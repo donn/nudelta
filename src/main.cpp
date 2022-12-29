@@ -29,7 +29,7 @@
     #define NUDELTA_VERSION "UNKNOWN"
 #endif
 
-std::shared_ptr<NuPhy> getKeyboard() {
+std::shared_ptr< NuPhy > getKeyboard() {
     auto keyboard = NuPhy::find();
     if (keyboard == nullptr) {
         throw std::runtime_error(
@@ -86,8 +86,8 @@ SSCO_Fn(dumpKeymap) {
     };
 
     // ALERT: Endianness-defined Behavior
-    auto seeker = (char *)&*keys.begin();
-    auto end = (char *)(&*keys.begin() + keys.size());
+    auto seeker = (char *)keys.data();
+    auto end = (char *)(keys.data() + keys.size());
     fwrite(seeker, 1, end - seeker, filePtr);
 
     p("Wrote current {} keymap to '{}'.\n", mac ? "Mac" : "Windows", file);
@@ -107,8 +107,8 @@ SSCO_Fn(dumpKeymap) {
 
         prettyPrintBinary(
             std::vector< uint8_t >(
-                (uint8_t *)&*keys.begin(),
-                (uint8_t *)(&*keys.begin() + keys.size())
+                (uint8_t *)keys.data(),
+                (uint8_t *)(keys.data() + keys.size())
             ),
             hexFilePtr
         );
@@ -157,8 +157,7 @@ SSCO_Fn(loadYAML) {
     std::getline(std::ifstream(configPath), configStr, '\0');
     keyboard->setKeymapFromYAML(configStr);
 
-    p("Wrote keymap '{}' to the keyboard's {} mode.\n",
-      configPath);
+    p("Wrote keymap '{}' to the keyboard.\n", configPath);
 }
 
 int main(int argc, char *argv[]) {

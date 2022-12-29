@@ -30,14 +30,21 @@ Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
             return env.Null();
         }
 
-        auto string =
-            fmt::format("NuPhy {} (Firmware {:04x})", keyboard->getName(), keyboard->firmware);
+        auto string = fmt::format(
+            "NuPhy {} (Firmware {:04x})",
+            keyboard->getName(),
+            keyboard->firmware
+        );
 
         if (keyboard->path.length() <= 20) {
             string = fmt::format("{} at {}", string, keyboard->path);
         }
 
-        return Napi::String::New(env, string);
+        auto object = Napi::Object::New(env);
+        object["info"] = Napi::String::New(env, string);
+        object["kind"] = Napi::String::New(env, keyboard->getName());
+
+        return object;
     } catch (permissions_error &e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
     }
@@ -60,7 +67,7 @@ Napi::Value validateYAML(const Napi::CallbackInfo &info) {
         if (keyboard == nullptr) {
             throw std::runtime_error("The keyboard was unplugged.");
         }
-        
+
         auto keymapYAML = info[0].As< Napi::String >().Utf8Value();
         keyboard->validateYAMLKeymap(keymapYAML, false, false);
         keyboard->validateYAMLKeymap(keymapYAML, false, true);

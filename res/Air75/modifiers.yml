@@ -1,4 +1,4 @@
-# dict Air75::modifiersByModifierName
+# dict modifiersByModifierName
 ctrl: 0x00010000
 shift: 0x00020000
 alt: 0x00040000

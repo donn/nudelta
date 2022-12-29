@@ -18,7 +18,7 @@
 #include "access.hpp"
 
 #if defined(__APPLE_CC__) || defined(__APPLE__)
-#include <IOKit/hidsystem/IOHIDLib.h>
+    #include <IOKit/hidsystem/IOHIDLib.h>
 
 std::optional< bool > checkHIDAccess() {
     switch (IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)) {

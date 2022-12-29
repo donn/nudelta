@@ -41,20 +41,15 @@ NuPhy::Handles NuPhy::getHandles() {
 }
 
 static const size_t MAX_READABLE_SIZE = 0x7FF;
-static const size_t REQUEST_SIZE = 6;
 
 static const uint8_t REQUEST_0[] = {0x05, 0x83, 0xb6, 0x00, 0x00, 0x00};
 static const uint8_t REQUEST_1[] = {0x05, 0x88, 0xb8, 0x00, 0x00, 0x00};
-
-static const uint8_t WINDOWS_KEYMAP_GET_HEADER[] =
-    {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00};
-static const uint8_t MAC_KEYMAP_GET_HEADER[] =
-    {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00};
 
 static int get_report(
     hid_device *dataHandle,
     hid_device *requestHandle,
     const uint8_t *requestInfo,
+    const size_t requestSize,
     uint8_t *readBuffer
 ) {
     auto hidAccess = checkHIDAccess();
@@ -66,7 +61,7 @@ static int get_report(
     }
 
     auto bytesWritten =
-        hid_send_feature_report(requestHandle, requestInfo, REQUEST_SIZE);
+        hid_send_feature_report(requestHandle, requestInfo, requestSize);
     if (bytesWritten < 0) {
         auto errorString = fmt::format(
             "Failed to write to keyboard: {}",
@@ -95,19 +90,21 @@ static int get_report(
 static std::vector< uint8_t > get_report(
     hid_device *dataHandle,
     hid_device *requestHandle,
-    const uint8_t *requestInfo
+    const uint8_t *requestInfo,
+    size_t requestSize
 ) {
-    uint8_t readBuffer[2048];
+    uint8_t readBuffer[MAX_READABLE_SIZE];
 
-    auto read = get_report(dataHandle, requestHandle, requestInfo, readBuffer);
+    auto read = get_report(
+        dataHandle,
+        requestHandle,
+        requestInfo,
+        requestSize,
+        readBuffer
+    );
 
     return std::vector< uint8_t >(readBuffer, readBuffer + read);
 }
-
-static const uint8_t WINDOWS_KEYMAP_WRITE_HEADER[] =
-    {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00};
-static const uint8_t MAC_KEYMAP_WRITE_HEADER[] =
-    {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00};
 
 void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
     auto hidAccess = checkHIDAccess();
@@ -151,7 +148,7 @@ std::optional< Air75 > NuPhy::find() {
     bool multipleWarned = false;
     while (seeker != nullptr) {
         if (seeker->interface_number == 1 && seeker->usage == 1
-            && seeker->usage_page == 65280) {
+            && seeker->usage_page == 0xFF00) {
 
             auto path = std::string(seeker->path);
             for (auto it = path.begin(); it != path.end(); it++) {
@@ -211,9 +208,15 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                     throw permissions_error(hidAccessFailureMessage);
                 }
                 if (to_utf8(seeker->product_string) == "Air75") {
-                    keyboard = std::make_shared<Air75>(seeker->path, seeker->release_number);
+                    keyboard = std::make_shared< Air75 >(
+                        seeker->path,
+                        seeker->release_number
+                    );
                 } else {
-                    throw std::runtime_error(fmt::format("The NuPhy {} is currently unsupported.", to_utf8(seeker->product_string)));
+                    throw std::runtime_error(fmt::format(
+                        "The NuPhy {} is currently unsupported.",
+                        to_utf8(seeker->product_string)
+                    ));
                 }
             }
         }
@@ -230,14 +233,17 @@ std::vector< uint32_t > NuPhy::getKeymap(bool mac) {
         handles.cleanup(handles);
     };
 
+    auto requestHeader = getKeymapReportHeader(mac);
+
     auto keymapReport = get_report(
         handles.data,
         handles.request,
-        mac ? MAC_KEYMAP_GET_HEADER : WINDOWS_KEYMAP_GET_HEADER
+        requestHeader.data(),
+        requestHeader.size()
     );
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint32_t *)&keymapReport[8];
-    auto *end_pointer = (uint32_t *)(&keymapReport[0] + keymapReport.size());
+    auto *end_pointer = (uint32_t *)(keymapReport.size(), +keymapReport.size());
 
     return std::vector< uint32_t >(start_pointer, end_pointer);
 }
@@ -248,14 +254,9 @@ void NuPhy::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
         handles.cleanup(handles);
     };
 
-    auto header = WINDOWS_KEYMAP_WRITE_HEADER;
-    size_t headerSize = sizeof WINDOWS_KEYMAP_WRITE_HEADER;
-    if (mac) {
-        header = MAC_KEYMAP_WRITE_HEADER;
-        headerSize = sizeof MAC_KEYMAP_WRITE_HEADER;
-    }
+    auto header = setKeymapReportHeader(mac);
 
-    size_t count = headerSize + (keymap.size() * 4);
+    size_t count = header.size() + (keymap.size() * 4);
 
     uint8_t *buffer = new uint8_t[count];
     SCOPE_EXIT {
@@ -263,12 +264,12 @@ void NuPhy::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     };
 
     // ALERT: Endianness-defined Behavior
-    auto *start_pointer = (uint8_t *)&(*keymap.begin());
-    auto *end_pointer = (uint8_t *)(&*keymap.begin() + keymap.size());
+    auto *start_pointer = (uint8_t *)keymap.data();
+    auto *end_pointer = (uint8_t *)(keymap.data() + keymap.size());
 
-    std::copy(header, header + sizeof headerSize, buffer);
+    std::copy(header.data(), header.data() + header.size(), buffer);
+    std::copy(start_pointer, end_pointer, header.data() + header.size());
 
-    std::copy(start_pointer, end_pointer, buffer + sizeof headerSize);
     set_report(handles.data, buffer, count);
 }
 
@@ -341,8 +342,7 @@ void NuPhy::validateYAMLKeymap(
 
         auto codeID = codeObject["key"].as< std::string >();
         auto codeIt = keycodes.find(codeID);
-        if (keycodes.find(codeID)
-            == keycodes.end()) {
+        if (keycodes.find(codeID) == keycodes.end()) {
             auto errorMessage = fmt::format(
                 "Invalid config in {}.{}: a code for key '{}' was not found.",
                 topLevelKey,
@@ -364,8 +364,7 @@ void NuPhy::validateYAMLKeymap(
             }
             for (auto modifier : modifiers) {
                 auto modifierName = modifier.as< std::string >();
-                auto modifierIt =
-                    modifiersByName.find(modifierName);
+                auto modifierIt = modifiersByName.find(modifierName);
                 if (modifierIt == modifiersByName.end()) {
                     throw std::runtime_error(fmt::format(
                         "Invalid config in {}.{}: Unknown modifier {}: make sure you're not adding a direction, e.g. lalt instead of alt",
@@ -388,7 +387,7 @@ void NuPhy::setKeymapFromYAML(const std::string &yamlString) {
     auto keycodes = getKeycodesByKeyName();
     auto modifiersByName = getModifiersByModifierName();
 
-    for (auto mac: { true, false } ) {
+    for (auto mac : {true, false}) {
         auto writableKeymap = getDefaultKeymap(mac);
         auto indices = getIndicesByKeyName(mac);
 
@@ -424,8 +423,7 @@ void NuPhy::setKeymapFromYAML(const std::string &yamlString) {
                 if (modifiers.IsDefined() && !modifiers.IsNull()) {
                     for (auto modifier : modifiers) {
                         auto modifierName = modifier.as< std::string >();
-                        auto modifierIt =
-                            modifiersByName.find(modifierName);
+                        auto modifierIt = modifiersByName.find(modifierName);
                         auto modifierCode = modifierIt->second;
                         code |= modifierCode;
                     }
@@ -436,7 +434,6 @@ void NuPhy::setKeymapFromYAML(const std::string &yamlString) {
 
         setKeymap(writableKeymap, mac);
     }
-    
 }
 
 void NuPhy::resetKeymap() {

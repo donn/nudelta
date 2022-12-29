@@ -22,11 +22,11 @@
 #include <functional>
 #include <hidapi.h>
 #include <locale>
+#include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 class NuPhy { // Abstract
     public:
@@ -41,7 +41,6 @@ class NuPhy { // Abstract
         )
             : path(path), firmware(firmware), requestPath(requestPath) {}
 
-
         std::vector< uint32_t > getKeymap(bool mac = false);
         void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
         void setKeymapFromYAML(const std::string &yamlString);
@@ -49,11 +48,19 @@ class NuPhy { // Abstract
 
         virtual std::string getName() = 0;
         virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) = 0;
-        virtual std::unordered_map< std::string, uint32_t > getIndicesByKeyName(bool mac = false) = 0;
-        virtual std::unordered_map< std::string, uint32_t > getKeycodesByKeyName() = 0;
-        virtual std::unordered_map< std::string, uint32_t > getModifiersByModifierName() = 0;
+        virtual std::unordered_map< std::string, uint32_t >
+        getIndicesByKeyName(bool mac = false) = 0;
+        virtual std::unordered_map< std::string, uint32_t >
+        getKeycodesByKeyName() = 0;
+        virtual std::unordered_map< std::string, uint32_t >
+        getModifiersByModifierName() = 0;
 
-        static std::shared_ptr<NuPhy> find(); // Factory Method
+        virtual std::vector< uint8_t >
+        getKeymapReportHeader(bool mac = false) = 0;
+        virtual std::vector< uint8_t >
+        setKeymapReportHeader(bool mac = false) = 0;
+
+        static std::shared_ptr< NuPhy > find(); // Factory Method
 
         void validateYAMLKeymap(
             const std::string &yamlString,
@@ -70,8 +77,8 @@ class NuPhy { // Abstract
         Handles getHandles();
 };
 
-class Air75: public NuPhy {
-public:
+class Air75 : public NuPhy {
+    public:
         Air75(
             std::string path,
             uint16_t firmware,
@@ -79,22 +86,97 @@ public:
         )
             : NuPhy(path, firmware, requestPath) {}
 
-        virtual std::string getName() {
-            return "Air75";
-        }
+        virtual std::string getName() { return "Air75"; }
         virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) {
             return mac ? Air75::defaultKeymapMac : Air75::defaultKeymapWin;
         }
-        virtual std::unordered_map< std::string, uint32_t > getIndicesByKeyName(bool mac = false) {
-            return mac ? Air75::indicesByKeyNameMac : Air75::indicesByKeyNameWin;
+        virtual std::unordered_map< std::string, uint32_t >
+        getIndicesByKeyName(bool mac = false) {
+            return mac ? Air75::indicesByKeyNameMac :
+                         Air75::indicesByKeyNameWin;
         }
-        virtual std::unordered_map< std::string, uint32_t > getKeycodesByKeyName() {
+        virtual std::unordered_map< std::string, uint32_t >
+        getKeycodesByKeyName() {
             return keycodesByKeyName;
         }
-        virtual std::unordered_map< std::string, uint32_t > getModifiersByModifierName() {
+        virtual std::unordered_map< std::string, uint32_t >
+        getModifiersByModifierName() {
             return modifiersByModifierName;
         }
-private:
+        virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                       {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00}
+                   ) :
+                         std::vector< uint8_t >(
+                             {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
+                         );
+        }
+        virtual std::vector< uint8_t > setKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                       {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00}
+                   ) :
+                         std::vector< uint8_t >(
+                             {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00}
+                         );
+        }
+    private:
+        static const std::vector< uint32_t > defaultKeymapWin;
+        static const std::unordered_map< std::string, uint32_t >
+            indicesByKeyNameWin;
+
+        static const std::vector< uint32_t > defaultKeymapMac;
+        static const std::unordered_map< std::string, uint32_t >
+            indicesByKeyNameMac;
+
+        static const std::unordered_map< std::string, uint32_t >
+            keycodesByKeyName;
+        static const std::unordered_map< std::string, uint32_t >
+            modifiersByModifierName;
+};
+
+class Halo75 : public NuPhy {
+    public:
+        Halo75(
+            std::string path,
+            uint16_t firmware,
+            std::optional< std::string > requestPath = std::nullopt
+        )
+            : NuPhy(path, firmware, requestPath) {}
+
+        virtual std::string getName() { return "Halo75"; }
+        virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) {
+            return mac ? Halo75::defaultKeymapMac : Halo75::defaultKeymapWin;
+        }
+        virtual std::unordered_map< std::string, uint32_t >
+        getIndicesByKeyName(bool mac = false) {
+            return mac ? Halo75::indicesByKeyNameMac :
+                         Halo75::indicesByKeyNameWin;
+        }
+        virtual std::unordered_map< std::string, uint32_t >
+        getKeycodesByKeyName() {
+            return keycodesByKeyName;
+        }
+        virtual std::unordered_map< std::string, uint32_t >
+        getModifiersByModifierName() {
+            return modifiersByModifierName;
+        }
+        virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                       {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
+                   ) :
+                         std::vector< uint8_t >(
+                             {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00}
+                         );
+        }
+        virtual std::vector< uint8_t > setKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                       {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00}
+                   ) :
+                         std::vector< uint8_t >(
+                             {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00}
+                         );
+        }
+    private:
         static const std::vector< uint32_t > defaultKeymapWin;
         static const std::unordered_map< std::string, uint32_t >
             indicesByKeyNameWin;
