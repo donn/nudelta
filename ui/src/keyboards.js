@@ -15,8 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import air75_keycodes from "../../res/Air75/keycodes.yml";
-import halo75_keycodes from "../../res/Halo75/keycodes.yml";
+import keycodes from "../../res/NuPhy/keycodes.yml";
 
 class Key {
     constructor({
@@ -52,7 +51,7 @@ class Key {
 }
 
 export const Air75 = {
-    keycodes: air75_keycodes,
+    keycodes,
     getLayout(mode) {
         let mac = mode === "mac";
         return [
@@ -412,7 +411,7 @@ export const Air75 = {
 };
 
 export const Halo75 = {
-    keycodes: halo75_keycodes,
+    keycodes: keycodes,
     getLayout(mode) {
         let mac = mode === "mac";
         return [

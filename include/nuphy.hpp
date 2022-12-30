@@ -50,10 +50,15 @@ class NuPhy { // Abstract
         virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) = 0;
         virtual std::unordered_map< std::string, uint32_t >
         getIndicesByKeyName(bool mac = false) = 0;
+
         virtual std::unordered_map< std::string, uint32_t >
-        getKeycodesByKeyName() = 0;
+        getKeycodesByKeyName() {
+            return keycodesByKeyName;
+        }
         virtual std::unordered_map< std::string, uint32_t >
-        getModifiersByModifierName() = 0;
+        getModifiersByModifierName() {
+            return modifiersByModifierName;
+        }
 
         virtual std::vector< uint8_t >
         getKeymapReportHeader(bool mac = false) = 0;
@@ -75,6 +80,11 @@ class NuPhy { // Abstract
                 std::function< void(NuPhy::Handles &) > cleanup;
         };
         Handles getHandles();
+
+        static const std::unordered_map< std::string, uint32_t >
+            keycodesByKeyName;
+        static const std::unordered_map< std::string, uint32_t >
+            modifiersByModifierName;
 };
 
 class Air75 : public NuPhy {
@@ -94,14 +104,6 @@ class Air75 : public NuPhy {
         getIndicesByKeyName(bool mac = false) {
             return mac ? Air75::indicesByKeyNameMac :
                          Air75::indicesByKeyNameWin;
-        }
-        virtual std::unordered_map< std::string, uint32_t >
-        getKeycodesByKeyName() {
-            return keycodesByKeyName;
-        }
-        virtual std::unordered_map< std::string, uint32_t >
-        getModifiersByModifierName() {
-            return modifiersByModifierName;
         }
         virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
             return mac ? std::vector< uint8_t >(
@@ -127,11 +129,6 @@ class Air75 : public NuPhy {
         static const std::vector< uint32_t > defaultKeymapMac;
         static const std::unordered_map< std::string, uint32_t >
             indicesByKeyNameMac;
-
-        static const std::unordered_map< std::string, uint32_t >
-            keycodesByKeyName;
-        static const std::unordered_map< std::string, uint32_t >
-            modifiersByModifierName;
 };
 
 class Halo75 : public NuPhy {
@@ -152,14 +149,7 @@ class Halo75 : public NuPhy {
             return mac ? Halo75::indicesByKeyNameMac :
                          Halo75::indicesByKeyNameWin;
         }
-        virtual std::unordered_map< std::string, uint32_t >
-        getKeycodesByKeyName() {
-            return keycodesByKeyName;
-        }
-        virtual std::unordered_map< std::string, uint32_t >
-        getModifiersByModifierName() {
-            return modifiersByModifierName;
-        }
+        
         virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
             return mac ? std::vector< uint8_t >(
                        {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
@@ -184,11 +174,6 @@ class Halo75 : public NuPhy {
         static const std::vector< uint32_t > defaultKeymapMac;
         static const std::unordered_map< std::string, uint32_t >
             indicesByKeyNameMac;
-
-        static const std::unordered_map< std::string, uint32_t >
-            keycodesByKeyName;
-        static const std::unordered_map< std::string, uint32_t >
-            modifiersByModifierName;
 };
 
 #endif
