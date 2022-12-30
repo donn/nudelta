@@ -22,7 +22,7 @@ import "@fontsource/nunito/files/nunito-latin-500-normal.woff2";
 
 import "./app.css";
 import "./toggle.css";
-import { Air75 } from "./keyboards.js";
+import keyboards from "./keyboards.js";
 import modifiers from "./modifiers.js";
 
 class Config {
@@ -79,13 +79,15 @@ class Config {
 window.unsafeRemapping = false;
 function safetyOff(silent = false) {
     if (!silent) {
-        alert("Enabling unsafe remapping.\nIf you remap Fn, this will change even your factory reset shortcut, so be careful!");
+        alert(
+            "Enabling unsafe remapping.\nIf you remap Fn, this will change even your factory reset shortcut, so be careful!"
+        );
     }
     window.unsafe = true;
     redrawOptions();
 }
 window.mode = "win";
-window.keyboardFoundString = null;
+window.keyboardInfo = null;
 window.lastKey = null;
 window.currentKey = null;
 window.clickCount = 0;
@@ -98,13 +100,17 @@ function writeYAML() {
 }
 
 function redrawKeyboard() {
+    if (window.keyboardInfo === null) {
+        return;
+    }
+    let keyboard = keyboards[window.keyboardInfo.kind];
     let container = g(".keyboard-container");
     let remap = window.config.getRemap(window.mode);
     container.innerHTML = "";
     container.appendChild(
         n("div", (e) => {
             e.className = "keyboard card";
-            let layout = Air75.getLayout(window.mode);
+            let layout = keyboard.getLayout(window.mode);
             for (let currentRow in layout) {
                 currentRow = Number(currentRow);
                 let row = layout[currentRow];
@@ -137,6 +143,7 @@ function redrawKeyboard() {
                                 grid-column-end: ${currentColumn + width};
                                 grid-row-start: ${currentRow + 1};
                                 grid-row-end: ${currentRow + 1};
+                                ${e.id == "__spacer" ? "display: none;" : ""}
                             `;
                             e.onclick = onClickKey;
                             e.setAttribute("data", JSON.stringify(key));
@@ -157,19 +164,46 @@ function redrawKeyboard() {
             }
         })
     );
+
+    let switcherContainer = g(".switcher");
+    switcherContainer.innerHTML = "";
+    switcherContainer.appendChild(
+        n("label", (e) => {
+            e.className = "toggle-switchy";
+            e.setAttribute("data-style", "rounded");
+            e.setAttribute("for", "mode-switcher");
+            e.appendChild(
+                n("input", (e) => {
+                    e.id = "mode-switcher";
+                    e.setAttribute("type", "checkbox");
+                    e.checked = window.mode == "mac";
+                    e.onchange = (ev) => {
+                        window.mode = ev.target.checked ? "mac" : "win";
+                        window.currentKey = null;
+                        console.log(window.mode);
+                        redrawKeyboard();
+                        redrawOptions();
+                    };
+                })
+            );
+            e.appendChild(
+                n("span", (e) => {
+                    e.className = "toggle";
+                    e.appendChild(
+                        n("span", (e) => {
+                            e.className = "switch";
+                        })
+                    );
+                })
+            );
+        })
+    );
 }
 
-function drawOptionArray(
-    e,
-    remap,
-    key,
-    alt,
-    column,
-    row
-) {
+function drawOptionArray(e, remap, key, alt, column, row) {
     let id = key.id;
-    let defaultMapping = key.defaultMapping;
-    let defaultModifiers = key.defaultModifiers;
+    let defaultMapping = alt ? key.altDefaultMapping : key.defaultMapping;
+    let defaultModifiers = alt ? key.altDefaultModifiers : key.defaultModifiers;
 
     let currentRemap = {};
     let currentModifiers = defaultModifiers;
@@ -177,6 +211,10 @@ function drawOptionArray(
         currentRemap = remap[id];
         currentModifiers = currentRemap.modifiers ?? [];
     }
+
+    let keycodes = window.keyboardInfo
+        ? keyboards[window.keyboardInfo.kind].keycodes
+        : [];
 
     for (let modifierID in modifiers) {
         let modifier = modifiers[modifierID];
@@ -222,7 +260,7 @@ function drawOptionArray(
                 grid-row-end: ${row + 1};
             `;
             column += 2;
-            for (let keycode in Air75.keycodes) {
+            for (let keycode in keycodes) {
                 e.appendChild(
                     n("option", (e) => {
                         e.innerHTML = keycode;
@@ -246,8 +284,30 @@ function drawOptionArray(
 
 function redrawOptions() {
     let container = g(".option-container");
-    let remap = window.config.getRemap(window.mode);
     container.innerHTML = "";
+
+    if (window.keyboardInfo === null) {
+        container.appendChild(
+            n("div", (e) => {
+                e.style = `
+                grid-column-start: 1;
+                grid-column-end: 1;
+                grid-row-start: 1;
+                grid-row-end: 1;
+            `;
+                e.className = "keyboard-field";
+                e.appendChild(
+                    n("p", (e) => {
+                        e.innerHTML =
+                            "No keyboard found.<br />Make sure it's plugged in via USB, then File > Reload Keyboard to retry.";
+                    })
+                );
+            })
+        );
+        return;
+    }
+
+    let remap = window.config.getRemap(window.mode);
     container.appendChild(
         n("div", (e) => {
             e.className = "option-matrix card";
@@ -277,14 +337,7 @@ function redrawOptions() {
                     })
                 );
                 if (altIDExists) {
-                    columnCount = drawOptionArray(
-                        e,
-                        remap,
-                        key,
-                        true,
-                        1,
-                        4
-                    );
+                    columnCount = drawOptionArray(e, remap, key, true, 1, 4);
                     e.appendChild(
                         n("h3", (e) => {
                             e.style = `
@@ -350,9 +403,7 @@ function redrawOptions() {
                     e.className = "keyboard-field";
                     e.appendChild(
                         n("p", (e) => {
-                            e.innerHTML =
-                                window.keyboardFoundString ??
-                                "No keyboard found.<br />Make sure it's plugged in, then File > Reload Keyboard to retry.";
+                            e.innerHTML = window.keyboardInfo.info;
                         })
                     );
                 })
@@ -361,7 +412,7 @@ function redrawOptions() {
             e.appendChild(
                 n("div", (e) => {
                     e.className = `key write-key`;
-                    if (window.keyboardFoundString) {
+                    if (window.keyboardInfo !== null) {
                         e.className = `key write-key active`;
                     }
                     e.style = `
@@ -525,42 +576,13 @@ async function main() {
         })
     );
 
-    redrawKeyboard();
-
     app.appendChild(
         n("p", (e) => {
-            e.appendChild(
-                n("label", (e) => {
-                    e.className = "toggle-switchy";
-                    e.setAttribute("data-style", "rounded");
-                    e.setAttribute("for", "mode-switcher");
-                    e.appendChild(
-                        n("input", (e) => {
-                            e.id = "mode-switcher";
-                            e.setAttribute("type", "checkbox");
-                            e.onchange = (ev) => {
-                                window.mode = ev.target.checked ? "mac" : "win";
-                                window.currentKey = null;
-                                console.log(window.mode);
-                                redrawKeyboard();
-                                redrawOptions();
-                            };
-                        })
-                    );
-                    e.appendChild(
-                        n("span", (e) => {
-                            e.className = "toggle";
-                            e.appendChild(
-                                n("span", (e) => {
-                                    e.className = "switch";
-                                })
-                            );
-                        })
-                    );
-                })
-            );
+            e.className = "switcher";
         })
     );
+
+    redrawKeyboard();
 
     app.appendChild(
         n("p", (e) => {
@@ -580,7 +602,9 @@ async function main() {
     window.ipc.getVersion();
 
     window.ipc.onGetKeyboardInfo((_, { info }) => {
-        window.keyboardFoundString = info;
+        window.keyboardInfo = info;
+        console.log(info);
+        redrawKeyboard();
         redrawOptions();
     });
     window.ipc.getKeyboardInfo();

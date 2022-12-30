@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "access.hpp"
-#include "air75.hpp"
+#include "nuphy.hpp"
 
 #include <fstream>
 #include <hidapi.h>
@@ -29,21 +29,28 @@
     #define NUDELTA_VERSION "UNKNOWN"
 #endif
 
-Air75 getKeyboard() {
-    auto air75Optional = Air75::find();
-    if (!air75Optional.has_value()) {
+std::shared_ptr< NuPhy > getKeyboard() {
+    auto keyboard = NuPhy::find();
+    if (keyboard == nullptr) {
         throw std::runtime_error(
-            "Couldn't find a NuPhy Air75 connected to this device. Make sure it's plugged in via USB."
+            "Couldn't find a NuPhy keyboard connected to this device. Make sure it's plugged in via USB."
         );
     }
 
-    auto air75 = air75Optional.value();
+    if (keyboard->dataPath == keyboard->requestPath) {
+        p("Found NuPhy {} at path {} (Firmware {:04x})\n",
+        keyboard->getName(),
+        keyboard->dataPath,
+        keyboard->firmware);
+    } else {
+        p("Found NuPhy {} at paths ({}, {}) (Firmware {:04x})\n",
+        keyboard->getName(),
+        keyboard->dataPath,
+        keyboard->requestPath,
+        keyboard->firmware);
+    }
 
-    p("Found NuPhy Air75 at path {} (Firmware {:04x})\n",
-      air75.path,
-      air75.firmware);
-
-    return air75;
+    return keyboard;
 }
 
 SSCO_Fn(printVersion) {
@@ -63,18 +70,16 @@ SSCO_Fn(printFirmware) {
 }
 
 SSCO_Fn(resetKeymap) {
-    auto mac = opts.options.find("mac") != opts.options.end();
-
-    auto air75 = getKeyboard();
-    air75.resetKeymap(mac);
-    p("Wrote default keymap config to keyboard.\n");
+    auto keyboard = getKeyboard();
+    keyboard->resetKeymap();
+    p("Wrote default keymap config to the keyboard's Windows and Mac modes.\n");
 }
 
 SSCO_Fn(dumpKeymap) {
     auto mac = opts.options.find("mac") != opts.options.end();
 
-    auto air75 = getKeyboard();
-    auto keys = air75.getKeymap(mac);
+    auto keyboard = getKeyboard();
+    auto keys = keyboard->getKeymap(mac);
     auto file = opts.options.find("dump-keys")->second;
     auto filePtr = fopen(file.c_str(), "wb");
 
@@ -89,8 +94,8 @@ SSCO_Fn(dumpKeymap) {
     };
 
     // ALERT: Endianness-defined Behavior
-    auto seeker = (char *)&*keys.begin();
-    auto end = (char *)(&*keys.begin() + keys.size());
+    auto seeker = (char *)keys.data();
+    auto end = (char *)(keys.data() + keys.size());
     fwrite(seeker, 1, end - seeker, filePtr);
 
     p("Wrote current {} keymap to '{}'.\n", mac ? "Mac" : "Windows", file);
@@ -110,8 +115,8 @@ SSCO_Fn(dumpKeymap) {
 
         prettyPrintBinary(
             std::vector< uint8_t >(
-                (uint8_t *)&*keys.begin(),
-                (uint8_t *)(&*keys.begin() + keys.size())
+                (uint8_t *)keys.data(),
+                (uint8_t *)(keys.data() + keys.size())
             ),
             hexFilePtr
         );
@@ -123,8 +128,8 @@ SSCO_Fn(dumpKeymap) {
 SSCO_Fn(loadKeymap) {
     auto mac = opts.options.find("mac") != opts.options.end();
 
-    auto air75 = getKeyboard();
-    auto keys = air75.getKeymap(mac);
+    auto keyboard = getKeyboard();
+    auto keys = keyboard->getKeymap(mac);
     auto file = opts.options.find("load-keys")->second;
     auto filePtr = fopen(file.c_str(), "rb");
     if (!filePtr) {
@@ -145,7 +150,7 @@ SSCO_Fn(loadKeymap) {
         (uint32_t *)(readBuffer + 1024)
     );
 
-    air75.setKeymap(keymap, mac);
+    keyboard->setKeymap(keymap, mac);
 
     p("Wrote keymap '{}' to the keyboard's {} mode.\n",
       file,
@@ -153,18 +158,14 @@ SSCO_Fn(loadKeymap) {
 }
 
 SSCO_Fn(loadYAML) {
-    auto mac = opts.options.find("mac") != opts.options.end();
-
-    auto air75 = getKeyboard();
+    auto keyboard = getKeyboard();
     auto configPath = opts.options.find("load-profile")->second;
 
     std::string configStr;
     std::getline(std::ifstream(configPath), configStr, '\0');
-    air75.setKeymapFromYAML(configStr, mac);
+    keyboard->setKeymapFromYAML(configStr);
 
-    p("Wrote keymap '{}' to the keyboard's {} mode.\n",
-      configPath,
-      mac ? "Mac" : "Windows");
+    p("Wrote keymap '{}' to the keyboard.\n", configPath);
 }
 
 int main(int argc, char *argv[]) {
@@ -186,12 +187,12 @@ int main(int argc, char *argv[]) {
              printVersion},
          Opt{"firmware",
              'f',
-             "Print the Air75 keyboard's firmware and exit.",
+             "Print the connected keyboard's firmware and exit.",
              false,
              printFirmware},
          Opt{"mac",
              'M',
-             "Perform operations on the Mac mode of the keyboard instead of the windows one.",
+             "Valid only if dump-keys or load-keys are passed: operate on the Mac mode of the keyboard instead of the Win mode.",
              false},
          Opt{"reset-keys",
              'r',

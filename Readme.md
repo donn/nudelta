@@ -9,10 +9,11 @@
 
 ![Screenshot of Nudelta Console](./res/screencap.png)
 
-A (WIP) open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console) for the [Air75 Mechanical Wireless Keyboard](https://nuphy.com/collections/keyboards/products/air75) by reverse-engineering the keyboard's USB protocol.
+A (WIP) open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console)  by reverse-engineering the keyboards' USB protocol.
 
 What this has:
 * Support for NuPhy Air75 on Windows 10+, macOS 11+, and Linux
+    * ALPHA support for the NuPhy Halo75
 * Loading and saving keymap modifications from a `.yml` configuration file
 * The ability to back up and dump keymaps to binary formats (CLI)
 * The ability to dump keymaps to a human-readable hex format (CLI)
@@ -20,10 +21,12 @@ What this has:
 What this DOESN'T have:
 * Macros
     * Need to reverse engineer those.
-* Support for Halo65/Air60
+* Support for Air60, Halo65, etc.
     * I don't have them.
 * RGB Control
     * I don't need that, personally.
+
+Contributions are super appreciated for all of these.
 
 
 ## Running Requirements
@@ -81,8 +84,8 @@ keys:
 See [example.yml](example.yml) for a profile and somewhat more detailed examples.
 
 You can find a list of:
-  * Replaceable keys (for the Windows mode) in [res/air75_indices_win.yml](res/air75_indices_win.yml).
-  * Replacement keycodes in [res/air75_keycodes.yml](res/air75_keycodes.yml).
+  * Replaceable keys (for the Windows mode) in [res/air75/indices_win.yml](res/air75/indices_win.yml).
+  * Replacement keycodes in [res/air75/keycodes.yml](res/air75/keycodes.yml).
 
 ### Reset keymap to default
 ```sh

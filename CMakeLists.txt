@@ -29,7 +29,7 @@ add_subdirectory(submodules/ssco)
 include_directories(include)
 
 # YAML Data
-file (GLOB yml_files "res/*.yml")
+file (GLOB_RECURSE yml_files "res/**/*.yml")
 add_custom_command(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
      COMMAND node ${CMAKE_CURRENT_LIST_DIR}/util/res_to_cpp.js ${CMAKE_CURRENT_LIST_DIR}/res > ${CMAKE_CURRENT_BINARY_DIR}/res.cpp
@@ -51,6 +51,10 @@ endif ()
 target_link_libraries(nd PRIVATE yaml-cpp)
 target_link_libraries(nd PRIVATE fmt)
 target_link_libraries(nd PRIVATE scope_guard)
+
+if(!MSVC)
+  target_compile_options(nd PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
 
 
 # node-libnd

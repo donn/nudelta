@@ -1,6 +1,6 @@
 require "yaml"
-scan_codes = File.read("../res/air75_keycodes.yml")
-scancode_by_key= YAML.load(scan_codes)
+scan_codes = File.read("../../res/Air75/keycodes.yml")
+scancode_by_key = YAML.load(scan_codes)
 key_by_scancode = scancode_by_key.invert
 
 map = File.read(ARGV[0])

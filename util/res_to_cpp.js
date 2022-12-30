@@ -2,33 +2,39 @@
 import fs from "fs-extra";
 import path from "path";
 import yaml from "yaml";
+import fg from "fast-glob";
 
 const argv = process.argv.slice(2);
 const print = console.log;
 
 let resourceDir = argv[0];
+let globStr = [resourceDir, "**", "*.yml"].join("/");
+let files = fg.sync(globStr, { absolute: true });
 
 print('#include "common.hpp"');
-print('#include "air75.hpp"');
-for (let file of fs.readdirSync(resourceDir)) {
-    let filePath = path.join(resourceDir, file);
-    if (!filePath.endsWith(".yml")) {
-        continue;
-    }
+print('#include "nuphy.hpp"');
+for (let file of files) {
+    let directory = path.dirname(file);
+    let keyboard = path.basename(directory);
 
-    let str = fs.readFileSync(filePath, { encoding: "utf8" });
+    let str = fs.readFileSync(file, { encoding: "utf8" });
+    if (str.startsWith("..")) { // Handle windows "symlinks"
+        file = [directory, str].join("/");
+        str = fs.readFileSync(file, { encoding: "utf8" });
+    }
+    print(`// ${file}`)
     let object = yaml.parse(str);
     let lines = str.split("\n");
     let [_, type, name] = lines[0].split(" ");
     if (type == "list") {
-        print(`const std::vector<std::uint32_t> ${name} = {`);
+        print(`const std::vector<std::uint32_t> ${keyboard}::${name} = {`);
         for (let integer of object) {
             print(`    0x${integer.toString(16)},`);
         }
         print("};");
     } else if (type == "dict") {
         print(
-            `const std::unordered_map<std::string, std::uint32_t> ${name} = {`
+            `const std::unordered_map<std::string, std::uint32_t> ${keyboard}::${name} = {`
         );
         for (let key in object) {
             let integer = object[key];

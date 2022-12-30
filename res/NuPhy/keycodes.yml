@@ -1,4 +1,4 @@
-# dict Air75::keycodesByKeyName
+# dict keycodesByKeyName
 none: 0x00000000
 
 capslock: 0x39000000
@@ -12,10 +12,15 @@ ralt: 0xe6000006
 rmeta: 0xe7000006
 fn: 0x00000020
 
-pgup: 0x4b000000
-pgdn: 0x4e000000
+sysrq: 0x46000000
+scrolllock: 0x47000000
+pausebreak: 0x480000
+ins: 0x49000000
 home: 0x4a000000
+pgup: 0x4b000000
+del: 0x4c000000
 end: 0x4d000000
+pgdn: 0x4e000000
 
 enter: 0x28000000
 tab: 0x2b000000
@@ -35,7 +40,6 @@ f9: 0x42000000
 f10: 0x43000000
 f11: 0x44000000
 f12: 0x45000000
-del: 0x4c000000
 
 grave: 0x35000000
 num1: 0x1e000000
@@ -92,6 +96,26 @@ fwdslash: 0x38000000
 comma: 0x36000000
 period: 0x37000000
 
+# -- Numpad
+numlock: 0x53000000
+numpad_div: 0x54000000
+numpad_mul: 0x55000000
+numpad_sub: 0x56000000
+numpad_add: 0x57000000
+numpad_enter: 0x58000000
+numpad_dot: 0x63000000
+numpad_comma: 0x85000000
+numpad1: 0x59000000
+numpad2: 0x5a000000
+numpad3: 0x5b000000
+numpad4: 0x5c000000
+numpad5: 0x5d000000
+numpad6: 0x5e000000
+numpad7: 0x5f000000
+numpad8: 0x60000000
+numpad9: 0x61000000
+numpad0: 0x62000000
+
 # -- Multimedia
 brightnessdown: 0x6f000004
 brightnessup: 0x70000004
@@ -114,6 +138,8 @@ backlightup: 0x0001000c
 
 ## Special
 fnspace: 0x2f000002
+voice_command: 0xcf000004
+search: 0x2000000e
 
 ## Apple-specific extra F keys (useful for keyboard shortcuts/software macros)
 f13: 0x68000000

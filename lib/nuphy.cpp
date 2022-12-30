@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "air75.hpp"
+#include "nuphy.hpp"
 
 #include "access.hpp"
 
@@ -23,14 +23,18 @@
 #include <scope_guard.hpp>
 #include <yaml-cpp/yaml.h>
 
-Air75::Handles Air75::getHandles() {
-    auto dataHandle = hid_open_path(path.c_str());
+NuPhy::Handles NuPhy::getHandles() {
+    auto dataHandle = hid_open_path(dataPath.c_str());
     auto requestHandle = dataHandle;
-    if (requestPath.has_value()) {
-        requestHandle = hid_open_path(requestPath.value().c_str());
+    if (requestPath != dataPath) {
+        requestHandle = hid_open_path(requestPath.c_str());
     }
 
-    auto cleanup = [](Air75::Handles &handles) {
+    if (dataHandle == nullptr || requestHandle == nullptr) {
+        throw std::runtime_error("Failed to open device. Ensure your permissions are properly set up.");
+    }
+
+    auto cleanup = [](NuPhy::Handles &handles) {
         if (handles.request != handles.data) {
             hid_close(handles.request);
         }
@@ -41,20 +45,15 @@ Air75::Handles Air75::getHandles() {
 }
 
 static const size_t MAX_READABLE_SIZE = 0x7FF;
-static const size_t REQUEST_SIZE = 6;
 
 static const uint8_t REQUEST_0[] = {0x05, 0x83, 0xb6, 0x00, 0x00, 0x00};
 static const uint8_t REQUEST_1[] = {0x05, 0x88, 0xb8, 0x00, 0x00, 0x00};
-
-static const uint8_t WINDOWS_KEYMAP_GET_HEADER[] =
-    {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00};
-static const uint8_t MAC_KEYMAP_GET_HEADER[] =
-    {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00};
 
 static int get_report(
     hid_device *dataHandle,
     hid_device *requestHandle,
     const uint8_t *requestInfo,
+    const size_t requestSize,
     uint8_t *readBuffer
 ) {
     auto hidAccess = checkHIDAccess();
@@ -66,7 +65,7 @@ static int get_report(
     }
 
     auto bytesWritten =
-        hid_send_feature_report(requestHandle, requestInfo, REQUEST_SIZE);
+        hid_send_feature_report(requestHandle, requestInfo, requestSize);
     if (bytesWritten < 0) {
         auto errorString = fmt::format(
             "Failed to write to keyboard: {}",
@@ -95,19 +94,21 @@ static int get_report(
 static std::vector< uint8_t > get_report(
     hid_device *dataHandle,
     hid_device *requestHandle,
-    const uint8_t *requestInfo
+    const uint8_t *requestInfo,
+    size_t requestSize
 ) {
-    uint8_t readBuffer[2048];
+    uint8_t readBuffer[MAX_READABLE_SIZE];
 
-    auto read = get_report(dataHandle, requestHandle, requestInfo, readBuffer);
+    auto read = get_report(
+        dataHandle,
+        requestHandle,
+        requestInfo,
+        requestSize,
+        readBuffer
+    );
 
     return std::vector< uint8_t >(readBuffer, readBuffer + read);
 }
-
-static const uint8_t WINDOWS_KEYMAP_WRITE_HEADER[] =
-    {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00};
-static const uint8_t MAC_KEYMAP_WRITE_HEADER[] =
-    {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00};
 
 void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
     auto hidAccess = checkHIDAccess();
@@ -129,6 +130,21 @@ void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
     }
 }
 
+static std::shared_ptr< NuPhy > createKeyboard(
+    std::string name,
+    std::string dataPath,
+    std::string requestPath,
+    uint16_t firmware
+) {
+    if (name == "Air75") {
+        return std::make_shared< Air75 >(dataPath, requestPath, firmware);
+    }
+    if (name == "Halo75") {
+        return std::make_shared< Halo75 >(dataPath, requestPath, firmware);
+    }
+    return nullptr;
+}
+
 #ifdef _WIN32
 // Win is different: there are multiple "channels" each with a different path
 // - So far, I've identified col06 as the one for keymap data, col05 for
@@ -136,26 +152,26 @@ void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
 std::string writeCol = "col05";
 std::string dataCol = "col06";
 
-std::optional< Air75 > Air75::find() {
-    std::optional< Air75 > keyboard;
-
+std::shared_ptr< NuPhy > NuPhy::find() {
     auto seeker = hid_enumerate(0x05ac, 0x024f);
     SCOPE_EXIT {
         hid_free_enumeration(seeker);
     };
 
-    uint32_t firmware = 0x0;
+    uint16_t firmware = 0x0;
+    std::optional< std::string > productName;
     std::optional< std::string > dataPath;
     std::optional< std::string > requestPath;
 
-    bool multipleWarned = false;
     while (seeker != nullptr) {
         if (seeker->interface_number == 1 && seeker->usage == 1
-            && seeker->usage_page == 65280) {
+            && seeker->usage_page == 0xFF00
+            && (!productName.has_value()
+                || productName.value() == to_utf8(seeker->product_string))) {
 
             auto path = std::string(seeker->path);
             for (auto it = path.begin(); it != path.end(); it++) {
-                *it = std::tolower(*it);
+                *it = char(std::tolower(*it));
             }
             if (path.find(writeCol) != -1) {
                 if (requestPath.has_value()) {
@@ -163,6 +179,7 @@ std::optional< Air75 > Air75::find() {
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
+                productName = to_utf8(seeker->product_string);
                 requestPath = seeker->path;
                 firmware = seeker->release_number;
             } else if (path.find(dataCol) != -1) {
@@ -171,6 +188,7 @@ std::optional< Air75 > Air75::find() {
                         "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
                     );
                 }
+                productName = to_utf8(seeker->product_string);
                 dataPath = seeker->path;
             }
         }
@@ -178,14 +196,19 @@ std::optional< Air75 > Air75::find() {
     }
 
     if (dataPath.has_value() && requestPath.has_value()) {
-        return Air75(dataPath.value(), firmware, requestPath);
+        return createKeyboard(
+            productName.value(),
+            dataPath.value(),
+            requestPath.value(),
+            firmware
+        );
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 #else
-std::optional< Air75 > Air75::find() {
-    std::optional< Air75 > keyboard;
+std::shared_ptr< NuPhy > NuPhy::find() {
+    std::shared_ptr< NuPhy > keyboard;
 
     auto seeker = hid_enumerate(0x05ac, 0x024f);
     SCOPE_EXIT {
@@ -194,24 +217,14 @@ std::optional< Air75 > Air75::find() {
 
     bool multipleWarned = false;
     while (seeker != nullptr) {
-        // Check that the manufacturer string isn't Apple or something, avoid
-        // clashing with other keyboards
-        //
-        // manufacturer_string appears to be null on Linux, so we can't test
-        // much there :)
-        bool manufacturerStringOK = true;
-        if (seeker->manufacturer_string != nullptr
-            && to_utf8(seeker->manufacturer_string) != std::string("BY Tech")) {
-            manufacturerStringOK = false;
-        }
         if (seeker->interface_number == 1) {
-            if (keyboard.has_value()) {
+            if (keyboard != nullptr) {
                 // We only care if the path is different, because that means a
-                // different device entirely
-                if (keyboard.value().path != std::string(seeker->path)) {
+                // different device on Mac and Linux
+                if (keyboard->dataPath != std::string(seeker->path)) {
                     if (!multipleWarned) {
                         p(stderr,
-                          "[Warning] Multiple NuPhy Air75 keyboards found! Please keep only one plugged in. Only the first matched device will be used.\n"
+                          "[Warning] Multiple NuPhy keyboards found! Please keep only one plugged in. Only the first matched device will be used.\n"
                         );
                         multipleWarned = true;
                     }
@@ -220,52 +233,58 @@ std::optional< Air75 > Air75::find() {
                 if (seeker->product_string == nullptr) {
                     throw permissions_error(hidAccessFailureMessage);
                 }
-                keyboard = Air75(seeker->path, seeker->release_number);
+                auto productName = to_utf8(seeker->product_string);
+                keyboard = createKeyboard(
+                    productName,
+                    seeker->path,
+                    seeker->path,
+                    seeker->release_number
+                );
+                if (keyboard == nullptr) {
+                    throw std::runtime_error(fmt::format(
+                        "The NuPhy {} is currently unsupported.",
+                        productName
+                    ));
+                }
             }
         }
         seeker = seeker->next;
     }
 
-    if (keyboard.has_value()) {
-        return keyboard;
-    }
-
-    return std::nullopt;
+    return keyboard;
 }
 #endif
 
-std::vector< uint32_t > Air75::getKeymap(bool mac) {
+std::vector< uint32_t > NuPhy::getKeymap(bool mac) {
     auto handles = getHandles();
     SCOPE_EXIT {
         handles.cleanup(handles);
     };
+
+    auto requestHeader = getKeymapReportHeader(mac);
 
     auto keymapReport = get_report(
         handles.data,
         handles.request,
-        mac ? MAC_KEYMAP_GET_HEADER : WINDOWS_KEYMAP_GET_HEADER
+        requestHeader.data(),
+        requestHeader.size()
     );
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint32_t *)&keymapReport[8];
-    auto *end_pointer = (uint32_t *)(&keymapReport[0] + keymapReport.size());
+    auto *end_pointer = (uint32_t *)(keymapReport.data() + keymapReport.size());
 
     return std::vector< uint32_t >(start_pointer, end_pointer);
 }
 
-void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
+void NuPhy::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     auto handles = getHandles();
     SCOPE_EXIT {
         handles.cleanup(handles);
     };
 
-    auto header = WINDOWS_KEYMAP_WRITE_HEADER;
-    size_t headerSize = sizeof WINDOWS_KEYMAP_WRITE_HEADER;
-    if (mac) {
-        header = MAC_KEYMAP_WRITE_HEADER;
-        headerSize = sizeof MAC_KEYMAP_WRITE_HEADER;
-    }
+    auto header = setKeymapReportHeader(mac);
 
-    size_t count = headerSize + (keymap.size() * 4);
+    size_t count = header.size() + (keymap.size() * 4);
 
     uint8_t *buffer = new uint8_t[count];
     SCOPE_EXIT {
@@ -273,28 +292,31 @@ void Air75::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     };
 
     // ALERT: Endianness-defined Behavior
-    auto *start_pointer = (uint8_t *)&(*keymap.begin());
-    auto *end_pointer = (uint8_t *)(&*keymap.begin() + keymap.size());
+    auto *start_pointer = (uint8_t *)keymap.data();
+    auto *end_pointer = (uint8_t *)(keymap.data() + keymap.size());
 
-    std::copy(header, header + sizeof headerSize, buffer);
+    std::copy(header.data(), header.data() + header.size(), buffer);
+    std::copy(start_pointer, end_pointer, buffer + header.size());
 
-    std::copy(start_pointer, end_pointer, buffer + sizeof headerSize);
     set_report(handles.data, buffer, count);
 }
 
 const char *TOP_LEVEL_WIN = "keys";
 const char *TOP_LEVEL_MAC = "mackeys";
 
-void Air75::validateYAMLKeymap(
+void NuPhy::validateYAMLKeymap(
     const std::string &yamlString,
     bool rawOk,
     bool mac
 ) {
     auto config = YAML::Load(yamlString);
 
+    auto keycodes = getKeycodesByKeyName();
+    auto modifiersByName = getModifiersByModifierName();
+    auto writableKeymap = getDefaultKeymap(mac);
+    auto indices = getIndicesByKeyName(mac);
+
     auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
-    auto &indices =
-        mac ? Air75::indicesByKeyNameMac : Air75::indicesByKeyNameWin;
 
     auto keys = config[topLevelKey];
 
@@ -312,7 +334,6 @@ void Air75::validateYAMLKeymap(
     for (auto entry : keys) {
         auto keyID = entry.first.as< std::string >();
 
-        auto keyIt = indices.find(keyID);
         if (indices.find(keyID) == indices.end()) {
             auto errorMessage = fmt::format(
                 "Invalid config in {}: a key for '{}' does not exist in '{}' mode.",
@@ -322,8 +343,6 @@ void Air75::validateYAMLKeymap(
             );
             throw std::runtime_error(errorMessage);
         }
-
-        auto key = keyIt->second;
 
         auto codeObject = entry.second;
         if (entry.second.IsScalar()) {
@@ -347,9 +366,7 @@ void Air75::validateYAMLKeymap(
         }
 
         auto codeID = codeObject["key"].as< std::string >();
-        auto codeIt = Air75::keycodesByKeyName.find(codeID);
-        if (Air75::keycodesByKeyName.find(codeID)
-            == Air75::keycodesByKeyName.end()) {
+        if (keycodes.find(codeID) == keycodes.end()) {
             auto errorMessage = fmt::format(
                 "Invalid config in {}.{}: a code for key '{}' was not found.",
                 topLevelKey,
@@ -359,7 +376,6 @@ void Air75::validateYAMLKeymap(
             throw std::runtime_error(errorMessage);
         }
 
-        auto code = codeIt->second;
         auto modifiers = codeObject["modifiers"];
         if (modifiers.IsDefined() && !modifiers.IsNull()) {
             if (modifiers.Type() != YAML::NodeType::Sequence) {
@@ -371,9 +387,8 @@ void Air75::validateYAMLKeymap(
             }
             for (auto modifier : modifiers) {
                 auto modifierName = modifier.as< std::string >();
-                auto modifierIt =
-                    Air75::modifiersByModifierName.find(modifierName);
-                if (modifierIt == Air75::modifiersByModifierName.end()) {
+                auto modifierIt = modifiersByName.find(modifierName);
+                if (modifierIt == modifiersByName.end()) {
                     throw std::runtime_error(fmt::format(
                         "Invalid config in {}.{}: Unknown modifier {}: make sure you're not adding a direction, e.g. lalt instead of alt",
                         topLevelKey,
@@ -386,63 +401,65 @@ void Air75::validateYAMLKeymap(
     }
 }
 
-void Air75::setKeymapFromYAML(const std::string &yamlString, bool mac) {
+void NuPhy::setKeymapFromYAML(const std::string &yamlString) {
     validateYAMLKeymap(yamlString, true, false);
     validateYAMLKeymap(yamlString, true, true);
 
     auto config = YAML::Load(yamlString);
 
-    auto writableKeymap =
-        mac ? Air75::defaultKeymapMac : Air75::defaultKeymapWin;
+    auto keycodes = getKeycodesByKeyName();
+    auto modifiersByName = getModifiersByModifierName();
 
-    auto &indices =
-        mac ? Air75::indicesByKeyNameMac : Air75::indicesByKeyNameWin;
+    for (auto mac : {true, false}) {
+        auto writableKeymap = getDefaultKeymap(mac);
+        auto indices = getIndicesByKeyName(mac);
 
-    auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
-    auto keys = config[topLevelKey];
+        auto topLevelKey = mac ? TOP_LEVEL_MAC : TOP_LEVEL_WIN;
+        auto keys = config[topLevelKey];
 
-    if (!keys.IsNull() && keys.IsDefined()) {
-        for (auto entry : keys) {
-            auto keyID = entry.first.as< std::string >();
+        if (!keys.IsNull() && keys.IsDefined()) {
+            for (auto entry : keys) {
+                auto keyID = entry.first.as< std::string >();
 
-            auto keyIt = indices.find(keyID);
-            auto key = keyIt->second;
+                auto keyIt = indices.find(keyID);
+                auto key = keyIt->second;
 
-            auto codeObject = entry.second;
-            if (entry.second.IsScalar()) {
-                auto codeID = codeObject.as< std::string >();
-                codeObject = YAML::Node();
-                codeObject["key"] = codeID;
-            }
-
-            // If "raw" exists: just set it and ignore everything else
-            auto raw = codeObject["raw"];
-            if (raw.IsDefined() && !raw.IsNull()) {
-                writableKeymap[key] = raw.as< uint32_t >();
-                continue;
-            }
-
-            auto codeID = codeObject["key"].as< std::string >();
-            auto codeIt = Air75::keycodesByKeyName.find(codeID);
-
-            auto code = codeIt->second;
-            auto modifiers = codeObject["modifiers"];
-            if (modifiers.IsDefined() && !modifiers.IsNull()) {
-                for (auto modifier : modifiers) {
-                    auto modifierName = modifier.as< std::string >();
-                    auto modifierIt =
-                        Air75::modifiersByModifierName.find(modifierName);
-                    auto modifierCode = modifierIt->second;
-                    code |= modifierCode;
+                auto codeObject = entry.second;
+                if (entry.second.IsScalar()) {
+                    auto codeID = codeObject.as< std::string >();
+                    codeObject = YAML::Node();
+                    codeObject["key"] = codeID;
                 }
-            }
-            writableKeymap[key] = code;
-        }
-    }
 
-    setKeymap(writableKeymap, mac);
+                // If "raw" exists: just set it and ignore everything else
+                auto raw = codeObject["raw"];
+                if (raw.IsDefined() && !raw.IsNull()) {
+                    writableKeymap[key] = raw.as< uint32_t >();
+                    continue;
+                }
+
+                auto codeID = codeObject["key"].as< std::string >();
+                auto codeIt = keycodes.find(codeID);
+
+                auto code = codeIt->second;
+                auto modifiers = codeObject["modifiers"];
+                if (modifiers.IsDefined() && !modifiers.IsNull()) {
+                    for (auto modifier : modifiers) {
+                        auto modifierName = modifier.as< std::string >();
+                        auto modifierIt = modifiersByName.find(modifierName);
+                        auto modifierCode = modifierIt->second;
+                        code |= modifierCode;
+                    }
+                }
+                writableKeymap[key] = code;
+            }
+        }
+
+        setKeymap(writableKeymap, mac);
+    }
 }
 
-void Air75::resetKeymap(bool mac) {
-    setKeymap(mac ? Air75::defaultKeymapMac : Air75::defaultKeymapWin, mac);
+void NuPhy::resetKeymap() {
+    setKeymap(getDefaultKeymap(false), false);
+    setKeymap(getDefaultKeymap(true), true);
 }

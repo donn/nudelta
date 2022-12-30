@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "access.hpp"
-#include "air75.hpp"
+#include "nuphy.hpp"
 
 #include <napi.h>
 
@@ -25,21 +25,26 @@ using namespace Napi;
 Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     try {
-        auto air75Optional = Air75::find();
-        if (!air75Optional.has_value()) {
+        auto keyboard = NuPhy::find();
+        if (keyboard == nullptr) {
             return env.Null();
         }
 
-        auto air75 = air75Optional.value();
+        auto string = fmt::format(
+            "NuPhy {} (Firmware {:04x})",
+            keyboard->getName(),
+            keyboard->firmware
+        );
 
-        auto string =
-            fmt::format("NuPhy Air75 (Firmware {:04x})", air75.firmware);
-
-        if (air75.path.length() <= 20) {
-            string = fmt::format("{} at {}", string, air75.path);
+        if (keyboard->dataPath == keyboard->requestPath && keyboard->dataPath.length() <= 20) {
+            string = fmt::format("{} at {}", string, keyboard->dataPath);
         }
 
-        return Napi::String::New(env, string);
+        auto object = Napi::Object::New(env);
+        object["info"] = Napi::String::New(env, string);
+        object["kind"] = Napi::String::New(env, keyboard->getName());
+
+        return object;
     } catch (permissions_error &e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
     }
@@ -49,16 +54,7 @@ Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
 Napi::Value validateYAML(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     try {
-        if (info.Length() < 1) {
-            Napi::TypeError::New(
-                env,
-                "Internal error: validateYAML takes exactly one argument"
-            )
-                .ThrowAsJavaScriptException();
-            return env.Null();
-        }
-
-        if (!info[0].IsString()) {
+        if (info.Length() < 1 || !info[0].IsString()) {
             Napi::TypeError::New(
                 env,
                 "Internal error: validateYAML takes exactly one string argument"
@@ -67,9 +63,14 @@ Napi::Value validateYAML(const Napi::CallbackInfo &info) {
             return env.Null();
         }
 
+        auto keyboard = NuPhy::find();
+        if (keyboard == nullptr) {
+            throw std::runtime_error("The keyboard was unplugged.");
+        }
+
         auto keymapYAML = info[0].As< Napi::String >().Utf8Value();
-        Air75::validateYAMLKeymap(keymapYAML, false, false);
-        Air75::validateYAMLKeymap(keymapYAML, false, true);
+        keyboard->validateYAMLKeymap(keymapYAML, false, false);
+        keyboard->validateYAMLKeymap(keymapYAML, false, true);
 
     } catch (std::runtime_error &e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
@@ -98,16 +99,13 @@ Napi::Value setKeymapFromYAML(const Napi::CallbackInfo &info) {
             return env.Null();
         }
 
-        auto air75Optional = Air75::find();
-        if (!air75Optional.has_value()) {
+        auto keyboard = NuPhy::find();
+        if (keyboard == nullptr) {
             throw std::runtime_error("The keyboard was unplugged.");
         }
 
-        auto air75 = air75Optional.value();
-
         auto keymapYAML = info[0].As< Napi::String >().Utf8Value();
-        air75.setKeymapFromYAML(keymapYAML);
-        air75.setKeymapFromYAML(keymapYAML, true);
+        keyboard->setKeymapFromYAML(keymapYAML);
     } catch (std::runtime_error &e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
     }
