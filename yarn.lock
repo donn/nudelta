@@ -727,10 +727,10 @@ clone-response@^1.0.2:
   dependencies:
     mimic-response "^1.0.0"
 
-cmake-js@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/cmake-js/-/cmake-js-7.0.0.tgz#0d0b6f292ba6d3f06738fd3a57a4c43f0144d8b8"
-  integrity sha512-Xmti54GzAg+70lsPRKsuw18ktAB+NwPS3m+b6dLzh3Zi+7k8QSVi857UWXzn9sjPXGz5BfSfo3vNISRaTVU/4A==
+cmake-js@^7.1.1:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/cmake-js/-/cmake-js-7.1.1.tgz#7935210efe0d562bbb02a7fde445d147e9eb4523"
+  integrity sha512-2NK9diAsNC0eIeKUUi+eN8uxCJukZ0TlMNZ8f1Z2PEW3Oeh0Tmn0VizPayFVnhrvZQcBK8tPqzrL4oHeaQBymw==
   dependencies:
     axios "^0.27.2"
     debug "^4"
