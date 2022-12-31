@@ -161,6 +161,7 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     };
 
     uint16_t firmware = 0x0;
+    std::string manufacturerString = "";
     std::optional< std::string > productName;
     std::optional< std::string > dataPath;
     std::optional< std::string > requestPath;
@@ -178,16 +179,17 @@ std::shared_ptr< NuPhy > NuPhy::find() {
             if (path.find(writeCol) != -1) {
                 if (requestPath.has_value()) {
                     throw std::runtime_error(
-                        "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
+                        "Multiple keyboards with the same product ID found! Please ensure only one keyboard is plugged in.\n"
                     );
                 }
                 productName = to_utf8(seeker->product_string);
                 requestPath = seeker->path;
                 firmware = seeker->release_number;
+                manufacturerString = to_utf8(seeker->manufacturer_string);
             } else if (path.find(dataCol) != -1) {
                 if (dataPath.has_value()) {
                     throw std::runtime_error(
-                        "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
+                        "Multiple keyboards with the same product ID found! Please ensure only one keyboard is plugged in.\n"
                     );
                 }
                 productName = to_utf8(seeker->product_string);
@@ -205,9 +207,11 @@ std::shared_ptr< NuPhy > NuPhy::find() {
             firmware
         );
         if (keyboard == nullptr) {
-            p(stderr,
-              "Detected NuPhy or Apple Keyboard '{}': Not supported.",
-              productName.value());
+            throw unsupported_keyboard(fmt::format(
+                "No supported keyboards found, but a similar keyboard, '{} {}', has been found.\n\nIf you believe this keyboard not being supported is an error, please file a bug report.",
+                manufacturerString,
+                productName.value()
+            ));
         }
         return keyboard;
     }
@@ -246,9 +250,11 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                 auto productName = to_utf8(seeker->product_string);
                 productString = productName;
                 if (auto manufacturerStringW = seeker->manufacturer_string) {
-                    // There is no manufacturerString on the Linux/libusb implementation.
+                    // There is no manufacturerString on the Linux/libusb
+                    // implementation.
                     auto manufacturerName = to_utf8(manufacturerStringW);
-                    productString = fmt::format("{} {}", manufacturerName, productName);
+                    productString =
+                        fmt::format("{} {}", manufacturerName, productName);
                 }
                 keyboard = createKeyboard(
                     productName,
@@ -265,7 +271,10 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     }
 
     if (keyboard == nullptr && unsupportedDetected) {
-        throw unsupported_keyboard(fmt::format("No supported keyboards found, but a similar keyboard, '{}', has been found.\n\nIf you believe this keyboard not being supported is an error, please file a bug report.", productString));
+        throw unsupported_keyboard(fmt::format(
+            "No supported keyboards found, but a similar keyboard, '{}', has been found.\n\nIf you believe this keyboard not being supported is an error, please file a bug report.",
+            productString
+        ));
     }
 
     return keyboard;
