@@ -137,7 +137,15 @@ function createWindow() {
                 role: "help",
                 submenu: [
                     {
-                        label: "Repo",
+                        label: "Report A Bug",
+                        click: async () => {
+                            await shell.openExternal(
+                                "https://github.com/donn/nudelta/issues"
+                            );
+                        },
+                    },
+                    {
+                        label: "Code Repository",
                         click: async () => {
                             await shell.openExternal(
                                 "https://github.com/donn/nudelta"
@@ -182,11 +190,13 @@ async function sendKeyboardInfo(sender) {
         sender.send("get-keyboard-info-reply", { info });
     } catch (err) {
         let message = err.message;
-        let commands = message.split("\n\n")[1];
-        if (commands ?? false) {
-            clipboard.writeText(commands);
-            message =
-                "Unable to read HID devices. Please run the commands copied to your clipboard in a terminal window then restart Nudelta.";
+        if (err.kind === "Permissions Error") {
+            let commands = message.split("\n\n")[1];
+            if (commands ?? false) {
+                clipboard.writeText(commands);
+                message =
+                    "Unable to read HID devices. Please run the commands copied to your clipboard in a terminal window then restart Nudelta.";
+            }
         }
         dialog.showErrorBox(err.kind, message);
     }

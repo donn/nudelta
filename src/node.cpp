@@ -49,7 +49,7 @@ Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
     } catch (permissions_error &e) {
         auto error = Napi::Error::New(env, e.what());
         auto exception = error.Value();
-        exception["kind"] = "Permission Error";
+        exception["kind"] = "Permissions Error";
         napi_throw(env, exception);
     } catch (unsupported_keyboard &e) {
         auto error = Napi::Error::New(env, e.what());
