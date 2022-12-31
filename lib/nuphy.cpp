@@ -31,7 +31,9 @@ NuPhy::Handles NuPhy::getHandles() {
     }
 
     if (dataHandle == nullptr || requestHandle == nullptr) {
-        throw std::runtime_error("Failed to open device. Ensure your permissions are properly set up.");
+        throw std::runtime_error(
+            "Failed to open device. Ensure your permissions are properly set up."
+        );
     }
 
     auto cleanup = [](NuPhy::Handles &handles) {
@@ -159,6 +161,7 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     };
 
     uint16_t firmware = 0x0;
+    std::string manufacturerString = "";
     std::optional< std::string > productName;
     std::optional< std::string > dataPath;
     std::optional< std::string > requestPath;
@@ -176,16 +179,17 @@ std::shared_ptr< NuPhy > NuPhy::find() {
             if (path.find(writeCol) != -1) {
                 if (requestPath.has_value()) {
                     throw std::runtime_error(
-                        "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
+                        "Multiple keyboards with the same product ID found! Please ensure only one keyboard is plugged in.\n"
                     );
                 }
                 productName = to_utf8(seeker->product_string);
                 requestPath = seeker->path;
                 firmware = seeker->release_number;
+                manufacturerString = to_utf8(seeker->manufacturer_string);
             } else if (path.find(dataCol) != -1) {
                 if (dataPath.has_value()) {
                     throw std::runtime_error(
-                        "Multiple NuPhy Air75 keyboards found! Please keep only one plugged in.\n"
+                        "Multiple keyboards with the same product ID found! Please ensure only one keyboard is plugged in.\n"
                     );
                 }
                 productName = to_utf8(seeker->product_string);
@@ -196,12 +200,20 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     }
 
     if (dataPath.has_value() && requestPath.has_value()) {
-        return createKeyboard(
+        auto keyboard = createKeyboard(
             productName.value(),
             dataPath.value(),
             requestPath.value(),
             firmware
         );
+        if (keyboard == nullptr) {
+            throw unsupported_keyboard(fmt::format(
+                "No supported keyboards found, but a similar keyboard, '{} {}', has been found.\n\nIf you believe this keyboard not being supported is an error, please file a bug report.",
+                manufacturerString,
+                productName.value()
+            ));
+        }
+        return keyboard;
     }
 
     return nullptr;
@@ -215,7 +227,9 @@ std::shared_ptr< NuPhy > NuPhy::find() {
         hid_free_enumeration(seeker);
     };
 
+    bool unsupportedDetected = false;
     bool multipleWarned = false;
+    std::string productString = "";
     while (seeker != nullptr) {
         if (seeker->interface_number == 1) {
             if (keyboard != nullptr) {
@@ -234,6 +248,14 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                     throw permissions_error(hidAccessFailureMessage);
                 }
                 auto productName = to_utf8(seeker->product_string);
+                productString = productName;
+                if (auto manufacturerStringW = seeker->manufacturer_string) {
+                    // There is no manufacturerString on the Linux/libusb
+                    // implementation.
+                    auto manufacturerName = to_utf8(manufacturerStringW);
+                    productString =
+                        fmt::format("{} {}", manufacturerName, productName);
+                }
                 keyboard = createKeyboard(
                     productName,
                     seeker->path,
@@ -241,14 +263,18 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                     seeker->release_number
                 );
                 if (keyboard == nullptr) {
-                    throw std::runtime_error(fmt::format(
-                        "The NuPhy {} is currently unsupported.",
-                        productName
-                    ));
+                    unsupportedDetected = true;
                 }
             }
         }
         seeker = seeker->next;
+    }
+
+    if (keyboard == nullptr && unsupportedDetected) {
+        throw unsupported_keyboard(fmt::format(
+            "No supported keyboards found, but a similar keyboard, '{}', has been found.\n\nIf you believe this keyboard not being supported is an error, please file a bug report.",
+            productString
+        ));
     }
 
     return keyboard;

@@ -299,7 +299,7 @@ function redrawOptions() {
                 e.appendChild(
                     n("p", (e) => {
                         e.innerHTML =
-                            "No keyboard found.<br />Make sure it's plugged in via USB, then File > Reload Keyboard to retry.";
+                            "No supported keyboard found.<br />Make sure it's plugged in via USB, then File > Reload Keyboard to retry.";
                     })
                 );
             })
