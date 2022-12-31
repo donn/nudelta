@@ -190,15 +190,16 @@ int main(int argc, char *argv[]) {
              "Print the connected keyboard's firmware and exit.",
              false,
              printFirmware},
-         Opt{"mac",
-             'M',
-             "Valid only if dump-keys or load-keys are passed: operate on the Mac mode of the keyboard instead of the Win mode.",
-             false},
+         Opt{"load-profile", 'l', "Load YAML keymap", true, loadYAML},
          Opt{"reset-keys",
              'r',
              "Restore the original keymap.",
              false,
              resetKeymap},
+         Opt{"mac",
+             'M',
+             "Valid only if dump-keys or load-keys are passed: operate on the Mac mode of the keyboard instead of the Win mode.",
+             false},
          Opt{"dump-keys",
              'D',
              "Dump the keymap to a binary file.",
@@ -212,8 +213,7 @@ int main(int argc, char *argv[]) {
              'L',
              "Load the keymap from a binary file.",
              true,
-             loadKeymap},
-         Opt{"load-profile", 'l', "Load YAML keymap", true, loadYAML}}
+             loadKeymap}}
     );
 
     try {
