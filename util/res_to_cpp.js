@@ -18,11 +18,7 @@ for (let file of files) {
     let keyboard = path.basename(directory);
 
     let str = fs.readFileSync(file, { encoding: "utf8" });
-    if (str.startsWith("..")) { // Handle windows "symlinks"
-        file = [directory, str].join("/");
-        str = fs.readFileSync(file, { encoding: "utf8" });
-    }
-    print(`// ${file}`)
+    print(`// ${file}`);
     let object = yaml.parse(str);
     let lines = str.split("\n");
     let [_, type, name] = lines[0].split(" ");

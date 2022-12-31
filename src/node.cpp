@@ -36,7 +36,8 @@ Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
             keyboard->firmware
         );
 
-        if (keyboard->dataPath == keyboard->requestPath && keyboard->dataPath.length() <= 20) {
+        if (keyboard->dataPath == keyboard->requestPath
+            && keyboard->dataPath.length() <= 20) {
             string = fmt::format("{} at {}", string, keyboard->dataPath);
         }
 
@@ -46,7 +47,15 @@ Napi::Value getKeyboardInfo(const Napi::CallbackInfo &info) {
 
         return object;
     } catch (permissions_error &e) {
-        Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+        auto error = Napi::Error::New(env, e.what());
+        auto exception = error.Value();
+        exception["kind"] = "Permission Error";
+        napi_throw(env, exception);
+    } catch (unsupported_keyboard &e) {
+        auto error = Napi::Error::New(env, e.what());
+        auto exception = error.Value();
+        exception["kind"] = "Unsupported Keyboard";
+        napi_throw(env, exception);
     }
     return env.Null();
 }

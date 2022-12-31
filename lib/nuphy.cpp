@@ -31,7 +31,9 @@ NuPhy::Handles NuPhy::getHandles() {
     }
 
     if (dataHandle == nullptr || requestHandle == nullptr) {
-        throw std::runtime_error("Failed to open device. Ensure your permissions are properly set up.");
+        throw std::runtime_error(
+            "Failed to open device. Ensure your permissions are properly set up."
+        );
     }
 
     auto cleanup = [](NuPhy::Handles &handles) {
@@ -136,7 +138,7 @@ static std::shared_ptr< NuPhy > createKeyboard(
     std::string requestPath,
     uint16_t firmware
 ) {
-    if (name == "Air75") {
+    if (name == "Air7s5") {
         return std::make_shared< Air75 >(dataPath, requestPath, firmware);
     }
     if (name == "Halo75") {
@@ -241,7 +243,7 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                     seeker->release_number
                 );
                 if (keyboard == nullptr) {
-                    throw std::runtime_error(fmt::format(
+                    throw unsupported_keyboard(fmt::format(
                         "The NuPhy {} is currently unsupported.",
                         productName
                     ));

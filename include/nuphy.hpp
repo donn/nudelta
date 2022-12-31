@@ -34,12 +34,9 @@ class NuPhy { // Abstract
         std::string requestPath;
         uint16_t firmware;
 
-        NuPhy(
-            std::string dataPath,
-            std::string requestPath,
-            uint16_t firmware
-        )
-            : dataPath(dataPath), requestPath(requestPath), firmware(firmware) {}
+        NuPhy(std::string dataPath, std::string requestPath, uint16_t firmware)
+            : dataPath(dataPath), requestPath(requestPath), firmware(firmware) {
+        }
 
         std::vector< uint32_t > getKeymap(bool mac = false);
         void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
@@ -89,11 +86,7 @@ class NuPhy { // Abstract
 
 class Air75 : public NuPhy {
     public:
-        Air75(
-            std::string dataPath,
-            std::string requestPath,
-            uint16_t firmware
-        )
+        Air75(std::string dataPath, std::string requestPath, uint16_t firmware)
             : NuPhy(dataPath, requestPath, firmware) {}
 
         virtual std::string getName() { return "Air75"; }
@@ -133,11 +126,7 @@ class Air75 : public NuPhy {
 
 class Halo75 : public NuPhy {
     public:
-        Halo75(
-            std::string dataPath,
-            std::string requestPath,
-            uint16_t firmware
-        )
+        Halo75(std::string dataPath, std::string requestPath, uint16_t firmware)
             : NuPhy(dataPath, requestPath, firmware) {}
 
         virtual std::string getName() { return "Halo75"; }
@@ -149,7 +138,7 @@ class Halo75 : public NuPhy {
             return mac ? Halo75::indicesByKeyNameMac :
                          Halo75::indicesByKeyNameWin;
         }
-        
+
         virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
             return mac ? std::vector< uint8_t >(
                        {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
@@ -174,6 +163,12 @@ class Halo75 : public NuPhy {
         static const std::vector< uint32_t > defaultKeymapMac;
         static const std::unordered_map< std::string, uint32_t >
             indicesByKeyNameMac;
+};
+
+class unsupported_keyboard : public std::runtime_error {
+    public:
+        unsupported_keyboard(const std::string &what = "")
+            : std::runtime_error(what) {}
 };
 
 #endif

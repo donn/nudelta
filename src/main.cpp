@@ -39,15 +39,15 @@ std::shared_ptr< NuPhy > getKeyboard() {
 
     if (keyboard->dataPath == keyboard->requestPath) {
         p("Found NuPhy {} at path {} (Firmware {:04x})\n",
-        keyboard->getName(),
-        keyboard->dataPath,
-        keyboard->firmware);
+          keyboard->getName(),
+          keyboard->dataPath,
+          keyboard->firmware);
     } else {
         p("Found NuPhy {} at paths ({}, {}) (Firmware {:04x})\n",
-        keyboard->getName(),
-        keyboard->dataPath,
-        keyboard->requestPath,
-        keyboard->firmware);
+          keyboard->getName(),
+          keyboard->dataPath,
+          keyboard->requestPath,
+          keyboard->firmware);
     }
 
     return keyboard;
@@ -66,7 +66,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 }
 
 SSCO_Fn(printFirmware) {
-    auto air75 = getKeyboard();
+    auto keyboard = getKeyboard();
 }
 
 SSCO_Fn(resetKeymap) {

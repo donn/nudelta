@@ -188,7 +188,7 @@ async function sendKeyboardInfo(sender) {
             message =
                 "Unable to read HID devices. Please run the commands copied to your clipboard in a terminal window then restart Nudelta.";
         }
-        dialog.showErrorBox("Permissions Error", message);
+        dialog.showErrorBox(err.kind, message);
     }
 }
 
