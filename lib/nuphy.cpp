@@ -246,8 +246,8 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                 auto productName = to_utf8(seeker->product_string);
                 productString = productName;
                 if (auto manufacturerStringW = seeker->manufacturer_string) {
+                    // There is no manufacturerString on the Linux/libusb implementation.
                     auto manufacturerName = to_utf8(manufacturerStringW);
-                    // p(stderr, "[DEBUG] Manufacturer string {}", manufacturerName);
                     productString = fmt::format("{} {}", manufacturerName, productName);
                 }
                 keyboard = createKeyboard(

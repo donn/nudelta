@@ -7,7 +7,6 @@
     "description": "An open-source alternative to the NuPhy Console",
     "dependencies": {
         "@fontsource/nunito": "^4.5.11",
-        "axios": "^0.21.1",
         "fs-extra": "^10.1.0",
         "yaml": "^2.1.3"
     },
