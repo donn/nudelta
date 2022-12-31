@@ -138,7 +138,7 @@ static std::shared_ptr< NuPhy > createKeyboard(
     std::string requestPath,
     uint16_t firmware
 ) {
-    if (name == "Air7s5") {
+    if (name == "Air75") {
         return std::make_shared< Air75 >(dataPath, requestPath, firmware);
     }
     if (name == "Halo75") {
