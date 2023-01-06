@@ -141,18 +141,18 @@ class Halo75 : public NuPhy {
 
         virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
             return mac ? std::vector< uint8_t >(
-                       {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00}
+                       {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
                    ) :
                          std::vector< uint8_t >(
-                             {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
+                             {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00}
                          );
         }
         virtual std::vector< uint8_t > setKeymapReportHeader(bool mac = false) {
             return mac ? std::vector< uint8_t >(
-                       {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00}
+                       {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00}
                    ) :
                          std::vector< uint8_t >(
-                             {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00}
+                             {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00}
                          );
         }
     private:
