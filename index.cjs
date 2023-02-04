@@ -1,6 +1,7 @@
 // Modules to control application life and create native browser window
 const electron = require("electron");
-const { app, dialog, BrowserWindow, Menu, ipcMain, shell } = electron;
+const { app, dialog, BrowserWindow, Menu, ipcMain, shell, clipboard } =
+    electron;
 
 const macOS = process.platform == "darwin";
 
