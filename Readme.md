@@ -7,9 +7,18 @@
 
 > Note: This software is in beta. Nudelta is an unofficial product and is not affiliated with NuPhy Studio.
 
+
+
+<h3 align="center">
+
+[Download](https://github.com/donn/nudelta/releases/latest)
+
+</h3>
+
+
 ![Screenshot of Nudelta Console](./res/screencap.png)
 
-A (WIP) open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console)  by reverse-engineering the keyboards' USB protocol.
+An open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console) created by reverse-engineering the keyboards' USB protocol.
 
 What this has:
 * Support for NuPhy Air75 on Windows 10+, macOS 11+, and Linux
