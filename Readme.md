@@ -93,8 +93,8 @@ keys:
 See [example.yml](example.yml) for a profile and somewhat more detailed examples.
 
 You can find a list of:
-  * Replaceable keys (for the Windows mode) in [res/air75/indices_win.yml](res/air75/indices_win.yml).
-  * Replacement keycodes in [res/air75/keycodes.yml](res/air75/keycodes.yml).
+  * Replaceable keys (for the Windows mode) in [res/air75/indices_win.yml](res/Air75/indices_win.yml).
+  * Replacement keycodes in [res/air75/default_keymap_win.yml](res/Air75/default_keymap_win.yml).
 
 ### Reset keymap to default
 ```sh
