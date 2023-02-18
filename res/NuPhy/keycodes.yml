@@ -14,13 +14,14 @@ fn: 0x00000020
 
 sysrq: 0x46000000
 scrolllock: 0x47000000
-pausebreak: 0x480000
+pausebreak: 0x48000000
 ins: 0x49000000
 home: 0x4a000000
 pgup: 0x4b000000
 del: 0x4c000000
 end: 0x4d000000
 pgdn: 0x4e000000
+menu: 0x65000000
 
 enter: 0x28000000
 tab: 0x2b000000

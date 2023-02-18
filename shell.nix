@@ -10,5 +10,6 @@ with pkgs; (mkShell.override { stdenv = clangStdenv; }) {
         gnumake
         libusb
         pkg-config
+        electron
     ];
 }

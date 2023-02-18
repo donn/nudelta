@@ -133,6 +133,8 @@ jobs:
         with:
           tag_name: ${{ env.NEW_TAG }}
           body: |
+            Changelog: https://github.com/donn/nudelta/blob/main/Changelog.md
+
             ![Screencap](https://raw.githubusercontent.com/donn/nudelta/main/res/screencap.png)
 
             A Windows `.exe`, a macOS `.app` and a Linux `.AppImage` have all been built.
