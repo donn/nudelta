@@ -1,13 +1,13 @@
 # 0.6.6
-- Fixed a bug where the Del key was not remappable on Air75.
-- Fix scancode for Pause/Break key.
-- Add scancode for Menu key. 
+- Fixes a bug where the Del key was not remappable on Air75.
+- Fixes scancode for Pause/Break key.
+- Adds scancode for Menu key. 
 
 # 0.6.5
-- Fixed a bug with accessing the clipboard on Linux.
+- Fixes a bug with accessing the clipboard on Linux.
 
 # 0.6.3, 0.6.4
-- Fixed a bug with the Halo75 where Windows and Mac modes have been switched around.
+- Fixes a bug with the Halo75 where Windows and Mac modes have been switched around.
 
 # 0.6.2
 - Fixes detecting the Halo75.
