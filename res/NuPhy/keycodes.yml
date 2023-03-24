@@ -28,6 +28,11 @@ tab: 0x2b000000
 space: 0x2c000000
 backspace: 0x2a000000
 
+right: 0x4f000000
+left: 0x50000000
+down: 0x51000000
+up: 0x52000000
+
 esc: 0x29000000
 f1: 0x3a000000
 f2: 0x3b000000
@@ -41,6 +46,18 @@ f9: 0x42000000
 f10: 0x43000000
 f11: 0x44000000
 f12: 0x45000000
+f13: 0x68000000
+f14: 0x69000000
+f15: 0x6a000000
+f16: 0x6b000000
+f17: 0x6c000000
+f18: 0x6d000000
+f19: 0x6e000000
+f20: 0x6f000000
+f21: 0x70000000
+f22: 0x71000000
+f23: 0x72000000
+f24: 0x73000000
 
 grave: 0x35000000
 num1: 0x1e000000
@@ -53,11 +70,6 @@ num7: 0x24000000
 num8: 0x25000000
 num9: 0x26000000
 num0: 0x27000000
-
-right: 0x4f000000
-left: 0x50000000
-down: 0x51000000
-up: 0x52000000
 
 a: 0x04000000
 b: 0x05000000
@@ -127,6 +139,7 @@ forward: 0xb5000004
 mute: 0xe2000004
 volumedown: 0xea000004
 volumeup: 0xe9000004
+voice_command: 0xcf000004
 
 # -- Extra
 ## Processed On-Keyboard
@@ -137,21 +150,6 @@ backlightcolorup: 0x00030012
 backlightdown: 0x0002000c
 backlightup: 0x0001000c
 
-## Special
+## Keyboard Specific/Custom
 fnspace: 0x2f000002
-voice_command: 0xcf000004
 search: 0x2000000e
-
-## Apple-specific extra F keys (useful for keyboard shortcuts/software macros)
-f13: 0x68000000
-f14: 0x69000000
-f15: 0x6a000000
-f16: 0x6b000000
-f17: 0x6c000000
-f18: 0x6d000000
-f19: 0x6e000000
-f20: 0x6f000000
-f21: 0x70000000
-f22: 0x71000000
-f23: 0x72000000
-f24: 0x73000000

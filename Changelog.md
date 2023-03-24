@@ -1,3 +1,7 @@
+# 0.6.7
+- Add a no-verify CLI flag so unsupported keyboards can still dump data.
+- Reorder the keycodes for consistency
+
 # 0.6.6
 - Fixes a bug where the Del key was not remappable on Air75.
 - Fixes scancode for Pause/Break key.

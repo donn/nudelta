@@ -1,5 +1,5 @@
 require "yaml"
-scan_codes = File.read("../../res/Air75/keycodes.yml")
+scan_codes = File.read("../../res/NuPhy/keycodes.yml")
 scancode_by_key = YAML.load(scan_codes)
 key_by_scancode = scancode_by_key.invert
 
