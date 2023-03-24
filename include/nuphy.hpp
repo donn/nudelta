@@ -62,7 +62,7 @@ class NuPhy { // Abstract
         virtual std::vector< uint8_t >
         setKeymapReportHeader(bool mac = false) = 0;
 
-        static std::shared_ptr< NuPhy > find(); // Factory Method
+        static std::shared_ptr< NuPhy > find(bool verify = true); // Factory Method
 
         void validateYAMLKeymap(
             const std::string &yamlString,
