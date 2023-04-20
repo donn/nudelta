@@ -142,7 +142,10 @@ SSCO_Fn(loadKeymap) {
     };
 
     uint8_t readBuffer[1024];
-    fread(readBuffer, 1, sizeof readBuffer, filePtr);
+    ssize_t readResult = fread(readBuffer, 1, sizeof readBuffer, filePtr);
+    if (readResult < 0) {
+        throw std::runtime_error("Failed to read the keymap file.");
+    }
 
     // ALERT: Endianness-defined Behavior
     auto keymap = std::vector< uint32_t >(

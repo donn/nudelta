@@ -1,3 +1,10 @@
+# 0.7.0
+- Updated to fix a bug for macOS 13.3 or higher
+- Linux builds now use `hidraw` instead of `libusb` so the detection mechanism
+  remains identical for macOS and Linux
+    - libhidapi gives access to `usage` and `usage_page` only when using `hidraw`
+    on Linux
+
 # 0.6.6
 - Fixes a bug where the Del key was not remappable on Air75.
 - Fixes scancode for Pause/Break key.

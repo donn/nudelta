@@ -1,7 +1,7 @@
 {
     "name": "nudelta",
     "author": "Mohamed Gaber <me@donn.website>",
-    "version": "0.6.6",
+    "version": "0.7.0",
     "license": "GPL-3.0-or-later",
     "homepage": "https://github.com/donn/nudelta#readme",
     "description": "An open-source alternative to the NuPhy Console",
@@ -52,12 +52,6 @@
         "linux": {
             "target": [
                 "appimage"
-            ],
-            "extraFiles": [
-                {
-                    "from": "/lib64/libusb-1.0.so.0",
-                    "to": "usr/lib/libusb-1.0.so.0"
-                }
             ]
         },
         "mac": {
