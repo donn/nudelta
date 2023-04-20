@@ -1,7 +1,7 @@
 {
     "name": "nudelta",
     "author": "Mohamed Gaber <me@donn.website>",
-    "version": "0.6.7",
+    "version": "0.7.0",
     "license": "GPL-3.0-or-later",
     "homepage": "https://github.com/donn/nudelta#readme",
     "description": "An open-source alternative to the NuPhy Console",
@@ -23,7 +23,7 @@
         "@rollup/plugin-node-resolve": "^9.0.0",
         "@rollup/plugin-url": "^8.0.1",
         "@rollup/plugin-yaml": "^4.0.1",
-        "cmake-js": "^7.1.1",
+        "cmake-js": "^7.2.1",
         "electron": "^21.2.1",
         "electron-builder": "^23.6.0",
         "fast-glob": "^3.2.12",
@@ -52,12 +52,6 @@
         "linux": {
             "target": [
                 "appimage"
-            ],
-            "extraFiles": [
-                {
-                    "from": "/lib64/libusb-1.0.so.0",
-                    "to": "usr/lib/libusb-1.0.so.0"
-                }
             ]
         },
         "mac": {

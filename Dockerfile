@@ -23,7 +23,7 @@ RUN n 14
 RUN npm i -g yarn
 
 ## LibUSB
-RUN yum install -y libusbx-devel
+RUN yum install -y libudev-devel
 
 ##
 WORKDIR /nudelta

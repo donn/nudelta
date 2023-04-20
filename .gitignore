@@ -25,3 +25,6 @@ dist/
 yarn-error.log
 
 !OSAcknowledgements.txt
+
+# Python
+venv
