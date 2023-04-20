@@ -16,9 +16,9 @@ body:
       description: |
         Which operating system are you using and what is its version?
 
-        * Windows - Pressing Windows+R and then type "winver" then press "Ok"
-        in the window that pops up. You should see something like
-        `Version XXXX (OS Build XXXXX.XXXX)`. Please copy that here.
+        * Windows - Press Windows+R and then type "winver" then press "Ok"
+        in the window that pops up. You should see a new Window with something
+        like `Version XXXX (OS Build XXXXX.XXXX)`. Please copy that here.
         * macOS - From the Apple menu, press About this Mac, and screenshot the
         Window that pops up. Please remember to hide your serial number using
         the screenshot editor or Preview.
