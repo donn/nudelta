@@ -23,6 +23,12 @@
 #include <iostream>
 #include <scope_guard.hpp>
 #include <ssco.hpp>
+#ifdef _MSC_VER
+    #include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#else
+    #include <unistd.h>
+#endif
 
 #define MAX_STR 255
 #ifndef NUDELTA_VERSION
@@ -78,7 +84,7 @@ SSCO_Fn(resetKeymap) {
 SSCO_Fn(dumpKeymap) {
     auto mac = opts.options.find("mac") != opts.options.end();
     auto verify = opts.options.find("no-verify") == opts.options.end();
-    
+
     auto keyboard = getKeyboard(verify);
     auto keys = keyboard->getKeymap(mac);
     auto file = opts.options.find("dump-keys")->second;
