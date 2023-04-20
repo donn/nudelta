@@ -195,8 +195,7 @@ async function sendKeyboardInfo(sender) {
             let commands = message.split("\n\n")[1];
             if (commands ?? false) {
                 clipboard.writeText(commands);
-                message =
-                    "Unable to read HID devices. Please run the commands copied to your clipboard in a terminal window then restart Nudelta.";
+                message += "\n\nThe commands have been copied to the clipboard for your convenience.";
             }
         }
         dialog.showErrorBox(err.kind, message);
@@ -211,7 +210,16 @@ ipcMain.on("write-yaml", async (ev, config) => {
     try {
         libnd.setKeymapFromYAML(serialized);
     } catch (err) {
-        dialog.showErrorBox("Failed to write config", err.message);
+        let message = err.message;
+        console.log(err.kind)
+        if (err.kind === "Permissions Error") {
+            let commands = message.split("\n\n")[1];
+            if (commands ?? false) {
+                clipboard.writeText(commands);
+                message += "\n\nThe commands have been copied to the clipboard for your convenience.";
+            }
+        }
+        dialog.showErrorBox("Failed to Write Configuration", message);
         await sendKeyboardInfo(ev.sender);
         return;
     }

@@ -62,20 +62,23 @@ class NuPhy { // Abstract
         virtual std::vector< uint8_t >
         setKeymapReportHeader(bool mac = false) = 0;
 
-        static std::shared_ptr< NuPhy > find(bool verify = true); // Factory Method
+        static std::shared_ptr< NuPhy >
+        find(bool verify = true); // Factory Method
 
         void validateYAMLKeymap(
             const std::string &yamlString,
             bool rawOk = true,
             bool mac = false
         );
-    private:
         struct Handles {
                 hid_device *data;
                 hid_device
                     *request; // Same on macOS/Linux - different on Windows
+                std::string dataPath;
+                std::string requestPath;
                 std::function< void(NuPhy::Handles &) > cleanup;
         };
+    private:
         Handles getHandles();
 
         static const std::unordered_map< std::string, uint32_t >
