@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <scope_guard.hpp>
+#include <sstream>
 #include <yaml-cpp/yaml.h>
 
 NuPhy::Handles NuPhy::getHandles() {
@@ -147,8 +148,36 @@ static std::shared_ptr< NuPhy > createKeyboard(
     return nullptr;
 }
 
+std::string represent_hid_struct(hid_device_info *info) {
+    std::stringstream str;
+
+    str << std::hex;
+
+    str << "At path: " << info->path << std::endl;
+    str << "VID/PID: " << info->vendor_id << ":" << info->product_id
+        << std::endl;
+    if (info->serial_number != nullptr) {
+        str << "SN: " << info->serial_number << std::endl;
+    }
+    str << "Release: " << info->release_number << std::endl;
+    if (info->manufacturer_string != nullptr) {
+        str << "Manufacturer String: " << to_utf8(info->manufacturer_string)
+            << std::endl;
+    }
+    if (info->product_string != nullptr) {
+        str << "Product String: " << to_utf8(info->product_string) << std::endl;
+    }
+    str << "Usage/Page: " << info->usage << "/" << info->usage_page
+        << std::endl;
+    str << "Interface Number: " << std::dec << info->interface_number
+        << std::endl;
+    str << "---" << std::endl;
+    return str.str();
+}
+
 #ifdef _WIN32
-// Win is different: there are multiple "channels" each with a different path
+// Win is different: there are multiple "channels" each with a different
+// path
 // - So far, I've identified col06 as the one for keymap data, col05 for
 // requests
 std::string writeCol = "col05";
@@ -167,7 +196,7 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     std::optional< std::string > requestPath;
 
     while (seeker != nullptr) {
-        if (seeker->interface_number == 1 && seeker->usage == 1
+        if (seeker->interface_number != 1 && seeker->usage == 1
             && seeker->usage_page == 0xFF00
             && (!productName.has_value()
                 || productName.value() == to_utf8(seeker->product_string))) {
@@ -231,7 +260,8 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     bool multipleWarned = false;
     std::string productString = "";
     while (seeker != nullptr) {
-        if (seeker->interface_number == 1) {
+        if (seeker->interface_number != 1 && seeker->usage == 1
+            && seeker->usage_page == 0xFF00) {
             if (keyboard != nullptr) {
                 // We only care if the path is different, because that means a
                 // different device on Mac and Linux

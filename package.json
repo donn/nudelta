@@ -23,7 +23,7 @@
         "@rollup/plugin-node-resolve": "^9.0.0",
         "@rollup/plugin-url": "^8.0.1",
         "@rollup/plugin-yaml": "^4.0.1",
-        "cmake-js": "^7.1.1",
+        "cmake-js": "^7.2.1",
         "electron": "^21.2.1",
         "electron-builder": "^23.6.0",
         "fast-glob": "^3.2.12",
