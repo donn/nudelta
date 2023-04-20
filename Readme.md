@@ -5,7 +5,8 @@
 </p>
 
 
-> Note: This software is in beta. Nudelta is an unofficial product and is not affiliated with NuPhy Studio.
+> Note: This software is in beta. NuPhy® is a registered trademark of NuPhy Studio.
+> Nudelta is an unofficial product and is not affiliated with NuPhy Studio. 
 
 
 
@@ -21,8 +22,7 @@
 An open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console) created by reverse-engineering the keyboards' USB protocol.
 
 What this has:
-* Support for NuPhy Air75 on Windows 10+, macOS 11+, and Linux
-    * ALPHA support for the NuPhy Halo75
+* Support for NuPhy Air75 and Halo75 on Windows 10+, macOS 11+, and Linux
 * Loading and saving keymap modifications from a `.yml` configuration file
 * The ability to back up and dump keymaps to binary formats (CLI)
 * The ability to dump keymaps to a human-readable hex format (CLI)
@@ -103,5 +103,3 @@ nudelta -r
 
 ## License
 The GNU General Public License v3 or, at your option, any later version. Check '[License](/License)'.
-
-> NuPhy® is a registered trademark of NuPhy Studio.

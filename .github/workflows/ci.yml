@@ -145,6 +145,7 @@ jobs:
             * Please note that you will need Rosetta as there is no Apple Silicon build at the moment.
 
             On Linux, download the `.AppImage`, enable "allow executing file as program" in its properties (shown below), then double-click it.
+            * You may need to install `libudev` separately- on Ubuntu, you can run `sudo apt-get install -y libudev`.
 
             ![Setting Linux execute permission with the GNOME File Browser](https://raw.githubusercontent.com/donn/nudelta/main/res/linux_exec_permission.png)
           files: |
