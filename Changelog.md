@@ -1,6 +1,7 @@
 # 0.7.1
-- Updates udev rules and instructions for Linux so you can use Nudelta without
-  sudo
+- Updates udev rules and instructions for Linux
+- More informative permissions-related error messages
+- Slight tweak to GUI error reporting
 
 # 0.7.0
 - Updated to fix a bug for macOS 13.3 or higher
@@ -8,6 +9,7 @@
   remains identical for macOS and Linux
     - libhidapi gives access to `usage` and `usage_page` only when using `hidraw`
     on Linux
+
 # 0.6.7
 - Add a no-verify CLI flag so unsupported keyboards can still dump data.
 - Reorder the keycodes for consistency

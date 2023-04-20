@@ -38,20 +38,21 @@ bool requestHIDAccess() {
 }
 
 const char *hidAccessFailureMessage =
-    "Please grant Nudelta input monitoring permissions in your System Preferences.";
+    "Failed to read or write to your keyboard- please grant Nudelta Input Monitoring permissions in your System Preferences then restart Nudelta.";
 
 #elif defined(__gnu_linux__)
 std::optional< bool > checkHIDAccess() {
+    // Checked earlier using `hid_open` - no point
     return true;
 }
 
 bool requestHIDAccess() {
-    return true;
+    return false;
 }
 
 const char *hidAccessFailureMessage =
-    "Unable to read HID devices. Try running these commands then restarting your computer: \n\n"
-    "echo 'KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", TAG+=\"uaccess\"' | sudo tee /etc/udev/rules.d/70-nudelta.rules &&"
+    "Failed to read or write to your keyboard- try running these commands then restarting your computer: \n\n"
+    "echo 'KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", TAG+=\"uaccess\"' | sudo tee /etc/udev/rules.d/70-nudelta.rules && "
     "sudo udevadm control --reload-rules && sudo udevadm trigger";
 #else
 // Not implemented/Can't check

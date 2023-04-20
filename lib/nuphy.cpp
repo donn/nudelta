@@ -32,9 +32,7 @@ NuPhy::Handles NuPhy::getHandles() {
     }
 
     if (dataHandle == nullptr || requestHandle == nullptr) {
-        throw std::runtime_error(
-            "Failed to open device. Ensure your permissions are properly set up."
-        );
+        throw permissions_error(hidAccessFailureMessage);
     }
 
     auto cleanup = [](NuPhy::Handles &handles) {
@@ -44,7 +42,7 @@ NuPhy::Handles NuPhy::getHandles() {
         hid_close(handles.data);
     };
 
-    return {dataHandle, requestHandle, cleanup};
+    return {dataHandle, requestHandle, dataPath, requestPath, cleanup};
 }
 
 static const size_t MAX_READABLE_SIZE = 0x7FF;
@@ -53,8 +51,7 @@ static const uint8_t REQUEST_0[] = {0x05, 0x83, 0xb6, 0x00, 0x00, 0x00};
 static const uint8_t REQUEST_1[] = {0x05, 0x88, 0xb8, 0x00, 0x00, 0x00};
 
 static int get_report(
-    hid_device *dataHandle,
-    hid_device *requestHandle,
+    NuPhy::Handles handles,
     const uint8_t *requestInfo,
     const size_t requestSize,
     uint8_t *readBuffer
@@ -64,15 +61,15 @@ static int get_report(
         hidAccess = requestHIDAccess();
     }
     if (!hidAccess.value()) {
-        throw std::runtime_error(hidAccessFailureMessage);
+        throw permissions_error(hidAccessFailureMessage);
     }
 
     auto bytesWritten =
-        hid_send_feature_report(requestHandle, requestInfo, requestSize);
+        hid_send_feature_report(handles.request, requestInfo, requestSize);
     if (bytesWritten < 0) {
         auto errorString = fmt::format(
             "Failed to write to keyboard: {}",
-            to_utf8(hid_error(requestHandle))
+            to_utf8(hid_error(handles.request))
         );
         throw std::runtime_error(errorString);
     } else {
@@ -80,11 +77,11 @@ static int get_report(
     }
     readBuffer[0] = 0x06;
     auto bytesRead =
-        hid_get_feature_report(dataHandle, readBuffer, MAX_READABLE_SIZE);
+        hid_get_feature_report(handles.data, readBuffer, MAX_READABLE_SIZE);
     if (bytesRead < 0) {
         auto errorString = fmt::format(
             "Failed to read from keyboard: {}",
-            to_utf8(hid_error(dataHandle))
+            to_utf8(hid_error(handles.data))
         );
         throw std::runtime_error("Failed to read from keyboard");
     } else {
@@ -95,25 +92,18 @@ static int get_report(
 }
 
 static std::vector< uint8_t > get_report(
-    hid_device *dataHandle,
-    hid_device *requestHandle,
+    NuPhy::Handles handles,
     const uint8_t *requestInfo,
     size_t requestSize
 ) {
     uint8_t readBuffer[MAX_READABLE_SIZE];
 
-    auto read = get_report(
-        dataHandle,
-        requestHandle,
-        requestInfo,
-        requestSize,
-        readBuffer
-    );
+    auto read = get_report(handles, requestInfo, requestSize, readBuffer);
 
     return std::vector< uint8_t >(readBuffer, readBuffer + read);
 }
 
-void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
+void set_report(NuPhy::Handles handles, uint8_t *data, size_t dataSize) {
     auto hidAccess = checkHIDAccess();
     if (!hidAccess.has_value()) {
         hidAccess = requestHIDAccess();
@@ -121,11 +111,12 @@ void set_report(hid_device *requestHandle, uint8_t *data, size_t dataSize) {
     if (!hidAccess.value()) {
         throw std::runtime_error(hidAccessFailureMessage);
     }
-    auto bytesWritten = hid_send_feature_report(requestHandle, data, dataSize);
+    auto bytesWritten =
+        hid_send_feature_report(handles.request, data, dataSize);
     if (bytesWritten < 0) {
         auto errorString = fmt::format(
             "Failed to write to keyboard: {}",
-            to_utf8(hid_error(requestHandle))
+            to_utf8(hid_error(handles.request))
         );
         throw std::runtime_error(errorString);
     } else {
@@ -322,12 +313,8 @@ std::vector< uint32_t > NuPhy::getKeymap(bool mac) {
 
     auto requestHeader = getKeymapReportHeader(mac);
 
-    auto keymapReport = get_report(
-        handles.data,
-        handles.request,
-        requestHeader.data(),
-        requestHeader.size()
-    );
+    auto keymapReport =
+        get_report(handles, requestHeader.data(), requestHeader.size());
     // ALERT: Endianness-defined Behavior
     auto *start_pointer = (uint32_t *)&keymapReport[8];
     auto *end_pointer = (uint32_t *)(keymapReport.data() + keymapReport.size());
@@ -357,7 +344,7 @@ void NuPhy::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     std::copy(header.data(), header.data() + header.size(), buffer);
     std::copy(start_pointer, end_pointer, buffer + header.size());
 
-    set_report(handles.data, buffer, count);
+    set_report(handles, buffer, count);
 }
 
 const char *TOP_LEVEL_WIN = "keys";
