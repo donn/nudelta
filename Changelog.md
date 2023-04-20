@@ -4,6 +4,9 @@
   remains identical for macOS and Linux
     - libhidapi gives access to `usage` and `usage_page` only when using `hidraw`
     on Linux
+# 0.6.7
+- Add a no-verify CLI flag so unsupported keyboards can still dump data.
+- Reorder the keycodes for consistency
 
 # 0.6.6
 - Fixes a bug where the Del key was not remappable on Air75.

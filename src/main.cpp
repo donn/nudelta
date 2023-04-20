@@ -29,8 +29,8 @@
     #define NUDELTA_VERSION "UNKNOWN"
 #endif
 
-std::shared_ptr< NuPhy > getKeyboard() {
-    auto keyboard = NuPhy::find();
+std::shared_ptr< NuPhy > getKeyboard(bool verify = true) {
+    auto keyboard = NuPhy::find(verify);
     if (keyboard == nullptr) {
         throw std::runtime_error(
             "Couldn't find a NuPhy keyboard connected to this device. Make sure it's plugged in via USB."
@@ -77,8 +77,9 @@ SSCO_Fn(resetKeymap) {
 
 SSCO_Fn(dumpKeymap) {
     auto mac = opts.options.find("mac") != opts.options.end();
-
-    auto keyboard = getKeyboard();
+    auto verify = opts.options.find("no-verify") == opts.options.end();
+    
+    auto keyboard = getKeyboard(verify);
     auto keys = keyboard->getKeymap(mac);
     auto file = opts.options.find("dump-keys")->second;
     auto filePtr = fopen(file.c_str(), "wb");
@@ -202,6 +203,10 @@ int main(int argc, char *argv[]) {
          Opt{"mac",
              'M',
              "Valid only if dump-keys or load-keys are passed: operate on the Mac mode of the keyboard instead of the Win mode.",
+             false},
+         Opt{"no-verify",
+             'N',
+             "Valid only if dump-keys is passed: do not verify the keyboard's identity.",
              false},
          Opt{"dump-keys",
              'D',

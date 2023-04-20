@@ -137,9 +137,10 @@ static std::shared_ptr< NuPhy > createKeyboard(
     std::string name,
     std::string dataPath,
     std::string requestPath,
-    uint16_t firmware
+    uint16_t firmware,
+    bool verify = true
 ) {
-    if (name == "Air75") {
+    if (name == "Air75" || !verify) {
         return std::make_shared< Air75 >(dataPath, requestPath, firmware);
     }
     if (name == "NuPhy Halo75") {
@@ -183,7 +184,7 @@ std::string represent_hid_struct(hid_device_info *info) {
 std::string writeCol = "col05";
 std::string dataCol = "col06";
 
-std::shared_ptr< NuPhy > NuPhy::find() {
+std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
     auto seeker = hid_enumerate(0x05ac, 0x024f);
     SCOPE_EXIT {
         hid_free_enumeration(seeker);
@@ -233,7 +234,8 @@ std::shared_ptr< NuPhy > NuPhy::find() {
             productName.value(),
             dataPath.value(),
             requestPath.value(),
-            firmware
+            firmware,
+            verify
         );
         if (keyboard == nullptr) {
             throw unsupported_keyboard(fmt::format(
@@ -248,7 +250,7 @@ std::shared_ptr< NuPhy > NuPhy::find() {
     return nullptr;
 }
 #else
-std::shared_ptr< NuPhy > NuPhy::find() {
+std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
     std::shared_ptr< NuPhy > keyboard;
 
     auto seeker = hid_enumerate(0x05ac, 0x024f);
@@ -290,7 +292,8 @@ std::shared_ptr< NuPhy > NuPhy::find() {
                     productName,
                     seeker->path,
                     seeker->path,
-                    seeker->release_number
+                    seeker->release_number,
+                    verify
                 );
                 if (keyboard == nullptr) {
                     unsupportedDetected = true;

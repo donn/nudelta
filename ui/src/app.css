@@ -77,12 +77,12 @@ p {
 
 .card {
     display: grid;
-    background-color: var(--dark-bg);
-    border-radius: 12.5px;
-    padding: 10px;
     grid-auto-columns: minmax(0, 1fr);
     grid-auto-rows: minmax(0, 1fr);
     grid-auto-flow: column;
+    background-color: var(--dark-bg);
+    border-radius: 12.5px;
+    padding: 10px;
     gap: 3.5px;
 }
 
