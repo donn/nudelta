@@ -1,3 +1,7 @@
+# 0.7.1
+- Updates udev rules and instructions for Linux so you can use Nudelta without
+  sudo
+
 # 0.7.0
 - Updated to fix a bug for macOS 13.3 or higher
 - Linux builds now use `hidraw` instead of `libusb` so the detection mechanism

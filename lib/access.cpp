@@ -50,8 +50,8 @@ bool requestHIDAccess() {
 }
 
 const char *hidAccessFailureMessage =
-    "Unable to read HID devices. Try running these commands: \n\n"
-    "echo 'SUBSYSTEMS==\"usb\", ATTRS{idVendor}==\"05ac\", ATTRS{idProduct}==\"024f\", TAG+=\"uaccess\"' | sudo tee /etc/udev/rules.d/70-nudelta.rules &&"
+    "Unable to read HID devices. Try running these commands then restarting your computer: \n\n"
+    "echo 'KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", TAG+=\"uaccess\"' | sudo tee /etc/udev/rules.d/70-nudelta.rules &&"
     "sudo udevadm control --reload-rules && sudo udevadm trigger";
 #else
 // Not implemented/Can't check
