@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require "yaml"
 scan_codes = File.read("../../res/NuPhy/keycodes.yml")
 scancode_by_key = YAML.load(scan_codes)
