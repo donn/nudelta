@@ -1,5 +1,5 @@
 # 0.7.2
-- Fix bug where the `u` key was not remappable
+- Fix internal indices for `n`, `o`, and `u`.
 - Add annotated hex dumps for more keyboards for future RE work
 
 # 0.7.1
