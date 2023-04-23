@@ -14,16 +14,19 @@ set(PROJECT_VERSION ${NUDELTA_VERSION})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_OSX_ARCHITECTURES x86_64)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(BUILD_SHARED_LIBS FALSE)
 
+# Hidapi does not use `option`
 set(HIDAPI_WITH_LIBUSB FALSE)
 set(HIDAPI_WITH_HIDRAW TRUE)
-set(BUILD_SHARED_LIBS FALSE)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_subdirectory(submodules/hidapi)
+
+option(YAML_CPP_BUILD_TOOLS OFF)
+add_subdirectory(submodules/yaml-cpp)
 
 add_subdirectory(submodules/scope_guard)
-add_subdirectory(submodules/hidapi)
 add_subdirectory(submodules/fmt)
-add_subdirectory(submodules/yaml-cpp)
 add_subdirectory(submodules/ssco)
 
 # Common
