@@ -115,8 +115,16 @@ Napi::Value setKeymapFromYAML(const Napi::CallbackInfo &info) {
 
         auto keymapYAML = info[0].As< Napi::String >().Utf8Value();
         keyboard->setKeymapFromYAML(keymapYAML);
+    } catch (permissions_error &e) {
+        auto error = Napi::Error::New(env, e.what());
+        auto exception = error.Value();
+        exception["kind"] = "Permissions Error";
+        napi_throw(env, exception);
     } catch (std::runtime_error &e) {
-        Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+        auto error = Napi::Error::New(env, e.what());
+        auto exception = error.Value();
+        exception["kind"] = "Unknown Error";
+        napi_throw(env, exception);
     }
     return env.Null();
 }

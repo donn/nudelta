@@ -179,14 +179,6 @@ SSCO_Fn(loadYAML) {
 }
 
 int main(int argc, char *argv[]) {
-    auto hidAccess = checkHIDAccess();
-    if (!hidAccess.has_value()) {
-        hidAccess = requestHIDAccess();
-    }
-    if (!hidAccess.value()) {
-        p(stderr, "{}\n", hidAccessFailureMessage);
-        return -1;
-    }
     using Opt = SSCO::Option;
 
     SSCO::Options options(
