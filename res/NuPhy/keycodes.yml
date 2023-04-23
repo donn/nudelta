@@ -152,4 +152,7 @@ backlightup: 0x0001000c
 
 ## Keyboard Specific/Custom
 fnspace: 0x2f000002
-search: 0x2000000e
+
+halo_mac_search: 0x2000000e
+# air96_mac_search: 0x1700000e
+# air96_bell: 0x1d0b0000

@@ -1,3 +1,7 @@
+# 0.7.2
+- Fix internal indices for `n`, `o`, and `u`.
+- Add annotated hex dumps for more keyboards for future RE work
+
 # 0.7.1
 - Updates udev rules and instructions for Linux
 - More informative permissions-related error messages
