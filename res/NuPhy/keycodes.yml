@@ -154,5 +154,5 @@ backlightup: 0x0001000c
 fnspace: 0x2f000002
 
 halo_mac_search: 0x2000000e
-air96_mac_search: 0x1700000e
-air96_bell: 0x1d0b0000
+# air96_mac_search: 0x1700000e
+# air96_bell: 0x1d0b0000
