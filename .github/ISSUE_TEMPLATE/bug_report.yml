@@ -1,0 +1,35 @@
+name: Bug Report
+description: If Nudelta is not behaving as expected, please report here.
+body:
+  - type: input
+    id: nudelta-version
+    attributes:
+      label: Version
+      description: What version of Nudelta are you using?
+      placeholder: "0.7.0"
+    validations:
+      required: true
+  - type: textarea
+    id: environment-report
+    attributes:
+      label: Operating System
+      description: |
+        Which operating system are you using and what is its version?
+
+        * Windows - Press Windows+R and then type "winver" then press "Ok"
+        in the window that pops up. You should see a new Window with something
+        like `Version XXXX (OS Build XXXXX.XXXX)`. Please copy that here.
+        * macOS - From the Apple menu, press About this Mac, and screenshot the
+        Window that pops up. Please remember to hide your serial number using
+        the screenshot editor or Preview.
+        * Linux - in your terminal of choice, paste `uname -a` then paste the output
+        here. Please also mention the distribution and version.
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What went wrong? Be clear and concise.
+    validations:
+      required: true

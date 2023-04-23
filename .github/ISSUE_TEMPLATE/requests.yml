@@ -1,0 +1,10 @@
+name: Feature Requests and Enhancements
+description: Have any ideas? Find any shortcomings? Feel free to share them.
+body:
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Description
+      description: Is there anything currently not in Nudelta that you'd like to see added?
+    validations:
+      required: true
