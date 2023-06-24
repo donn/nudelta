@@ -201,7 +201,7 @@ function redrawKeyboard() {
 }
 
 function drawOptionArray(e, remap, key, alt, column, row) {
-    let id = key.id;
+    let id = alt ? key.altID : key.id;
     let defaultMapping = alt ? key.altDefaultMapping : key.defaultMapping;
     let defaultModifiers = alt ? key.altDefaultModifiers : key.defaultModifiers;
 
@@ -451,7 +451,7 @@ function setsEqual(lhs, rhs) {
  */
 function updateKeymap(event) {
     let remap = window.config.getRemap(window.mode);
-    console.log("load", JSON.stringify(remap));
+    console.log("Before: ", JSON.stringify(remap));
     let key = window.currentKey;
 
     let currentRemap = remap[key.id] ?? {};
@@ -483,7 +483,6 @@ function updateKeymap(event) {
 
     if (key.altID) {
         let currentRemap = remap[key.altID] ?? {};
-
         let incomingID = g("#keycode-selector-alt").value;
         let incomingModifiers = new Set();
         let defaultModifiers = new Set(key.altDefaultModifiers);
@@ -509,7 +508,7 @@ function updateKeymap(event) {
             remap[key.altID] = currentRemap;
         }
     }
-    console.log("save", JSON.stringify(remap));
+    console.log("After: ", JSON.stringify(remap));
     window.config.setRemap(window.mode, remap);
 }
 

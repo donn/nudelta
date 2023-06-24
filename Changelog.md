@@ -1,3 +1,7 @@
+# 0.7.3
+- Restore old Windows interface number functionality
+- Fix GUI bug with remapping alternate IDs
+
 # 0.7.2
 - Fix internal indices for `n`, `o`, and `u`.
 - Add annotated hex dumps for more keyboards for future RE work

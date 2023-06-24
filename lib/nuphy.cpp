@@ -253,7 +253,7 @@ std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
     bool multipleWarned = false;
     std::string productString = "";
     while (seeker != nullptr) {
-        if (seeker->interface_number != -1 && seeker->usage == 1
+        if (seeker->interface_number == 1 && seeker->usage == 1
             && seeker->usage_page == 0xFF00) {
             if (keyboard != nullptr) {
                 // We only care if the path is different, because that means a
