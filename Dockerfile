@@ -3,7 +3,7 @@ FROM centos:centos7
 # Dependencies
 ENV INST yum install -y --setopt=skip_missing_names_on_install=False
 RUN $INST https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm centos-release-scl
-RUN $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip bzip2
+RUN $INST autoconf devtoolset-11 kernel-headers perl-core python36 python36-pip bzip2
 
 # Environment Configuration
 ENV CC=/opt/rh/devtoolset-11/root/usr/bin/gcc \

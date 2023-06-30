@@ -1,7 +1,7 @@
 {
     "name": "nudelta",
     "author": "Mohamed Gaber <me@donn.website>",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "license": "GPL-3.0-or-later",
     "homepage": "https://github.com/donn/nudelta#readme",
     "description": "An open-source alternative to the NuPhy Console",
@@ -15,6 +15,7 @@
         "build-native": "node util/build-native.js",
         "build-ui": "rollup -c",
         "watch": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec sh -c \"yarn build-ui && electron .\"",
+        "watch-win": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec cmd /c \"yarn build-ui && electron .\"",
         "format": "prettier --write . && clang-format -i include/*.hpp lib/*.cpp src/*.cpp",
         "lint": "prettier --check . && clang-format --dry-run --Werror include/*.hpp lib/*.cpp src/*.cpp"
     },

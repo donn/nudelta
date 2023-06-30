@@ -111,8 +111,7 @@ void set_report(NuPhy::Handles handles, uint8_t *data, size_t dataSize) {
     if (!hidAccess.value()) {
         throw std::runtime_error(hidAccessFailureMessage);
     }
-    auto bytesWritten =
-        hid_send_feature_report(handles.request, data, dataSize);
+    auto bytesWritten = hid_send_feature_report(handles.data, data, dataSize);
     if (bytesWritten < 0) {
         auto errorString = fmt::format(
             "Failed to write to keyboard: {}",
@@ -172,7 +171,7 @@ std::string represent_hid_struct(hid_device_info *info) {
 // path
 // - So far, I've identified col06 as the one for keymap data, col05 for
 // requests
-std::string writeCol = "col05";
+std::string requestCol = "col05";
 std::string dataCol = "col06";
 
 std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
@@ -197,7 +196,7 @@ std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
             for (auto it = path.begin(); it != path.end(); it++) {
                 *it = char(std::tolower(*it));
             }
-            if (path.find(writeCol) != -1) {
+            if (path.find(requestCol) != -1) {
                 if (requestPath.has_value()) {
                     throw std::runtime_error(
                         "Multiple keyboards with the same product ID found! Please ensure only one keyboard is plugged in.\n"

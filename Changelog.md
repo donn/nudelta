@@ -1,3 +1,8 @@
+# 0.7.3
+- Fix USB handle mixup affecting Windows builds
+- Fix GUI bug with remapping alternate IDs
+- Update all underlying dependencies
+
 # 0.7.2
 - Fix internal indices for `n`, `o`, and `u`.
 - Add annotated hex dumps for more keyboards for future RE work
