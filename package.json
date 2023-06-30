@@ -15,6 +15,7 @@
         "build-native": "node util/build-native.js",
         "build-ui": "rollup -c",
         "watch": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec sh -c \"yarn build-ui && electron .\"",
+        "watch-win": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec cmd /c \"yarn build-ui && electron .\"",
         "format": "prettier --write . && clang-format -i include/*.hpp lib/*.cpp src/*.cpp",
         "lint": "prettier --check . && clang-format --dry-run --Werror include/*.hpp lib/*.cpp src/*.cpp"
     },

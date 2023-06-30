@@ -43,10 +43,12 @@ Contributions are super appreciated for all of these.
 
 ### Build Requirements
 * C++17 Compiler
+    * Clang recommended for macOS/Linux
+    * MSVC recommended for Windows
 * Cmake
 * Node 14+ with Yarn
 
-## Build (GUI)
+## Build
 
 ```sh
 git clone https://github.com/donn/nudelta
@@ -54,22 +56,11 @@ cd nudelta
 git submodule update --init --recursive
 rm -rf build
 yarn
-yarn build
+yarn build-native # CLI / Library
+yarn build # GUI
 ```
 
 The Linux AppImage will be found under ./dist, and the Mac app will be found under ./dist/mac.
-
-## Build (CLI)
-```sh
-git clone https://github.com/donn/nudelta
-cd nudelta
-git submodule update --init --recursive
-mkdir build
-cd build
-cmake ..
-make -j$(nproc)
-sudo make install
-```
 
 ## Using the CLI
 

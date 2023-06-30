@@ -1,6 +1,7 @@
 # 0.7.3
-- Restore old Windows interface number functionality
+- Fix USB handle mixup affecting Windows builds
 - Fix GUI bug with remapping alternate IDs
+- Update all underlying dependencies
 
 # 0.7.2
 - Fix internal indices for `n`, `o`, and `u`.
