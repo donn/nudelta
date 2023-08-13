@@ -142,7 +142,7 @@ jobs:
             On Windows, you will need to download and unzip the `.exe` file. You may see a Windows SmartScreen warning- you can safely ignore it.
 
             On macOS, you will need to download and unzip the `.app` file, then **Right-click > Open** the app on macOS. The app is not code-signed or notarized.
-            * Please note that you will need Rosetta as there is no Apple Silicon build at the moment.
+            * Please note that you may need Rosetta 2 as there is no Apple Silicon build at the moment: first, though, please see the [Rosetta advisory in the Readme](https://github.com/donn/nudelta#rosetta).
 
             On Linux, download the `.AppImage`, enable "allow executing file as program" in its properties (shown below), then double-click it.
             * You may need to install `libudev` separately- on Ubuntu, you can run `sudo apt-get install -y libudev`.
