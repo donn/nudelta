@@ -144,9 +144,9 @@ jobs:
 
             On macOS, you will need to download the `.dmg` file, drag it into
             your Applications folder, then **Right-click > Open** the app on
-            macOS. The app is not code-signed or notarized. The app is universal
-            with binaries for both x86-64 and aarch64, and Rosetta is not
-            required, but has not been thoroughly tested on Apple Silicon.
+            macOS. The app is not code-signed or notarized, and while it is
+            universal, writing only works on x86-64
+            (see: https://github.com/donn/nudelta/issues/37).
             Use at your own risk.
 
             On Linux, download the `.AppImage`, enable "allow executing file as
