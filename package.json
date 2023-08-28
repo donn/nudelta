@@ -1,7 +1,7 @@
 {
     "name": "nudelta",
     "author": "Mohamed Gaber <me@donn.website>",
-    "version": "0.7.3",
+    "version": "0.7.4",
     "license": "GPL-3.0-or-later",
     "homepage": "https://github.com/donn/nudelta#readme",
     "description": "An open-source alternative to the NuPhy Console",
@@ -44,8 +44,7 @@
     "main": "index.cjs",
     "cmake-js": {
         "runtime": "electron",
-        "runtimeVersion": "21.2.1",
-        "arch": "x64"
+        "runtimeVersion": "21.2.1"
     },
     "build": {
         "appId": "website.donn.nudelta",
@@ -58,7 +57,12 @@
         "mac": {
             "category": "public.app-category.utilities",
             "target": [
-                "zip"
+                {
+                    "target": "dmg",
+                    "arch": [
+                        "universal"
+                    ]
+                }
             ],
             "icon": "./res/nudelta.icns"
         },
