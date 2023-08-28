@@ -1,3 +1,8 @@
+# 0.7.4
+- Fix internal indices for `[` and `]` for Air75
+- Build universal binary for macOS
+- Internal changes to build system
+
 # 0.7.3
 - Fix USB handle mixup affecting Windows builds
 - Fix GUI bug with remapping alternate IDs

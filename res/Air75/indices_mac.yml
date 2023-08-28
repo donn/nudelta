@@ -65,8 +65,8 @@ semicolon: 63
 minus: 67
 equal: 73
 quote: 69
-lbracket: 68
-rbracket: 159
+lbracket: 159
+rbracket: 68
 backslash: 160
 fwdslash: 64
 comma: 164

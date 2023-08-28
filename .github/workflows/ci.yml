@@ -81,12 +81,12 @@ jobs:
         run: |
           yarn
           yarn build
-          cp -r ./dist/*.zip ./nudelta-amd64.app.zip
+          cp -r ./dist/*.dmg ./nudelta-universal.app.dmg
       - name: Upload App
         uses: actions/upload-artifact@v3
         with:
           name: mac-app
-          path: ./nudelta-amd64.app.zip
+          path: ./nudelta-universal.app.dmg
   publish:
     name: Publish
     runs-on: ubuntu-20.04
@@ -139,13 +139,20 @@ jobs:
 
             A Windows `.exe`, a macOS `.app` and a Linux `.AppImage` have all been built.
 
-            On Windows, you will need to download and unzip the `.exe` file. You may see a Windows SmartScreen warning- you can safely ignore it.
+            On Windows, you will need to download and unzip the `.exe` file.
+            You may see a Windows SmartScreen warning- you can safely ignore it.
 
-            On macOS, you will need to download and unzip the `.app` file, then **Right-click > Open** the app on macOS. The app is not code-signed or notarized.
-            * Please note that you may need Rosetta 2 as there is no Apple Silicon build at the moment: first, though, please see the [Rosetta advisory in the Readme](https://github.com/donn/nudelta#rosetta).
+            On macOS, you will need to download the `.dmg` file, drag it into
+            your Applications folder, then **Right-click > Open** the app on
+            macOS. The app is not code-signed or notarized. The app is universal
+            with binaries for both x86-64 and aarch64, and Rosetta is not
+            required, but has not been thoroughly tested on Apple Silicon.
+            Use at your own risk.
 
-            On Linux, download the `.AppImage`, enable "allow executing file as program" in its properties (shown below), then double-click it.
-            * You may need to install `libudev` separately- on Ubuntu, you can run `sudo apt-get install -y libudev`.
+            On Linux, download the `.AppImage`, enable "allow executing file as
+            program" in its properties (shown below), then double-click it.
+            * You may need to install `libudev` separately- on Ubuntu, you can
+              run `sudo apt-get install -y libudev`.
 
             ![Setting Linux execute permission with the GNOME File Browser](https://raw.githubusercontent.com/donn/nudelta/main/res/linux_exec_permission.png)
           files: |
