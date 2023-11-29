@@ -120,6 +120,7 @@ function redrawKeyboard() {
                         n("div", (e) => {
                             e.id = key.id;
                             let width = key.width * 4;
+                            let height = key.height * 4;
                             let colorResolved = key.color;
                             let color = `var(--${colorResolved})`;
                             let label = key.label;
