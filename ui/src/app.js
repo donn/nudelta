@@ -120,6 +120,7 @@ function redrawKeyboard() {
                         n("div", (e) => {
                             e.id = key.id;
                             let width = key.width * 4;
+                            let height = key.height * 4;
                             let colorResolved = key.color;
                             let color = `var(--${colorResolved})`;
                             let label = key.label;
@@ -142,7 +143,8 @@ function redrawKeyboard() {
                                 grid-column-start: ${currentColumn};
                                 grid-column-end: ${currentColumn + width};
                                 grid-row-start: ${currentRow + 1};
-                                grid-row-end: ${currentRow + 1};
+                                grid-row-end: ${height > 4 ? "span 2" : currentRow + 1};
+                                ${height > 4 ? "height: 115px;": ""};
                                 ${e.id == "__spacer" ? "display: none;" : ""}
                             `;
                             e.onclick = onClickKey;
