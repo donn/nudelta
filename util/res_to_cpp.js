@@ -16,12 +16,29 @@ print('#include "nuphy.hpp"');
 for (let file of files) {
     let directory = path.dirname(file);
     let keyboard = path.basename(directory);
+    let filename = path.basename(file);
 
     let str = fs.readFileSync(file, { encoding: "utf8" });
     print(`// ${file}`);
     let object = yaml.parse(str);
     let lines = str.split("\n");
     let [_, type, name] = lines[0].split(" ");
+
+    // Handle platform-specific files
+    if (filename.includes('_mac.yml')) {
+        if (name === 'defaultKeymap') {
+            name = 'defaultKeymapMac';
+        } else if (name === 'indicesByKeyName') {
+            name = 'indicesByKeyNameMac';
+        }
+    } else if (filename.includes('_win.yml')) {
+        if (name === 'defaultKeymap') {
+            name = 'defaultKeymapWin';
+        } else if (name === 'indicesByKeyName') {
+            name = 'indicesByKeyNameWin';
+        }
+    }
+
     if (type == "list") {
         print(`const std::vector<std::uint32_t> ${keyboard}::${name} = {`);
         for (let integer of object) {
