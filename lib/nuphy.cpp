@@ -130,13 +130,14 @@ static std::shared_ptr< NuPhy > createKeyboard(
     uint16_t firmware,
     bool verify = true
 ) {
-    if (name == "Air75" || !verify) {
-        return std::make_shared< Air75 >(dataPath, requestPath, firmware);
+    if (name == "NuPhy Air75") {
+        return std::make_shared<Air75>(dataPath, requestPath, firmware);
+    } else if (name == "NuPhy Halo75") {
+        return std::make_shared<Halo75>(dataPath, requestPath, firmware);
+    } else if (name == "NuPhy Halo65") {
+        return std::make_shared<Halo65>(dataPath, requestPath, firmware);
     }
-    if (name == "NuPhy Halo75") {
-        return std::make_shared< Halo75 >(dataPath, requestPath, firmware);
-    }
-    return nullptr;
+    throw unsupported_keyboard("Unsupported keyboard: " + name);
 }
 
 std::string represent_hid_struct(hid_device_info *info) {
