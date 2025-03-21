@@ -10,10 +10,10 @@ on:
 jobs:
   windows:
     name: Build (Windows)
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -22,25 +22,28 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Clone Submodules
         run: git submodule update --init
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Build Distribution
         shell: pwsh
         run: |
           yarn
           yarn build
           cd .\dist
-          Compress-Archive *.exe .\nudelta-amd64.exe.zip
-          cp .\nudelta-amd64.exe.zip ..
+          Compress-Archive *.exe .\nudelta-x64.exe.zip
+          cp .\nudelta-x64.exe.zip ..
       - name: Upload App
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: win-app
-          path: ./nudelta-amd64.exe.zip
+          path: ./nudelta-x64.exe.zip
   linux:
     name: Build (Linux)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -56,16 +59,33 @@ jobs:
           docker cp $id:/nudelta.AppImage nudelta-amd64.AppImage ; \
           docker rm -v $id
       - name: Upload AppImage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-appimage
           path: ./nudelta-amd64.AppImage
   macos:
-    name: Build (macOS)
-    runs-on: macos-11
+    name: Build (${{ matrix.os.name }} | ${{ matrix.os.arch }})
+    runs-on: ${{ matrix.os.runner }}
+    strategy:
+      matrix:
+        os:
+          [
+            {
+              name: "macOS 13",
+              family: "macos",
+              runner: "macos-13",
+              arch: "x86_64",
+            },
+            {
+              name: "macOS 14",
+              family: "macos",
+              runner: "macos-14",
+              arch: "arm64",
+            },
+          ]
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -81,19 +101,19 @@ jobs:
         run: |
           yarn
           yarn build
-          cp -r ./dist/*.dmg ./nudelta-universal.app.dmg
+          cp -r ./dist/*.dmg ./nudelta-${{ matrix.os.arch }}.app.dmg
       - name: Upload App
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: mac-app
-          path: ./nudelta-universal.app.dmg
+          name: mac-app-${{ matrix.os.arch }}
+          path: ./nudelta-${{ matrix.os.arch }}.app.dmg
   publish:
     name: Publish
     runs-on: ubuntu-20.04
     needs: [macos, linux, windows]
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -103,17 +123,22 @@ jobs:
       - name: Set default for env.NEW_TAG
         run: echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
       - name: Download Linux App
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: linux-appimage
           path: /tmp
       - name: Download Mac App
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: mac-app
+          name: mac-app-x86_64
+          path: /tmp
+      - name: Download Mac App
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-app-arm64
           path: /tmp
       - name: Download Windows App
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: win-app
           path: /tmp
@@ -143,10 +168,12 @@ jobs:
             You may see a Windows SmartScreen warning- you can safely ignore it.
 
             On macOS, you will need to download the `.dmg` file, drag it into
-            your Applications folder, then **Right-click > Open** the app on
-            macOS. The app is not code-signed or notarized, and while it is
-            universal, writing only works on x86-64
-            (see: https://github.com/donn/nudelta/issues/37).
+            your Applications folder. The app is not code-signed or notarized,
+            and you will have to ask macOS to "Open Anyway" from Settings >
+            Privacy and Security as follows:
+
+            ![macOS Settings, Privacy and Security: "nudelta" was blocked to protect your Mac, with a button labeled "Open Anyway" next to it.](https://raw.githubusercontent.com/donn/nudelta/main/res/mac_security_bypass.png)
+
             Use at your own risk.
 
             On Linux, download the `.AppImage`, enable "allow executing file as
@@ -156,6 +183,7 @@ jobs:
 
             ![Setting Linux execute permission with the GNOME File Browser](https://raw.githubusercontent.com/donn/nudelta/main/res/linux_exec_permission.png)
           files: |
-            /tmp/nudelta-universal.app.dmg
-            /tmp/nudelta-amd64.exe.zip
+            /tmp/nudelta-x86_64.app.dmg
+            /tmp/nudelta-arm64.app.dmg
+            /tmp/nudelta-x64.exe.zip
             /tmp/nudelta-amd64.AppImage
