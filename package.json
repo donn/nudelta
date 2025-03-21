@@ -26,7 +26,7 @@
         "@rollup/plugin-yaml": "^4.0.1",
         "cmake-js": "^7.2.1",
         "electron": "^35.0.3",
-        "electron-builder": "^25",
+        "electron-builder": "^25.1.8",
         "fast-glob": "^3.2.12",
         "license-checker": "^25.0.1",
         "node-addon-api": "^5.0.0",
