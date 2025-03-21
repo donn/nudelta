@@ -31,13 +31,13 @@ jobs:
           yarn
           yarn build
           cd .\dist
-          Compress-Archive *.exe .\nudelta-amd64.exe.zip
-          cp .\nudelta-amd64.exe.zip ..
+          Compress-Archive *.exe .\nudelta-x64.exe.zip
+          cp .\nudelta-x64.exe.zip ..
       - name: Upload App
         uses: actions/upload-artifact@v4
         with:
           name: win-app
-          path: ./nudelta-amd64.exe.zip
+          path: ./nudelta-x64.exe.zip
   linux:
     name: Build (Linux)
     runs-on: ubuntu-22.04
@@ -183,6 +183,7 @@ jobs:
 
             ![Setting Linux execute permission with the GNOME File Browser](https://raw.githubusercontent.com/donn/nudelta/main/res/linux_exec_permission.png)
           files: |
-            /tmp/nudelta-universal.app.dmg
-            /tmp/nudelta-amd64.exe.zip
+            /tmp/nudelta-x86_64.app.dmg
+            /tmp/nudelta-arm64.app.dmg
+            /tmp/nudelta-x64.exe.zip
             /tmp/nudelta-amd64.AppImage
