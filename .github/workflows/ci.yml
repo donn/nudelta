@@ -173,12 +173,11 @@ jobs:
 
             On macOS, you will need to download the `.dmg` file, drag it into
             your Applications folder. The app is not code-signed or notarized,
-            and you will have to ask macOS to "Open Anyway" from Settings >
-            Privacy and Security as follows:
+            so you will have to run this in your terminal first:
 
-            ![macOS Settings, Privacy and Security: "nudelta" was blocked to protect your Mac, with a button labeled "Open Anyway" next to it.](https://raw.githubusercontent.com/donn/nudelta/main/res/mac_security_bypass.png)
-
-            Use at your own risk.
+            ```sh
+            sudo xattr -cr /Applications/nudelta.app
+            ```
 
             On Linux, download the `.AppImage`, enable "allow executing file as
             program" in its properties (shown below), then double-click it.
