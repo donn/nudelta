@@ -136,6 +136,9 @@ static std::shared_ptr< NuPhy > createKeyboard(
     if (name == "NuPhy Halo75") {
         return std::make_shared< Halo75 >(dataPath, requestPath, firmware);
     }
+    if (name == "NuPhy Halo96") {
+        return std::make_shared< Halo96 >(dataPath, requestPath, firmware);
+    }
     return nullptr;
 }
 

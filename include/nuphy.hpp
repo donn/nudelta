@@ -168,6 +168,50 @@ class Halo75 : public NuPhy {
             indicesByKeyNameMac;
 };
 
+class Halo96 : public NuPhy {
+    public:
+        Halo96(std::string dataPath, std::string requestPath, uint16_t firmware)
+            : NuPhy(dataPath, requestPath, firmware) {}
+
+        virtual std::string getName() { return "Halo96"; }
+        virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) {
+            return mac ? Halo96::defaultKeymapMac : Halo96::defaultKeymapWin;
+        }
+        virtual std::unordered_map< std::string, uint32_t >
+        getIndicesByKeyName(bool mac = false) {
+            return mac ? Halo96::indicesByKeyNameMac :
+                         Halo96::indicesByKeyNameWin;
+        }
+
+        // TODO: Confirm proper values
+        virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                       {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
+                   ) :
+                         std::vector< uint8_t >(
+                             {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00}
+                         );
+        }
+
+        // TODO: Confirm proper values
+        virtual std::vector< uint8_t > setKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                       {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00}
+                   ) :
+                         std::vector< uint8_t >(
+                             {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00}
+                         );
+        }
+    private:
+        static const std::vector< uint32_t > defaultKeymapWin;
+        static const std::unordered_map< std::string, uint32_t >
+            indicesByKeyNameWin;
+
+        static const std::vector< uint32_t > defaultKeymapMac;
+        static const std::unordered_map< std::string, uint32_t >
+            indicesByKeyNameMac;
+};
+
 class unsupported_keyboard : public std::runtime_error {
     public:
         unsupported_keyboard(const std::string &what = "")
