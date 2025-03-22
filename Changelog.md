@@ -1,3 +1,8 @@
+# 0.8.0
+- Build macOS architectures independently using both Intel and Apple Silicon Mac
+  free GitHub Actions runners, rectifying a long-standing issue where writing
+  on Apple Silicon Macs would not work.
+
 # 0.7.4
 - Fix internal indices for `[` and `]` for Air75
 - Build universal binary for macOS

@@ -166,18 +166,14 @@ jobs:
 
             ![Screencap](https://raw.githubusercontent.com/donn/nudelta/main/res/screencap.png)
 
-            A Windows `.exe`, a macOS `.app` and a Linux `.AppImage` have all been built.
-
             On Windows, you will need to download and unzip the `.exe` file.
-            You may see a Windows SmartScreen warning- you can safely ignore it.
+            You may see a Windows SmartScreen warning- you may safely ignore it.
 
-            On macOS, you will need to download the `.dmg` file, drag it into
-            your Applications folder. The app is not code-signed or notarized,
-            so you will have to run this in your terminal first:
-
-            ```sh
-            sudo xattr -cr /Applications/nudelta.app
-            ```
+            On macOS, you will need to download the `.dmg` file, open it and
+            drag Nudelta into your Applications folder. The app is not
+            code-signed or notarized, so you will have to run this in your
+            terminal before opening it:
+            `sudo xattr -cr /Applications/nudelta.app`
 
             On Linux, download the `.AppImage`, enable "allow executing file as
             program" in its properties (shown below), then double-click it.
