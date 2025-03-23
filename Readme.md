@@ -29,7 +29,6 @@ What this has:
 
 What this DOESN'T have:
 * Macros
-    * Need to reverse engineer those.
 * Support for Air60, Halo65, etc.
     * I don't have them.
 * RGB Control
@@ -39,19 +38,9 @@ Contributions are super appreciated for all of these.
 
 
 ## Running Requirements
-* An x86-64 processor
 * Windows 10 or higher
-* macOS 11 or higher
+* macOS 13 or higher
 * Linux 2.6.39 or higher with glibc 2.17 or higher.
-
-### Rosetta
-The app may run under Rosetta 2.0, but a number of issues have popped up, with
-most [getting some error messages](https://github.com/donn/nudelta/issues/37)
-while trying to write to the keyboard, and in
-[one case](https://github.com/donn/nudelta/issues/58) after that error, a
-user's keyboard was ***bricked***.
-
-Proceed with *extreme* caution.
 
 ### Build Requirements
 * C++17 Compiler
