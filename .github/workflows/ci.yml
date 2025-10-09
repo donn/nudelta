@@ -53,10 +53,6 @@ jobs:
         run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
       - name: Export Branch Name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-      - name: Get Cmake
-        run: |
-          sudo apt-get remove -y cmake
-          python3 -m pip install 'cmake>=3,<4'
       - name: Build Distribution
         run: |
           docker build -t appimage-build .
@@ -103,8 +99,7 @@ jobs:
           node-version: "22"
       - name: Get Cmake
         run: |
-          brew uninstall cmake
-          python3 -m pip install 'cmake>=3,<4'
+          brew install cmake
       - name: Build Distribution
         run: |
           yarn
@@ -118,7 +113,7 @@ jobs:
           path: ./nudelta-${{ matrix.os.arch }}.app.dmg
   publish:
     name: Publish
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [macos, linux, windows]
     steps:
       - name: Check out Git repository
