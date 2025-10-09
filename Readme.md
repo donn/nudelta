@@ -1,13 +1,17 @@
+> NuPhy® is a registered trademark of NuPhy Studio.
+> Nudelta is an unofficial product and is not affiliated with NuPhy Studio.
+>
+> Nudelta only supports Air75/Halo75 V1.
+>
+> * For V1 of the Halo line (65/75/90), try [Nuga](https://github.com/mishamyrt/nuga-app)
+> * For Air75/Halo75 V2: Use QMK/VIA (open-source), see https://nuphy.com/pages/via-usage-guide-for-nuphy-keyboards
+> * For later Air75 keyboards (including HE), Use [nuphy.io](https://nuphy.io) (proprietary).
+
 <h1 align="center"> ν∂ / Nudelta </h1>
 <p align="center">
     <a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPLv3"/></a>
     <img src="https://github.com/donn/nudelta/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI Status" />
 </p>
-
-
-> Note: This software is in beta. NuPhy® is a registered trademark of NuPhy Studio.
-> Nudelta is an unofficial product and is not affiliated with NuPhy Studio. 
-
 
 
 <h3 align="center">
@@ -22,7 +26,7 @@
 An open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console) created by reverse-engineering the keyboards' USB protocol.
 
 What this has:
-* Support for NuPhy Air75 and Halo75 on Windows 10+, macOS 11+, and Linux
+* Support for NuPhy Air75 V1 and Halo75 V1 on Windows 10+, macOS 11.3+, and Linux
 * Loading and saving keymap modifications from a `.yml` configuration file
 * The ability to back up and dump keymaps to binary formats (CLI)
 * The ability to dump keymaps to a human-readable hex format (CLI)
@@ -31,6 +35,8 @@ What this DOESN'T have:
 * Macros
 * Support for Air60, Halo65, etc.
     * I don't have them.
+* Support for keyboards that do not use the NuPhy Console (incl. Air75 V2/V3/HE)
+    * They use a different protocol.
 * RGB Control
     * I don't need that, personally.
 
@@ -38,16 +44,18 @@ Contributions are super appreciated for all of these.
 
 
 ## Running Requirements
+
 * Windows 10 or higher
-* macOS 13 or higher
+* macOS 11.3+ or higher (Intel or Apple Silicon)
 * Linux 2.6.39 or higher with glibc 2.17 or higher.
 
 ### Build Requirements
+
 * C++17 Compiler
     * Clang recommended for macOS/Linux
     * MSVC recommended for Windows
-* Cmake
-* Node 14+ with Yarn
+* CMake
+* Node 22+ with Yarn
 
 ## Build
 
@@ -94,4 +102,9 @@ nudelta -r
 ```
 
 ## License
-The GNU General Public License v3 or, at your option, any later version. Check '[License](/License)'.
+The GNU General Public License v3 or, at your option, any later version. Check '[License](./License)'.
+
+## Contributing
+Hex dumps for the Air96 V1 and Halo96 V1 keymaps are available in [util/usb](./util/usb).
+
+PRs to add support for them appreciated.

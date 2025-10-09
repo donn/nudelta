@@ -1,10 +1,12 @@
 {
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+  inputs.nix-eda.url = "github:fossi-foundation/nix-eda";
+
   outputs = {
     self,
-    nixpkgs,
+    nix-eda,
     ...
   }: let
+    nixpkgs = nix-eda.inputs.nixpkgs;
     lib = nixpkgs.lib;
   in {
     overlays = {
@@ -15,13 +17,7 @@
       };
     };
 
-    legacyPackages =
-      lib.genAttrs [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ] (
+    legacyPackages = nix-eda.forAllSystems (
         system:
           import nixpkgs {
             inherit system;
@@ -32,13 +28,7 @@
       );
 
     # Outputs
-    packages =
-      lib.genAttrs [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ] (
+    packages = nix-eda.forAllSystems (
         system: let
           pkgs = self.legacyPackages."${system}";
         in {
@@ -47,13 +37,7 @@
         }
       );
 
-    devShells =
-      lib.genAttrs [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ] (
+    devShells = nix-eda.forAllSystems (
         system: let
           pkgs = self.legacyPackages."${system}";
         in {

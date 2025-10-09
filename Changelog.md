@@ -1,3 +1,8 @@
+# 0.9.0
+- Upgrade various dependencies.
+- Update README to reflect support status and instructions for newer NuPhy
+  keyboards.
+
 # 0.8.0
 - Build macOS architectures independently using both Intel and Apple Silicon Mac
   free GitHub Actions runners, rectifying a long-standing issue where writing

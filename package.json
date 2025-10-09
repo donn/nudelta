@@ -44,7 +44,7 @@
     "main": "index.cjs",
     "cmake-js": {
         "runtime": "electron",
-        "runtimeVersion": "21.2.1"
+        "runtimeVersion": "35.0.3"
     },
     "build": {
         "appId": "website.donn.nudelta",

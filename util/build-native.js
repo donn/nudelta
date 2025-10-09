@@ -11,9 +11,13 @@ async function main() {
 
         let cmakejs = execFile(
             "node",
-            ["./node_modules/cmake-js/bin/cmake-js", "-l", "silly", "-p", os.cpus().length].concat(
-                extraArgs
-            )
+            [
+                "./node_modules/cmake-js/bin/cmake-js",
+                "-l",
+                "silly",
+                "-p",
+                os.cpus().length,
+            ].concat(extraArgs)
         );
 
         cmakejs.stdout.pipe(process.stdout);

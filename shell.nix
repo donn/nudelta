@@ -12,10 +12,7 @@
   udev,
 }:
 (mkShell.override {
-  stdenv =
-    if clangStdenv.isDarwin
-    then darwin.apple_sdk_11_0.stdenv
-    else clangStdenv;
+  stdenv = clangStdenv;
 }) {
   packages =
     [
@@ -26,6 +23,5 @@
       pkg-config
       electron
     ]
-    ++ lib.optionals clangStdenv.isDarwin [darwin.apple_sdk_11_0.frameworks.IOKit darwin.apple_sdk_11_0.frameworks.AppKit]
     ++ lib.optionals clangStdenv.isLinux [udev];
 }
