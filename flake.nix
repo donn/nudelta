@@ -1,5 +1,7 @@
 {
-  inputs.nix-eda.url = "github:fossi-foundation/nix-eda";
+  inputs = {
+    nix-eda.url = "github:fossi-foundation/nix-eda";
+  };
 
   outputs = {
     self,
@@ -13,36 +15,36 @@
       default = pkgs': pkgs: let
         callPackage = lib.callPackageWith pkgs';
       in {
-        nudelta = callPackage ./default.nix {};
+        nudelta = callPackage ./default.nix {src = self;};
       };
     };
 
     legacyPackages = nix-eda.forAllSystems (
-        system:
-          import nixpkgs {
-            inherit system;
-            overlays = [
-              #   self.overlays.default
-            ];
-          }
-      );
+      system:
+        import nixpkgs {
+          inherit system;
+          overlays = [
+            self.overlays.default
+          ];
+        }
+    );
 
     # Outputs
     packages = nix-eda.forAllSystems (
-        system: let
-          pkgs = self.legacyPackages."${system}";
-        in {
-          #   inherit (pkgs) nudelta;
-          #   default = pkgs.nudelta;
-        }
-      );
+      system: let
+        pkgs = self.legacyPackages."${system}";
+      in {
+        inherit (pkgs) nudelta;
+        default = pkgs.nudelta;
+      }
+    );
 
     devShells = nix-eda.forAllSystems (
-        system: let
-          pkgs = self.legacyPackages."${system}";
-        in {
-          default = (lib.callPackageWith pkgs) ./shell.nix {};
-        }
-      );
+      system: let
+        pkgs = self.legacyPackages."${system}";
+      in {
+        default = (lib.callPackageWith pkgs) ./shell.nix {};
+      }
+    );
   };
 }
