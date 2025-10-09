@@ -39,7 +39,7 @@ jobs:
           path: ./nudelta-x64.exe.zip
   linux:
     name: Build (Linux)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
@@ -53,6 +53,10 @@ jobs:
         run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
       - name: Export Branch Name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Get Cmake
+        run: |
+          sudo apt-get remove -y cmake
+          python3 -m pip install 'cmake>=3,<4'
       - name: Build Distribution
         run: |
           docker build -t appimage-build .
@@ -99,7 +103,8 @@ jobs:
           node-version: "22"
       - name: Get Cmake
         run: |
-          brew install cmake
+          brew uninstall cmake
+          python3 -m pip install 'cmake>=3,<4'
       - name: Build Distribution
         run: |
           yarn
