@@ -1,20 +1,22 @@
 {
   src ? ./.,
   lib,
-  nodejs,
-  electron,
   yarnConfigHook,
   yarnBuildHook,
   fetchYarnDeps,
   fetchFromGitHub,
   cmake,
-  clangStdenv,
-  zip,
   pkg-config,
-  udev,
+  ruby,
+  makeWrapper,
+  clangStdenv,
+  nodejs,
+  electron,
   fmt_11,
   yaml-cpp,
   hidapi,
+  ssco,
+  scope_guard,
 }:
 clangStdenv.mkDerivation {
   name = "nudelta";
@@ -23,12 +25,13 @@ clangStdenv.mkDerivation {
 
   nativeBuildInputs = [
     yarnConfigHook
-    yarnBuildHook
     cmake
     pkg-config
+    ruby
+    makeWrapper
   ];
-  
-  buildInputs = [fmt_11 yaml-cpp hidapi] ++ lib.optionals clangStdenv.isLinux [udev];
+
+  buildInputs = [fmt_11 yaml-cpp hidapi ssco scope_guard];
 
   dontUseCmakeConfigure = true;
 
@@ -41,22 +44,25 @@ clangStdenv.mkDerivation {
   };
 
   env = {
-    ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
     NIX_CFLAGS_COMPILE = "-I${nodejs.dev}/include/node";
   };
 
-  preBuild = ''
+  buildPhase = ''
+    runHook preBuild
+
     substituteInPlace node_modules/cmake-js/lib/dist.js \
         --replace-fail '!this.downloaded' 'false'
     cp -R ${electron.dist} electron_dist
     chmod -R u+w electron_dist
-  '';
 
-  buildPhase = ''
-    runHook preBuild
-    yarn build-native
-    yarn build-ui
-    yarn electron-builder \
+    substituteInPlace  node_modules/.bin/rollup \
+      --replace-fail "#!/usr/bin/env node" "#!${nodejs}/bin/node"
+    substituteInPlace  node_modules/.bin/electron-builder \
+      --replace-fail "#!/usr/bin/env node" "#!${nodejs}/bin/node"
+
+    yarn build_native
+    yarn run rollup -c
+    yarn run electron-builder \
         --dir \
         -c.electronDist=electron_dist \
         -c.electronVersion=${electron.version}
@@ -67,7 +73,7 @@ clangStdenv.mkDerivation {
     ''
       runHook preInstall
       mkdir -p $out/bin
-      cp -r build/nudelta $out/bin/nudelta-cli
+      cp -r build/nudelta-cli $out/bin/nudelta-cli
     ''
     + lib.optionalString clangStdenv.isDarwin ''
       mkdir -p $out/Applications
@@ -76,13 +82,7 @@ clangStdenv.mkDerivation {
     ''
     + lib.optionalString clangStdenv.isLinux ''
       mkdir -p "$out/share/nudelta"
-      cp -r pack/*-unpacked/{locales,resources{,.pak}} "$out/share/nudelta"
-
-      pushd assets/generated/icons/png
-      for file in *.png; do
-        install -Dm0644 $file $out/share/icons/hicolor/''${file//.png}/apps/nudelta.png
-      done
-      popd
+      cp -r dist/*-unpacked/{locales,resources{,.pak}} "$out/share/nudelta"
     '';
 
   postFixup = lib.optionalString clangStdenv.isLinux ''

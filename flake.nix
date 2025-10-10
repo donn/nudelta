@@ -15,6 +15,8 @@
       default = pkgs': pkgs: let
         callPackage = lib.callPackageWith pkgs';
       in {
+        scope_guard = callPackage ./nix/scope_guard.nix {};
+        ssco = callPackage ./nix/ssco.nix {};
         nudelta = callPackage ./default.nix {src = self;};
       };
     };
