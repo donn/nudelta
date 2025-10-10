@@ -4,7 +4,7 @@ include(FetchContent)
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  GIT_TAG 0.8.0
+  GIT_REV a83cd31548b19d50f3f983b069dceb4f4d50756d
   GIT_SHALLOW ON
 )
 
