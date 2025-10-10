@@ -1,7 +1,7 @@
 {
     "name": "nudelta",
     "author": "Mohamed Gaber <me@donn.website>",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "license": "GPL-3.0-or-later",
     "homepage": "https://github.com/donn/nudelta#readme",
     "description": "An open-source alternative to the NuPhy Console",
@@ -11,13 +11,14 @@
         "yaml": "^2.1.3"
     },
     "scripts": {
-        "build": "yarn build-native && yarn build-ui && electron-builder --publish never",
-        "build-native": "node util/build-native.js",
-        "build-ui": "rollup -c",
-        "watch": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec sh -c \"yarn build-ui && electron .\"",
-        "watch-win": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec cmd /c \"yarn build-ui && electron .\"",
+        "build": "yarn build_native && yarn build_ui && electron-builder --publish never",
+        "build_native": "node util/build_native.js",
+        "build_ui": "rollup -c",
+        "watch": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec sh -c \"yarn build_ui && electron .\"",
+        "watch_win": "nodemon --ext .js,.mjs,.cjs,.css --ignore ui/app-dist/ --exec cmd /c \"yarn build_ui && electron .\"",
         "format": "prettier --write . && clang-format -i include/*.hpp lib/*.cpp src/*.cpp",
-        "lint": "prettier --check . && clang-format --dry-run --Werror include/*.hpp lib/*.cpp src/*.cpp"
+        "lint": "prettier --check . && clang-format --dry-run --Werror include/*.hpp lib/*.cpp src/*.cpp",
+        "compile_licenses": "node util/compile_licenses.js"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^15.0.0",
@@ -44,7 +45,7 @@
     "main": "index.cjs",
     "cmake-js": {
         "runtime": "electron",
-        "runtimeVersion": "21.2.1"
+        "runtimeVersion": "35.0.3"
     },
     "build": {
         "appId": "website.donn.nudelta",

@@ -195,7 +195,8 @@ async function sendKeyboardInfo(sender) {
             let commands = message.split("\n\n")[1];
             if (commands ?? false) {
                 clipboard.writeText(commands);
-                message += "\n\nThe commands have been copied to the clipboard for your convenience.";
+                message +=
+                    "\n\nThe commands have been copied to the clipboard for your convenience.";
             }
         }
         dialog.showErrorBox(err.kind, message);
@@ -211,12 +212,13 @@ ipcMain.on("write-yaml", async (ev, config) => {
         libnd.setKeymapFromYAML(serialized);
     } catch (err) {
         let message = err.message;
-        console.log(err.kind)
+        console.log(err.kind);
         if (err.kind === "Permissions Error") {
             let commands = message.split("\n\n")[1];
             if (commands ?? false) {
                 clipboard.writeText(commands);
-                message += "\n\nThe commands have been copied to the clipboard for your convenience.";
+                message +=
+                    "\n\nThe commands have been copied to the clipboard for your convenience.";
             }
         }
         dialog.showErrorBox("Failed to Write Configuration", message);

@@ -39,7 +39,7 @@ jobs:
           path: ./nudelta-x64.exe.zip
   linux:
     name: Build (Linux)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
@@ -113,7 +113,7 @@ jobs:
           path: ./nudelta-${{ matrix.os.arch }}.app.dmg
   publish:
     name: Publish
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [macos, linux, windows]
     steps:
       - name: Check out Git repository

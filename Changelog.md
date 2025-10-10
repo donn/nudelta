@@ -1,3 +1,13 @@
+# 0.9.0
+
+This update has no functional changes to Nudelta itself.
+
+- Add Nix derivation
+- Update readme to reflect support status and status of new NuPhy keyboards
+- Nodejs no longer required to build CLI
+- Remove all submodules and replace with `find_package` invocations in CMake
+  with `FetchContent` fallbacks
+
 # 0.8.0
 - Build macOS architectures independently using both Intel and Apple Silicon Mac
   free GitHub Actions runners, rectifying a long-standing issue where writing

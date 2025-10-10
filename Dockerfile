@@ -1,7 +1,7 @@
 FROM quay.io/pypa/manylinux_2_28_x86_64
 
 # Dependencies
-## Python
+## CMake (pip is the most reliable option)
 RUN python3 -m ensurepip
 RUN python3 -m pip install --upgrade pip wheel
 RUN python3 -m pip install cmake
@@ -14,6 +14,9 @@ RUN npm i -g yarn
 
 ## LibUSB
 RUN yum install -y libudev-devel
+
+## Ruby
+RUN yum install -y ruby
 
 ##
 WORKDIR /nudelta
