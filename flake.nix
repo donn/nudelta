@@ -46,12 +46,13 @@
         pkgs = self.legacyPackages."${system}";
       in {
         online = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            udev
-            cmake
-            yarn
-            pkg-config
-          ];
+          buildInputs = with pkgs;
+            [
+              cmake
+              yarn
+              pkg-config
+            ]
+            ++ lib.optionals pkgs.stdenv.isLinux [udev];
         };
       }
     );
