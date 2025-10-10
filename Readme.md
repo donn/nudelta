@@ -55,6 +55,7 @@ Contributions are super appreciated for all of these.
     * Clang recommended for macOS/Linux
     * MSVC recommended for Windows
 * CMake
+* pkg-config
 * Node 22+ with Yarn
 * Ruby 2.0.0+ (glue scripts)
 

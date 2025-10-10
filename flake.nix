@@ -40,5 +40,20 @@
         default = pkgs.nudelta;
       }
     );
+
+    devShells = nix-eda.forAllSystems (
+      system: let
+        pkgs = self.legacyPackages."${system}";
+      in {
+        online = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            udev
+            cmake
+            yarn
+            pkg-config
+          ];
+        };
+      }
+    );
   };
 }

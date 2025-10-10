@@ -30,7 +30,7 @@ endif()
 FetchContent_Declare(
   ssco
   GIT_REPOSITORY https://github.com/donn/ssco
-  GIT_REV 6ebbea4de2f3f47180db8b92f19fc419f2de1d7d
+  GIT_TAG v3.0.1
   GIT_SHALLOW ON
 )
 find_package(ssco QUIET)

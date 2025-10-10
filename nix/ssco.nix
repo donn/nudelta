@@ -6,13 +6,13 @@
 }:
 stdenv.mkDerivation (attrs': {
   pname = "ssco";
-  version = "3.0.0";
+  version = "3.0.1";
 
   src = fetchFromGitHub {
     owner = "donn";
     repo = "ssco";
     rev = "v${attrs'.version}";
-    sha256 = "sha256-qEKMoBRj6jp3x/MIij+Je5QNFm66WueebNzDdWu37iY=";
+    sha256 = "sha256-IxLs3ZkoJx10XPy8mQfcgK4QwvUJjQSaheuXKv+ikEY=";
   };
 
   nativeBuildInputs = [cmake];
