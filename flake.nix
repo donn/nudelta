@@ -38,13 +38,5 @@
         default = pkgs.nudelta;
       }
     );
-
-    devShells = nix-eda.forAllSystems (
-      system: let
-        pkgs = self.legacyPackages."${system}";
-      in {
-        default = (lib.callPackageWith pkgs) ./shell.nix {};
-      }
-    );
   };
 }

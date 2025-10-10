@@ -29,19 +29,8 @@ if(APPLE)
         set(THREADS_PREFER_PTHREAD_FLAG ON)
 endif()
 
-# Hidapi does not use `option`
-set(HIDAPI_WITH_LIBUSB FALSE)
-set(HIDAPI_WITH_HIDRAW TRUE)
-add_subdirectory(submodules/hidapi)
-
-option(YAML_CPP_BUILD_TOOLS OFF)
-add_subdirectory(submodules/yaml-cpp)
-
-add_subdirectory(submodules/scope_guard)
-
-add_subdirectory(submodules/fmt)
-
-add_subdirectory(submodules/ssco)
+# Dependencies
+include(third_party/CMakeLists.txt)
 
 # Common
 include_directories(include)

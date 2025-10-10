@@ -10,6 +10,11 @@
   cmake,
   clangStdenv,
   zip,
+  pkg-config,
+  udev,
+  fmt_11,
+  yaml-cpp,
+  hidapi,
 }:
 clangStdenv.mkDerivation {
   name = "nudelta";
@@ -20,7 +25,10 @@ clangStdenv.mkDerivation {
     yarnConfigHook
     yarnBuildHook
     cmake
+    pkg-config
   ];
+  
+  buildInputs = [fmt_11 yaml-cpp hidapi] ++ lib.optionals clangStdenv.isLinux [udev];
 
   dontUseCmakeConfigure = true;
 
