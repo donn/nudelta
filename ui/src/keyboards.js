@@ -50,6 +50,230 @@ class Key {
     }
 }
 
+export const Air60 = {
+    keycodes,
+    getLayout(mode) {
+        let mac = mode === "mac";
+        return [
+            [
+                new Key({ id: "esc", color: "mint", name: "Escape" }),
+                new Key({ id: "num1", label: "1", altLabel: "!" }),
+                new Key({ id: "num2", label: "2", altLabel: "@" }),
+                new Key({ id: "num3", label: "3", altLabel: "#" }),
+                new Key({ id: "num4", label: "4", altLabel: "$" }),
+                new Key({ id: "num5", label: "5", altLabel: "%" }),
+                new Key({ id: "num6", label: "6", altLabel: "^" }),
+                new Key({ id: "num7", label: "7", altLabel: "&" }),
+                new Key({ id: "num8", label: "8", altLabel: "*" }),
+                new Key({ id: "num9", label: "9", altLabel: "(" }),
+                new Key({ id: "num0", label: "0", altLabel: ")" }),
+                new Key({ id: "minus", label: "-", altLabel: "_" }),
+                new Key({ id: "equal", label: "=", altLabel: "+" }),
+                new Key({ id: "backspace", width: 2.0, color: "gray" }),
+            ],
+            [
+                new Key({ id: "tab", width: 1.5, color: "gray" }),
+                new Key({ id: "q" }),
+                new Key({ id: "w" }),
+                new Key({ id: "e" }),
+                new Key({ id: "r" }),
+                new Key({ id: "t" }),
+                new Key({ id: "y" }),
+                new Key({ id: "u" }),
+                new Key({ id: "i" }),
+                new Key({ id: "o" }),
+                new Key({ id: "p" }),
+                new Key({
+                    id: "lbracket",
+                    label: "[",
+                    name: "Left Bracket",
+                    altLabel: "{",
+                }),
+                new Key({
+                    id: "rbracket",
+                    label: "]",
+                    name: "Right Bracket",
+                    altLabel: "}",
+                }),
+                new Key({
+                    id: "backslash",
+                    label: "\\",
+                    width: 1.5,
+                    name: "Backslash",
+                    altLabel: "|",
+                }),
+            ],
+            [
+                new Key({
+                    id: "capslock",
+                    label: "CAPS",
+                    name: "Caps Lock",
+                    width: 1.75,
+                    color: "gray",
+                }),
+                new Key({ id: "a" }),
+                new Key({ id: "s" }),
+                new Key({ id: "d" }),
+                new Key({ id: "f" }),
+                new Key({ id: "g" }),
+                new Key({ id: "h" }),
+                new Key({ id: "j" }),
+                new Key({ id: "k" }),
+                new Key({ id: "l" }),
+                new Key({
+                    id: "semicolon",
+                    label: ";",
+                    name: "Semicolon",
+                    altLabel: ":",
+                }),
+                new Key({
+                    id: "quote",
+                    label: "'",
+                    name: "Quote",
+                    altLabel: '"',
+                }),
+                new Key({ id: "enter", width: 2.25, color: "orange" }),
+            ],
+            [
+                new Key({
+                    id: "lshift",
+                    label: "SHIFT",
+                    name: "Left Shift",
+                    width: 2.25,
+                    color: "gray",
+                }),
+                new Key({ id: "z" }),
+                new Key({ id: "x" }),
+                new Key({ id: "c" }),
+                new Key({ id: "v" }),
+                new Key({ id: "b" }),
+                new Key({ id: "n" }),
+                new Key({ id: "m" }),
+                new Key({
+                    id: "comma",
+                    label: ",",
+                    name: "Comma",
+                    altLabel: "<",
+                }),
+                new Key({
+                    id: "period",
+                    label: ".",
+                    name: "Period",
+                    altLabel: ">",
+                }),
+                new Key({
+                    id: "fwdslash",
+                    label: "/",
+                    name: "Slash",
+                    altLabel: "?",
+                }),
+                new Key({
+                    id: "rshift",
+                    label: "SHIFT",
+                    name: "Right Shift",
+                    width: 1.75,
+                    color: "gray",
+                }),
+                new Key({
+                    id: "up",
+                    label: "˄",
+                    name: "Up Arrow",
+                    color: "gray",
+                }),
+            ],
+            [
+                new Key({
+                    id: "lctrl",
+                    label: "CTRL",
+                    name: "Left Control",
+                    width: 1.25,
+                    color: "gray",
+                }),
+                mac
+                    ? new Key({
+                          id: "lalt",
+                          label: "OPT",
+                          name: "Left Alt/Option",
+                          width: 1.25,
+                          color: "gray",
+                      })
+                    : new Key({
+                          id: "lmeta",
+                          label: "WIN",
+                          name: "Left Meta",
+                          width: 1.25,
+                          color: "gray",
+                      }),
+                mac
+                    ? new Key({
+                          id: "lmeta",
+                          label: "CMD",
+                          name: "Left Meta",
+                          width: 1.25,
+                          color: "gray",
+                      })
+                    : new Key({
+                          id: "lalt",
+                          label: "ALT",
+                          name: "Left Alt/Option",
+                          width: 1.25,
+                          color: "gray",
+                      }),
+                new Key({
+                    id: "space",
+                    label: "",
+                    name: "Spacebar",
+                    width: 6.25,
+                    color: "yellow",
+                }),
+                mac
+                    ? new Key({
+                          id: "rmeta",
+                          label: "CMD",
+                          name: "Right Meta",
+                          width: 1,
+                          color: "gray",
+                      })
+                    : new Key({
+                          id: "ralt",
+                          label: "ALT",
+                          name: "Right Alt/Option",
+                          width: 1,
+                          color: "gray",
+                      }),
+                new Key({
+                    id: "fn",
+                    width: 1,
+                    color: "gray",
+                    name: "Function",
+                    remappable: false,
+                }),
+                new Key({
+                    id: "left",
+                    label: "˂",
+                    name: "Left Arrow",
+                    width: 1,
+                    color: "gray",
+                }),
+                new Key({
+                    id: "down",
+                    label: "˅",
+                    name: "Down Arrow",
+                    width: 1,
+                    color: "gray",
+                }),
+                new Key({
+                    id: "right",
+                    label: "˃",
+                    name: "Right Arrow",
+                    width: 1,
+                    color: "gray",
+                }),
+            ],
+        ];
+    },
+};
+
 export const Air75 = {
     keycodes,
     getLayout(mode) {
@@ -785,6 +1009,7 @@ export const Halo75 = {
 };
 
 export default {
+    Air60,
     Air75,
     Halo75,
 };

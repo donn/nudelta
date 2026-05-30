@@ -1,0 +1,111 @@
+# dict indicesByKeyNameMac
+capslock: 3
+lctrl: 5
+lshift: 4
+lalt: 11
+lmeta: 17
+rshift: 82
+rmeta: 53
+fn: 59
+
+up: 149
+down: 150
+left: 151
+right: 152
+
+pgup: 91
+pgdn: 92
+home: 93
+end: 100
+
+enter: 81
+tab: 2
+space: 35
+backspace: 79
+
+esc: 0
+del: 90
+
+grave: 215
+num1: 132
+num2: 133
+num3: 134
+num4: 135
+num5: 136
+num6: 137
+num7: 138
+num8: 139
+num9: 140
+num0: 141
+minus: 142
+equal: 143
+
+a: 9
+b: 34
+c: 163
+d: 21
+e: 147
+f: 161
+g: 162
+h: 39
+i: 50
+j: 45
+k: 51
+l: 57
+m: 46
+"n": 40
+o: 56
+p: 62
+q: 145
+r: 148
+s: 15
+t: 32
+u: 44
+v: 166
+w: 146
+x: 158
+"y": 38
+z: 10
+
+semicolon: 63
+quote: 69
+lbracket: 68
+rbracket: 159
+backslash: 160
+fwdslash: 64
+comma: 164
+period: 165
+
+# -- Function Keys
+f1: 6
+f2: 12
+f3: 18
+f4: 24
+f5: 30
+f6: 36
+f7: 42
+f8: 48
+f9: 54
+f10: 60
+f11: 66
+f12: 72
+
+# -- Function Keys (Alternative keycode when Fn is held)
+fn_f1: 180
+fn_f2: 181
+fn_f3: 182
+fn_f4: 183
+fn_f5: 184
+fn_f6: 185
+fn_f7: 186
+fn_f8: 187
+fn_f9: 188
+fn_f10: 189
+fn_f11: 190
+fn_f12: 191
+
+# -- Fn Combinations
+fn_up: 197
+fn_down: 198
+fn_left: 199
+fn_right: 200
