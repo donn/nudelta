@@ -1,7 +1,7 @@
 > NuPhy® is a registered trademark of NuPhy Studio.
 > Nudelta is an unofficial product and is not affiliated with NuPhy Studio.
 >
-> Nudelta only supports Air75/Halo75 V1.
+> Nudelta only supports Air60/Air75/Halo75 V1.
 >
 > * For V1 of the Halo line (65/75/90), try [Nuga](https://github.com/mishamyrt/nuga-app)
 > * For Air75/Halo75 V2: Use QMK/VIA (open-source), see https://nuphy.com/pages/via-usage-guide-for-nuphy-keyboards
@@ -26,14 +26,14 @@
 An open-source alternative to the [NuPhy Console](https://nuphy.com/pages/nuphy-console) created by reverse-engineering the keyboards' USB protocol.
 
 What this has:
-* Support for NuPhy Air75 V1 and Halo75 V1 on Windows 10+, macOS 11.3+, and Linux
+* Support for NuPhy Air75 V1, Air60 V1 (limited) and Halo75 V1 on Windows 10+, macOS 11.3+, and Linux
 * Loading and saving keymap modifications from a `.yml` configuration file
 * The ability to back up and dump keymaps to binary formats (CLI)
 * The ability to dump keymaps to a human-readable hex format (CLI)
 
 What this DOESN'T have:
 * Macros
-* Support for Air60, Halo65, etc.
+* Multi-layer remapping for Air60 and any support for other keyboards
     * I don't have them.
 * Support for keyboards that do not use the NuPhy Console (incl. Air75 V2/V3/HE)
     * They use a different protocol.
@@ -46,7 +46,7 @@ Contributions are super appreciated for all of these.
 ## Running Requirements
 
 * Windows 10 or higher
-* macOS 11.3+ or higher (Intel or Apple Silicon)
+* macOS 12 or higher (Intel or Apple Silicon)
 * Linux 2.6.39 or higher with glibc 2.17 or higher.
 
 ### Build/Development Requirements
@@ -64,7 +64,6 @@ Contributions are super appreciated for all of these.
 ```sh
 git clone https://github.com/donn/nudelta
 cd nudelta
-git submodule update --init --recursive
 rm -rf build
 yarn
 yarn build_native # CLI / Library

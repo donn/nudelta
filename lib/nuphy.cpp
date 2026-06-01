@@ -324,16 +324,6 @@ std::vector< uint32_t > NuPhy::getKeymap(bool mac) {
     return std::vector< uint32_t >(start_pointer, end_pointer);
 }
 
-static void finalizeAir60Keymap(
-    const std::string &name,
-    std::vector< uint32_t > &keymap
-) {
-    if (name != "Air60") {
-        return;
-    }
-    keymap[167] = keymap[0];
-}
-
 void NuPhy::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     auto handles = getHandles();
     SCOPE_EXIT {
@@ -513,18 +503,21 @@ void NuPhy::setKeymapFromYAML(const std::string &yamlString) {
             }
         }
 
-        finalizeAir60Keymap(getName(), writableKeymap);
-
         setKeymap(writableKeymap, mac);
     }
 }
 
 void NuPhy::resetKeymap() {
     auto keymapWin = getDefaultKeymap(false);
-    finalizeAir60Keymap(getName(), keymapWin);
     setKeymap(keymapWin, false);
 
     auto keymapMac = getDefaultKeymap(true);
-    finalizeAir60Keymap(getName(), keymapMac);
     setKeymap(keymapMac, true);
+}
+
+// Air60: Finalize keymap before set
+void Air60::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
+    auto keymap_copy = keymap;
+    keymap_copy[167] = keymap_copy[0];
+    NuPhy::setKeymap(keymap_copy, mac);
 }

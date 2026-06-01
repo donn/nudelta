@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: true
@@ -21,7 +21,7 @@ jobs:
         run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
       - name: Export Branch Name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
       - name: Build Distribution
@@ -33,7 +33,7 @@ jobs:
           Compress-Archive *.exe .\nudelta-x64.exe.zip
           cp .\nudelta-x64.exe.zip ..
       - name: Upload App
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-app
           path: ./nudelta-x64.exe.zip
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: true
@@ -72,21 +72,21 @@ jobs:
         os:
           [
             {
-              name: "macOS 13",
+              name: "macOS 15 (Intel)",
               family: "macos",
-              runner: "macos-13",
+              runner: "macos-15-intel",
               arch: "x86_64",
             },
             {
-              name: "macOS 14",
+              name: "macOS 15 (Apple Silicon)",
               family: "macos",
-              runner: "macos-14",
+              runner: "macos-15",
               arch: "arm64",
             },
           ]
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: true
@@ -117,7 +117,7 @@ jobs:
     needs: [macos, linux, windows]
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Export Repo URL
@@ -127,22 +127,22 @@ jobs:
       - name: Set default for env.NEW_TAG
         run: echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
       - name: Download Linux App
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-appimage
           path: /tmp
       - name: Download Mac App
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: mac-app-x86_64
           path: /tmp
       - name: Download Mac App
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: mac-app-arm64
           path: /tmp
       - name: Download Windows App
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: win-app
           path: /tmp
@@ -161,7 +161,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.NEW_TAG }}
-          body: >
+          body: |
             Changelog: https://github.com/donn/nudelta/blob/main/Changelog.md
 
             ![Screencap](https://raw.githubusercontent.com/donn/nudelta/main/res/screencap.png)
@@ -173,11 +173,13 @@ jobs:
             drag Nudelta into your Applications folder. The app is not
             code-signed or notarized, so you will have to run this in your
             terminal before opening it:
-            `sudo xattr -cr /Applications/nudelta.app`
+
+            - `sudo xattr -cr /Applications/nudelta.app`
 
             On Linux, download the `.AppImage`, enable "allow executing file as
             program" in its properties (shown below), then double-click it.
-            * You may need to install `libudev` separately- on Ubuntu, you can
+            
+            - You may need to install `libudev` separately. On Ubuntu, you can
               run `sudo apt-get install -y libudev`.
 
             ![Setting Linux execute permission with the GNOME File Browser](https://raw.githubusercontent.com/donn/nudelta/main/res/linux_exec_permission.png)
