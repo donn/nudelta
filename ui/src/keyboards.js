@@ -139,7 +139,7 @@ export const Air60 = {
                     id: "lshift",
                     label: "SHIFT",
                     name: "Left Shift",
-                    width: 2.25,
+                    width: 2.0,
                     color: "gray",
                 }),
                 new Key({ id: "z" }),
@@ -171,7 +171,7 @@ export const Air60 = {
                     id: "rshift",
                     label: "SHIFT",
                     name: "Right Shift",
-                    width: 1.75,
+                    width: 1.0,
                     color: "gray",
                 }),
                 new Key({
@@ -180,6 +180,7 @@ export const Air60 = {
                     name: "Up Arrow",
                     color: "gray",
                 }),
+                new Key({ id: "del", color: "gray", name: "Delete" }),
             ],
             [
                 new Key({

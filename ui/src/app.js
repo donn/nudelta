@@ -533,7 +533,9 @@ function onClickModifier(event) {
  */
 function onClickKey(event) {
     window.lastKey = window.currentKey;
-    window.currentKey = JSON.parse(event.target.getAttribute("data"));
+    window.currentKey = JSON.parse(
+        event.currentTarget.getAttribute("data")
+    );
     if (window.lastKey && window.lastKey.id == window.currentKey.id) {
         window.clickCount += 1;
     } else {

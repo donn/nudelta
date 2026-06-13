@@ -519,5 +519,6 @@ void NuPhy::resetKeymap() {
 void Air60::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
     auto keymap_copy = keymap;
     keymap_copy[167] = keymap_copy[0];
+    keymap_copy[94] = keymap_copy[90];
     NuPhy::setKeymap(keymap_copy, mac);
 }
