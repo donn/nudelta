@@ -39,7 +39,7 @@ class NuPhy { // Abstract
         }
 
         std::vector< uint32_t > getKeymap(bool mac = false);
-        void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
+        virtual void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
         void setKeymapFromYAML(const std::string &yamlString);
         void resetKeymap();
 
@@ -117,6 +117,48 @@ class Air75 : public NuPhy {
                              {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00}
                          );
         }
+    private:
+        static const std::vector< uint32_t > defaultKeymapWin;
+        static const std::unordered_map< std::string, uint32_t >
+            indicesByKeyNameWin;
+
+        static const std::vector< uint32_t > defaultKeymapMac;
+        static const std::unordered_map< std::string, uint32_t >
+            indicesByKeyNameMac;
+};
+
+class Air60 : public NuPhy {
+    public:
+        Air60(std::string dataPath, std::string requestPath, uint16_t firmware)
+            : NuPhy(dataPath, requestPath, firmware) {}
+
+        virtual std::string getName() { return "Air60"; }
+        virtual std::vector< uint32_t > getDefaultKeymap(bool mac = false) {
+            return mac ? Air60::defaultKeymapMac : Air60::defaultKeymapWin;
+        }
+        virtual std::unordered_map< std::string, uint32_t >
+        getIndicesByKeyName(bool mac = false) {
+            return mac ? Air60::indicesByKeyNameMac :
+                         Air60::indicesByKeyNameWin;
+        }
+        virtual std::vector< uint8_t > getKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                             {0x05, 0x84, 0xd4, 0x00, 0x00, 0x00}
+                         ) :
+                         std::vector< uint8_t >(
+                             {0x05, 0x84, 0xd8, 0x00, 0x00, 0x00}
+                         );
+        }
+        virtual std::vector< uint8_t > setKeymapReportHeader(bool mac = false) {
+            return mac ? std::vector< uint8_t >(
+                             {0x06, 0x04, 0xd4, 0x00, 0x40, 0x00, 0x00, 0x00}
+                         ) :
+                         std::vector< uint8_t >(
+                             {0x06, 0x04, 0xd8, 0x00, 0x40, 0x00, 0x00, 0x00}
+                         );
+        }
+        // Air60 requires the keymap to be normalized first
+        virtual void setKeymap(const std::vector< uint32_t > &keymap, bool mac = false);
     private:
         static const std::vector< uint32_t > defaultKeymapWin;
         static const std::unordered_map< std::string, uint32_t >

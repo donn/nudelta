@@ -133,6 +133,9 @@ static std::shared_ptr< NuPhy > createKeyboard(
     if (name == "Air75" || !verify) {
         return std::make_shared< Air75 >(dataPath, requestPath, firmware);
     }
+    if (name == "Air60") {
+        return std::make_shared< Air60 >(dataPath, requestPath, firmware);
+    }
     if (name == "NuPhy Halo75") {
         return std::make_shared< Halo75 >(dataPath, requestPath, firmware);
     }
@@ -505,6 +508,17 @@ void NuPhy::setKeymapFromYAML(const std::string &yamlString) {
 }
 
 void NuPhy::resetKeymap() {
-    setKeymap(getDefaultKeymap(false), false);
-    setKeymap(getDefaultKeymap(true), true);
+    auto keymapWin = getDefaultKeymap(false);
+    setKeymap(keymapWin, false);
+
+    auto keymapMac = getDefaultKeymap(true);
+    setKeymap(keymapMac, true);
+}
+
+// Air60: Finalize keymap before set
+void Air60::setKeymap(const std::vector< uint32_t > &keymap, bool mac) {
+    auto keymap_copy = keymap;
+    keymap_copy[167] = keymap_copy[0];
+    keymap_copy[94] = keymap_copy[90];
+    NuPhy::setKeymap(keymap_copy, mac);
 }

@@ -1,3 +1,11 @@
+# 0.10.0
+
+This update adds basic remapping support for the Air60 implemented by
+[@torburg](https://github.com/torburg).
+
+Unlike Air75, only the base layer can be remapped. There is currently no support
+for the Fn layer.
+
 # 0.9.0
 
 This update has no functional changes to Nudelta itself.
