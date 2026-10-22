@@ -7,6 +7,10 @@
 > * For Air75/Halo75 V2: Use QMK/VIA (open-source), see https://nuphy.com/pages/via-usage-guide-for-nuphy-keyboards
 > * For later Air75 keyboards (including HE), Use [nuphy.io](https://nuphy.io) (proprietary).
 
+> Also check out Nupsi, a port of Nudelta to the web by Antoine Pelletier: https://github.com/apelleti/nupsi
+
+---
+
 <h1 align="center"> ν∂ / Nudelta </h1>
 <p align="center">
     <a href="https://opensource.org/licenses/GPL-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPLv3"/></a>
