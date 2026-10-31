@@ -1,0 +1,111 @@
+# dict indicesByKeyNameWin
+capslock: 3
+lctrl: 5
+lshift: 4
+lmeta: 11
+lalt: 17
+rctrl: 65
+rshift: 82
+ralt: 53
+fn: 59
+
+ins: 90
+home: 91
+end: 92
+pgup: 93
+pgdn: 94
+
+enter: 81
+tab: 2
+space: 35
+backspace: 79
+
+esc: 147
+del: 84
+
+grave: 1
+num1: 164
+num2: 165
+num3: 166
+num4: 167
+num5: 31
+num6: 37
+num7: 43
+num8: 49
+num9: 55
+num0: 61
+
+a: 9
+b: 169
+c: 162
+d: 21
+e: 20
+f: 176
+g: 145
+h: 168
+i: 50
+j: 45
+k: 51
+l: 57
+m: 46
+"n": 170
+o: 56
+p: 62
+q: 8
+r: 26
+s: 15
+t: 32
+u: 44
+v: 163
+w: 14
+x: 161
+"y": 38
+z: 10
+
+semicolon: 63
+minus: 174
+equal: 175
+quote: 69
+lbracket: 178
+rbracket: 179
+backslash: 177
+fwdslash: 173
+comma: 171
+period: 172
+
+# -- Non-standard
+screenshot: 78
+
+# -- Fn Combinations
+fn_up: 197
+fn_down: 198
+fn_left: 199
+fn_right: 200
+
+# -- Function Keys
+f1: 132
+f2: 133
+f3: 134
+f4: 135
+f5: 136
+f6: 137
+f7: 138
+f8: 139
+f9: 140
+f10: 141
+f11: 142
+f12: 143
+
+# -- Multimedia Keys
+brightnessdown: 180
+brightnessup: 181
+missioncontrol: 182
+launchpad: 183
+voice_command: 184
+search: 185
+rewind: 186
+playpause: 187
+forward: 188
+mute: 189
+volumedown: 190
+volumeup: 191
