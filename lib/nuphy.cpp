@@ -178,10 +178,11 @@ std::string requestCol = "col05";
 std::string dataCol = "col06";
 
 std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
-    auto seeker = hid_enumerate(0x05ac, 0x024f);
+    auto *const enumeration = hid_enumerate(0x05ac, 0x024f);
     SCOPE_EXIT {
-        hid_free_enumeration(seeker);
+        hid_free_enumeration(enumeration);
     };
+    auto seeker = enumeration;
 
     uint16_t firmware = 0x0;
     std::string manufacturerString = "";
@@ -246,10 +247,11 @@ std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
 std::shared_ptr< NuPhy > NuPhy::find(bool verify) {
     std::shared_ptr< NuPhy > keyboard;
 
-    auto seeker = hid_enumerate(0x05ac, 0x024f);
+    auto *const enumeration = hid_enumerate(0x05ac, 0x024f);
     SCOPE_EXIT {
-        hid_free_enumeration(seeker);
+        hid_free_enumeration(enumeration);
     };
+    auto seeker = enumeration;
 
     bool unsupportedDetected = false;
     bool multipleWarned = false;
