@@ -4,8 +4,7 @@ include(FetchContent)
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  GIT_REV a83cd31548b19d50f3f983b069dceb4f4d50756d
-  GIT_SHALLOW ON
+  GIT_TAG a83cd31548b19d50f3f983b069dceb4f4d50756d
 )
 
 find_package(yaml-cpp QUIET)
@@ -18,8 +17,7 @@ endif()
 FetchContent_Declare(
   scope_guard
   GIT_REPOSITORY https://github.com/Neargye/scope_guard
-  GIT_REV 05494fbbc3ec01a93b31c2b1c830b552f5ba08f4
-  GIT_SHALLOW ON
+  GIT_TAG 05494fbbc3ec01a93b31c2b1c830b552f5ba08f4
 )
 find_package(scope_guard QUIET)
 if (NOT scope_guard_FOUND)
@@ -42,8 +40,7 @@ endif()
 FetchContent_Declare(
   hidapi
   GIT_REPOSITORY https://github.com/libusb/hidapi
-  GIT_REV 9904cbea94b9f7268a4bb526a1d32ac36e699aee
-  GIT_SHALLOW ON
+  GIT_TAG 9904cbea94b9f7268a4bb526a1d32ac36e699aee
 )
 
 find_package(hidapi QUIET)
